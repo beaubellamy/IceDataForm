@@ -7,7 +7,7 @@ using Globalsettings;
 
 namespace IceDataForm2
 {
-    class Processing
+    public class Processing
     {
         Tools tool = new Tools();
 
@@ -88,7 +88,7 @@ namespace IceDataForm2
         }
 
         /// <summary>
-        /// Populate the Setting parameters.
+        /// Populate the Setting parameters from the form profived.
         /// </summary>
         /// <param name="form">The Form object containg the form parameters.</param>
         public void populateFormParameters(Form1 form)
@@ -112,6 +112,36 @@ namespace IceDataForm2
             Settings.underpoweredUpperBound = form.getUnderpoweredUpperBound();
             Settings.overpoweredLowerBound = form.getOvderpoweredLowerBound();
             Settings.overpoweredUpperBound = form.getOvderpoweredUpperBound();
+
+
+        }
+        
+        /// <summary>
+        /// Validate the form parameters are not null
+        /// </summary>
+        /// <returns></returns>
+        public bool areFormParametersValid()
+        {
+            if (Settings.dateRange == null ||
+            Settings.topLeftLocation == null ||
+            Settings.bottomRightlocation == null ||
+            Settings.includeAListOfTrainsToExclude == null ||
+            Settings.startKm == null ||
+            Settings.endKm == null ||
+            Settings.interval == null ||
+            Settings.minimumJourneyDistance == null ||
+            Settings.loopSpeedThreshold == null ||
+            Settings.loopBoundaryThreshold == null ||
+            Settings.TSRwindowBounday == null ||
+            Settings.timeThreshold == null ||
+            Settings.distanceThreshold == null ||
+            Settings.underpoweredLowerBound == null ||
+            Settings.underpoweredUpperBound == null ||
+            Settings.overpoweredLowerBound == null ||
+            Settings.overpoweredUpperBound == null)
+                return false;
+
+            return true;
 
 
         }
@@ -237,9 +267,6 @@ namespace IceDataForm2
         /// </summary>
         /// <param name="trains">List of train objects containing the parameters for each train journey.</param>
         /// <param name="trackGeometry">The list of Track geometry data to align the train location.</param>
-        /// <param name="startKm">Starting kilometreage for the interpolation.</param>
-        /// <param name="endKm">End kilometerage for the interpolation.</param>
-        /// <param name="interval">interpolation interval, specified in metres.</param>
         /// <returns>List of train objects with interpolated values at the specified interval.</returns>
         public List<Train> interpolateTrainData(List<Train> trains, List<TrackGeometry> trackGeometry)
         {
@@ -280,144 +307,69 @@ namespace IceDataForm2
                 List<InterpolatedTrain> interpolatedTrainList = new List<InterpolatedTrain>();
 
                 journey = trains[trainIdx].TrainJourney;
-                //powerToWeight = journey[trainIdx].powerToWeight;
 
-                if (journey[0].trainDirection == direction.increasing)
+                /* Set the start of the interpolation. */
+                currentKm = Settings.startKm;
+
+                while (currentKm < Settings.endKm)
                 {
-                    /* Set the start of the interpolation. */
-                    currentKm = Settings.startKm;
+                    /* Find the closest kilometerage markers either side of the current interpoaltion point. */
+                    index0 = findClosestLowerKm(currentKm, journey);
+                    index1 = findClosestGreaterKm(currentKm, journey);
 
-                    while (currentKm < Settings.endKm)
+                    /* If a valid index is found, extract the existing journey parameters and interpolate. */
+                    if (index0 >= 0 && index1 >= 0)
                     {
-                        /* Find the closest kilometerage markers either side of the current interpoaltion point. */
-                        index0 = findClosestLowerKm(currentKm, journey);
-                        index1 = findClosestGreaterKm(currentKm, journey);
-
-                        /* If a valid index is found, extract the existing journey parameters and interpolate. */
-                        if (index0 >= 0 && index1 >= 0)
+                        X0 = journey[index0].geometryKm;
+                        X1 = journey[index1].geometryKm;
+                        Y0 = journey[index0].speed;
+                        Y1 = journey[index1].speed;
+                        if (timeChange)
                         {
-                            X0 = journey[index0].geometryKm;
-                            X1 = journey[index1].geometryKm;
-                            Y0 = journey[index0].speed;
-                            Y1 = journey[index1].speed;
-                            if (timeChange)
-                            {
-                                time = journey[index0].NotificationDateTime;
-                                timeChange = false;
-                            }
-
-                            /* Perform linear interpolation. */
-                            interpolatedSpeed = linear(currentKm, X0, X1, Y0, Y1);
-                            /* Interpolate the time. */
-                            time = time.AddHours(calculateTimeInterval(previousKm, currentKm, interpolatedSpeed));
-
-                        }
-                        else
-                        {
-                            /* Boundary conditions for interpolating the data prior to and beyond the existing journey points. */
-                            time = new DateTime(2000, 1, 1);
-                            interpolatedSpeed = 0;
-
+                            time = journey[index0].NotificationDateTime;
+                            timeChange = false;
                         }
 
-                        /* Determine if we need to extract the time from the data or interpolate it. */
-                        if (index1 >= 0)
-                            if (currentKm >= journey[index1].geometryKm)
-                                timeChange = true;
+                        /* Perform linear interpolation. */
+                        interpolatedSpeed = linear(currentKm, X0, X1, Y0, Y1);
+                        /* Interpolate the time. */
+                        time = time.AddHours(calculateTimeInterval(previousKm, currentKm, interpolatedSpeed));
 
-                        geometryIdx = trackGeometry[0].findClosestTrackGeometryPoint(trackGeometry, currentKm);
-
-                        if (geometryIdx >= 0)
-                        {
-                            /* Check if there is a loop at this location. */
-                            loop = trackGeometry[geometryIdx].isLoopHere;
-
-                            /* Check if there is a TSR at this location. */
-                            TSR = trackGeometry[geometryIdx].isTSRHere;
-                            TSRspeed = trackGeometry[geometryIdx].temporarySpeedRestriction;
-                        }
-
-                        /* Create the interpolated data object and add it to the list. */
-                        InterpolatedTrain item = new InterpolatedTrain(trains[trainIdx].TrainJourney[0].TrainID, trains[trainIdx].TrainJourney[0].LocoID,
-                                                                        powerToWeight, time, currentKm, interpolatedSpeed, loop, TSR, TSRspeed);
-                        interpolatedTrainList.Add(item);
-
-                        /* Create a copy of the current km marker and increment. */
-                        previousKm = currentKm;
-                        currentKm = currentKm + Settings.interval / 1000;
+                    }
+                    else
+                    {
+                        /* Boundary conditions for interpolating the data prior to and beyond the existing journey points. */
+                        time = new DateTime(2000, 1, 1);
+                        interpolatedSpeed = 0;
 
                     }
 
-                }
-                else if (journey[0].trainDirection == direction.decreasing)
-                {
-                    /* Set the start of the interpolation. */
-                    currentKm = Settings.endKm;
+                    /* Determine if we need to extract the time from the data or interpolate it. */
+                    if (index1 >= 0)
+                        if (currentKm >= journey[index1].geometryKm)
+                            timeChange = true;
 
-                    while (currentKm > Settings.startKm)
+                    geometryIdx = trackGeometry[0].findClosestTrackGeometryPoint(trackGeometry, currentKm);
+
+                    if (geometryIdx >= 0)
                     {
-                        /* Find the closest kilometerage markers either side of the current interpoaltion point. */
-                        index0 = findClosestLowerKm(currentKm, journey);
-                        index1 = findClosestGreaterKm(currentKm, journey);
+                        /* Check if there is a loop at this location. */
+                        loop = trackGeometry[geometryIdx].isLoopHere;
 
-                        /* If a valid index is found, extract the existing journey parameters and interpolate. */
-                        if (index0 >= 0 && index1 >= 0)
-                        {
-                            X0 = journey[index0].geometryKm;
-                            X1 = journey[index1].geometryKm;
-                            Y0 = journey[index0].speed;
-                            Y1 = journey[index1].speed;
-                            if (timeChange)
-                            {
-                                time = journey[index0].NotificationDateTime;
-                                timeChange = false;
-                            }
-
-                            /* Perform linear interpolation. */
-                            interpolatedSpeed = linear(currentKm, X0, X1, Y0, Y1);
-                            /* Interpolate the time. */
-                            time = time.AddHours(calculateTimeInterval(previousKm, currentKm, interpolatedSpeed));
-
-                        }
-                        else
-                        {
-                            /* Boundary conditions for interpolating the data prior to and beyond the existing journey points. */
-                            time = new DateTime(2000, 1, 1);
-                            interpolatedSpeed = 0;
-                        }
-
-                        /* Determine if we need to extract the time from the data or interpolate it. */
-                        if (index0 >= 0)
-                            if (currentKm <= journey[index0].geometryKm)
-                                timeChange = true;
-
-                        geometryIdx = trackGeometry[0].findClosestTrackGeometryPoint(trackGeometry, currentKm);
-
-                        if (geometryIdx >= 0)
-                        {
-                            /* Check if there is a loop at this location. */
-                            loop = trackGeometry[geometryIdx].isLoopHere;
-
-                            /* Check if there is a TSR at this location. */
-                            TSR = trackGeometry[geometryIdx].isTSRHere;
-                            TSRspeed = trackGeometry[geometryIdx].temporarySpeedRestriction;
-                        }
-
-                        /* Create the interpolated data object and add it to the list. */
-                        InterpolatedTrain item = new InterpolatedTrain(trains[trainIdx].TrainJourney[0].TrainID, trains[trainIdx].TrainJourney[0].LocoID,
-                                                                        powerToWeight, time, currentKm, interpolatedSpeed, loop, TSR, TSRspeed);
-                        interpolatedTrainList.Add(item);
-
-                        /* Create a copy of the current km marker and increment. */
-                        previousKm = currentKm;
-                        currentKm = currentKm - Settings.interval / 1000;
-
+                        /* Check if there is a TSR at this location. */
+                        TSR = trackGeometry[geometryIdx].isTSRHere;
+                        TSRspeed = trackGeometry[geometryIdx].temporarySpeedRestriction;
                     }
 
-                }
-                else
-                {
-                    /* The train direction is not defined. */
+                    /* Create the interpolated data object and add it to the list. */
+                    InterpolatedTrain item = new InterpolatedTrain(trains[trainIdx].TrainJourney[0].TrainID, trains[trainIdx].TrainJourney[0].LocoID,
+                                                                    powerToWeight, time, currentKm, interpolatedSpeed, loop, TSR, TSRspeed);
+                    interpolatedTrainList.Add(item);
+
+                    /* Create a copy of the current km marker and increment. */
+                    previousKm = currentKm;
+                    currentKm = currentKm + Settings.interval / 1000;
+
                 }
 
                 /* Add the interpolated list to the list of new train objects. */
@@ -837,7 +789,7 @@ namespace IceDataForm2
                 }
 
                 if (speed.Count == 0)
-                    averageSpeed.Add(0);       // This might have to be the simulated speed
+                    averageSpeed.Add(simulation[journeyIdx].speed); // This might have to be the simulated speed
                 else
                 {
 
@@ -851,6 +803,205 @@ namespace IceDataForm2
                     }
                 }
 
+            }
+
+            return averageSpeed;
+        }
+
+        /// <summary>
+        /// Determine the average speed of all trains in a each direction and each power to weight catagory.
+        /// </summary>
+        /// <param name="trains">List of trains, each with a trainJourney object.</param>
+        /// <param name="underpoweredIncreasing">The simulated train journey for the underpowered catagory in the increasing direction.</param>
+        /// <param name="underpoweredDecreasing">The simulated train journey for the underpowered catagory in the decreasing direction.</param>
+        /// <param name="overpoweredIncreasing">The simulated train journey for the overpowered catagory in the increasing direction.</param>
+        /// <param name="overpoweredDecreasing">The simulated train journey for the overpowered catagory in the decreasing direction.</param>
+        /// <returns>A list of averaged train objects containing the average speed at each location for all four power to weight catagories.</returns>
+        public List<averagedTrainData> powerToWeightAverageSpeed(List<Train> trains, List<InterpolatedTrain> underpoweredIncreasing, List<InterpolatedTrain> underpoweredDecreasing, 
+                                                                List<InterpolatedTrain> overpoweredIncreasing, List<InterpolatedTrain> overpoweredDecreasing)
+        {
+            /* Declare the local variables to store the sum and averages. */
+            double underpoweredIncreasingSum, underpoweredDecreasingSum, overpoweredIncreasingSum, overpoweredDecreasingSum;
+            double underIncreasingAverage, underDecreasingAverage, overIncreasingAverage, overDecreasingAverage;
+
+            bool isInLoopBoundary = false;
+            
+            /* Calcualte the number of elements in the arary/list. */
+            int size = (int)((Settings.endKm - Settings.startKm) / (Settings.interval / 1000));
+            
+            /* Place holders for the included speeds and the resulting average speed at each location. */
+            List<double> underIncreasingSpeed = new List<double>();
+            List<double> underDecreasingSpeed = new List<double>();
+            List<double> overIncreasingSpeed = new List<double>();
+            List<double> overDecreasingSpeed = new List<double>();
+            List<averagedTrainData> averageSpeed = new List<averagedTrainData>();
+
+            TrainDetails journey = new TrainDetails();
+
+            /* Loop through each interpolated location. */
+            for (int journeyIdx = 0; journeyIdx <= size; journeyIdx++)
+            {
+                /* Initialise the sums and the speed lists. */
+                underpoweredIncreasingSum = 0;
+                underpoweredDecreasingSum = 0;
+                overpoweredIncreasingSum = 0;
+                overpoweredDecreasingSum = 0;
+
+                underIncreasingSpeed.Clear();
+                underDecreasingSpeed.Clear();
+                overIncreasingSpeed.Clear();
+                overDecreasingSpeed.Clear();
+
+                
+                /* Loop through each train. */
+                foreach (Train train in trains)
+                {
+                    journey = train.TrainJourney[journeyIdx];
+
+                    /* Seperate the averages for each direction. */
+                    if (journey.trainDirection == direction.increasing)
+                    {                        
+                        /* Is there a TSR that applies */
+                        if (!temporarySpeedRestrictionParameters(train, journey.geometryKm).isTSRHere)
+                        {
+                            /* Check train is not within the loop boundaries */
+                            if (!isTrainInLoopBoundary(train, journey.geometryKm))
+                            {
+                                isInLoopBoundary = false;
+
+                                if (journey.powerToWeight > Settings.underpoweredLowerBound && journey.powerToWeight <= Settings.underpoweredUpperBound)
+                                {
+                                    /* Underpowered increasing trains. */
+                                    underIncreasingSpeed.Add(journey.speed);
+                                    underpoweredIncreasingSum = underpoweredIncreasingSum + journey.speed;
+                                }
+                                if (journey.powerToWeight > Settings.overpoweredLowerBound && journey.powerToWeight <= Settings.overpoweredUpperBound)
+                                {
+                                    /* Overpowered incerasing trains. */
+                                    overIncreasingSpeed.Add(journey.speed);
+                                    overpoweredIncreasingSum = overpoweredIncreasingSum + journey.speed;
+                                }
+
+                            }
+                            else
+                            {
+                                isInLoopBoundary = true;
+   
+                                /* Train is within the loop boundaries */
+                                if (journey.powerToWeight > Settings.underpoweredLowerBound && journey.powerToWeight <= Settings.underpoweredUpperBound)
+                                {
+                                    /* Underpowered increasing trains. */
+                                    if (journey.speed > (underpoweredIncreasing[journeyIdx].speed * Settings.loopSpeedThreshold))
+                                    {
+                                        underIncreasingSpeed.Add(journey.speed);
+                                        underpoweredIncreasingSum = underpoweredIncreasingSum + journey.speed;
+                                    }
+                                }
+
+                                if (journey.powerToWeight > Settings.overpoweredLowerBound && journey.powerToWeight <= Settings.overpoweredUpperBound)
+                                {
+                                    /* Overpowered incerasing trains. */
+                                    if (journey.speed > (overpoweredIncreasing[journeyIdx].speed * Settings.loopSpeedThreshold))
+                                    {
+                                        overIncreasingSpeed.Add(journey.speed);
+                                        overpoweredIncreasingSum = overpoweredIncreasingSum + journey.speed;
+                                    }
+                                }
+
+
+                            }
+                        }
+                        else
+                        {
+                            /* A TSR applies to the current position of the train. */
+                        }
+                    }
+                    else if (journey.trainDirection == direction.decreasing)
+                    {
+                        /* Is there a TSR that applies */
+                        if (!temporarySpeedRestrictionParameters(train, journey.geometryKm).isTSRHere)
+                        {
+                            /* Check train is not within the loop boundaries */
+                            if (!isTrainInLoopBoundary(train, journey.geometryKm))
+                            {
+                                isInLoopBoundary = false;
+   
+                                if (journey.powerToWeight > Settings.underpoweredLowerBound && journey.powerToWeight <= Settings.underpoweredUpperBound)
+                                {
+                                    /* Underpowered decreasing trains. */
+                                    underDecreasingSpeed.Add(journey.speed);
+                                    underpoweredDecreasingSum = underpoweredDecreasingSum + journey.speed;
+                                }
+                                if (journey.powerToWeight > Settings.overpoweredLowerBound && journey.powerToWeight <= Settings.overpoweredUpperBound)
+                                {
+                                    /* Overpowered decerasing trains. */
+                                    overDecreasingSpeed.Add(journey.speed);
+                                    overpoweredDecreasingSum = overpoweredDecreasingSum + journey.speed;
+                                }
+
+                            }
+                            else
+                            {
+                                isInLoopBoundary = true;
+                                /* Train is within the loop boundaries */
+                                if (journey.powerToWeight > Settings.underpoweredLowerBound && journey.powerToWeight <= Settings.underpoweredUpperBound)
+                                {
+                                    /* Underpowered decreasing trains. */
+                                    if (journey.speed > (underpoweredIncreasing[journeyIdx].speed * Settings.loopSpeedThreshold))
+                                    {
+                                        underIncreasingSpeed.Add(journey.speed);
+                                        underpoweredDecreasingSum = underpoweredDecreasingSum + journey.speed;
+                                    }
+                                }
+
+                                if (journey.powerToWeight > Settings.overpoweredLowerBound && journey.powerToWeight <= Settings.overpoweredUpperBound)
+                                {
+                                    /* overpowered decreasing trains. */
+                                    if (journey.speed > (overpoweredIncreasing[journeyIdx].speed * Settings.loopSpeedThreshold))
+                                    {
+                                        overIncreasingSpeed.Add(journey.speed);
+                                        overpoweredDecreasingSum = overpoweredDecreasingSum + journey.speed;
+                                    }
+                                }
+
+
+                            }
+                        }
+                    }
+                    else
+                    {
+                        /* No direction specified. */
+                    }
+
+                }
+
+                /* Calcualte the average speed for each catagory at each location. */
+                if (underIncreasingSpeed.Count() == 0 || underpoweredIncreasingSum == 0)
+                    underIncreasingAverage = underpoweredIncreasing[journeyIdx].speed;
+                else
+                    underIncreasingAverage = underIncreasingSpeed.Where(x => x > 0.0).Average(x => x);
+
+                if (underDecreasingSpeed.Count() == 0 || underpoweredDecreasingSum == 0)
+                    underDecreasingAverage = underpoweredDecreasing[journeyIdx].speed;
+                else
+                    underDecreasingAverage = underDecreasingSpeed.Where(x => x > 0.0).Average(x => x);
+
+                if (overIncreasingSpeed.Count() == 0 || overpoweredIncreasingSum == 0)
+                    overIncreasingAverage = overpoweredIncreasing[journeyIdx].speed;
+                else
+                    overIncreasingAverage = overIncreasingSpeed.Where(x => x > 0.0).Average(x => x);                
+                
+                if (overDecreasingSpeed.Count() == 0 || overpoweredDecreasingSum == 0)
+                    overDecreasingAverage = overpoweredDecreasing[journeyIdx].speed;
+                else
+                    overDecreasingAverage = overDecreasingSpeed.Where(x => x > 0.0).Average(x => x);
+
+                double kilometerage = Settings.startKm + Settings.interval/1000 * journeyIdx;
+
+                /* Add the averages to the list. */
+                averagedTrainData item = new averagedTrainData(kilometerage, underIncreasingAverage, underDecreasingAverage, overIncreasingAverage, overDecreasingAverage, isInLoopBoundary);
+                averageSpeed.Add(item);
+                
             }
 
             return averageSpeed;
@@ -905,7 +1056,14 @@ namespace IceDataForm2
             if (lookBack < Settings.startKm && lookBackIdx == -1)
                 lookBackIdx = 0;
             if (lookForward > Settings.endKm && lookForwardIdx == -1)
-                lookForwardIdx = train.TrainJourney.Count() - 1;
+            {
+                if (train.TrainJourney[0].trainDirection == direction.increasing)
+                    lookForwardIdx = train.TrainJourney.Count() - 1;
+                else
+                    lookForwardIdx = 0;
+            }
+
+           
 
             /* Determine if a loop is within the loop window of the current position. */
             if (lookBackIdx >= 0 && lookForwardIdx >= 0)

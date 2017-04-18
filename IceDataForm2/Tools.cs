@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace IceDataForm2
 {
-    class Tools
+    public class Tools
     {
 
         public Tools()

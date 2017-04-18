@@ -468,7 +468,314 @@ namespace IceDataForm2
             return;
         }
 
+        /// <summary>
+        /// Write the averaged Ice data to file.
+        /// </summary>
+        /// <param name="averageData">The average speed data for a train catagory in a single direction</param>
+        /// <param name="averageCatagory">A string describing the catagory for the average speed data; Suggested values: 
+        /// underpoweredIncreasing
+        /// underpoweredDecreasing
+        /// overpoweredIncreasing
+        /// overpoweredDecreasing
+        /// </param>
+        public static void writeAverageData(List<double> averageData, string averageCatagory)
+        {
+            /* Create the microsfot excel references. */
+            Microsoft.Office.Interop.Excel.Application excel;
+            Microsoft.Office.Interop.Excel._Workbook workbook;
+            Microsoft.Office.Interop.Excel._Worksheet worksheet;
 
+            /* Start Excel and get Application object. */
+            excel = new Microsoft.Office.Interop.Excel.Application();
+
+            /* Get the reference to the new workbook. */
+            workbook = (Microsoft.Office.Interop.Excel._Workbook)(excel.Workbooks.Add(""));
+
+            /* Create the header details. */
+            string[] headerString = { "Kilometreage", "Average Speed" };
+
+            /* Pagenate the data for writing to excel. */
+            int excelPageSize = 1000000;        /* Page size of the excel worksheet. */
+            int excelPages = 1;                 /* Number of Excel pages to write. */
+            int headerOffset = 2;
+
+            /* Adjust the excel page size or the number of pages to write. */
+            if (averageData.Count() < excelPageSize)
+                excelPageSize = averageData.Count();
+            else
+                excelPages = (int)Math.Round((double)averageData.Count() / excelPageSize + 0.5);
+
+
+            /* Deconstruct the train details into excel columns. */
+            double[,] kilometerage = new double[excelPageSize, 1];
+            double[,] speed = new double[excelPageSize, 1];
+            
+            /* Loop through the excel pages. */
+            for (int excelPage = 0; excelPage < excelPages; excelPage++)
+            {
+                /* Set the active worksheet. */
+                worksheet = (Microsoft.Office.Interop.Excel._Worksheet)workbook.Sheets[excelPage + 1];
+                workbook.Sheets[excelPage + 1].Activate();
+                worksheet.get_Range("A1", "B1").Value2 = headerString;
+
+                /* Loop through the data for each excel page. */
+                for (int j = 0; j < excelPageSize; j++)
+                {
+                    /* Check we dont try to read more data than there really is. */
+                    int checkIdx = j + excelPage * excelPageSize;
+                    
+                    kilometerage[j, 0] = Settings.startKm + Settings.interval/1000 * checkIdx;
+
+                    /* Populate the average speed data. */                        
+                    if (checkIdx < averageData.Count())
+                        speed[j, 0] = averageData[checkIdx];
+                    else
+                        speed[j, 0] = 0.0;
+                        
+
+                    
+                }
+
+                /* Write the data to the active excel workseet. */
+                worksheet.get_Range("A" + headerOffset, "A" + (headerOffset + excelPageSize - 1)).Value2 = kilometerage;
+                worksheet.get_Range("B" + headerOffset, "B" + (headerOffset + excelPageSize - 1)).Value2 = speed;
+                
+            }
+
+            /* Generate the resulting file name and location to save to. */
+            string savePath = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis";
+            string saveFilename = savePath + @"\"+averageCatagory+"AverageSpeed_" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx";
+
+            /* Check the file does not exist yet. */
+            if (File.Exists(saveFilename))
+                File.Delete(saveFilename);
+
+            /* Save the excel file. */
+            excel.UserControl = false;
+            workbook.SaveAs(saveFilename, Microsoft.Office.Interop.Excel.XlFileFormat.xlWorkbookDefault, Type.Missing, Type.Missing,
+                false, false, Microsoft.Office.Interop.Excel.XlSaveAsAccessMode.xlNoChange,
+                Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
+
+            workbook.Close();
+
+            return;
+        
+        
+        }
+
+        /// <summary>
+        /// Write all catagories of the averaged Ice data to a file.
+        /// </summary>
+        /// <param name="underpoweredIncreasing">The underpwoered increasing average data.</param>
+        /// <param name="underpoweredDecreasing">The underpwoered decreasing average data.</param>
+        /// <param name="overpoweredIncreasing">The overpwoered increasing average data.</param>
+        /// <param name="overpoweredDecreasing">The overpwoered decreasing average data.</param>
+        public static void writeAverageData(List<double> underpoweredIncreasing, List<double> underpoweredDecreasing,List<double> overpoweredIncreasing, List<double> overpoweredDecreasing)
+        {
+            /* Create the microsfot excel references. */
+            Microsoft.Office.Interop.Excel.Application excel;
+            Microsoft.Office.Interop.Excel._Workbook workbook;
+            Microsoft.Office.Interop.Excel._Worksheet worksheet;
+
+            /* Start Excel and get Application object. */
+            excel = new Microsoft.Office.Interop.Excel.Application();
+
+            /* Get the reference to the new workbook. */
+            workbook = (Microsoft.Office.Interop.Excel._Workbook)(excel.Workbooks.Add(""));
+
+            /* Create the header details. */
+            string[] headerString = { "Kilometreage", "Underpowered Increasing Speed", "Underpowered Decreasing Speed", "Overpowered Increasing Speed", "Overpowered Decreasing Speed" };
+
+            /* Pagenate the data for writing to excel. */
+            int excelPageSize = 1000000;        /* Page size of the excel worksheet. */
+            int excelPages = 1;                 /* Number of Excel pages to write. */
+            int headerOffset = 2;
+
+            /* Adjust the excel page size or the number of pages to write. */
+            if (underpoweredIncreasing.Count() == underpoweredDecreasing.Count() &&
+                underpoweredDecreasing.Count() == overpoweredIncreasing.Count() &&
+                overpoweredIncreasing.Count() == overpoweredDecreasing.Count())
+            {
+                if (underpoweredIncreasing.Count() < excelPageSize)
+                    excelPageSize = underpoweredIncreasing.Count();
+                else
+                    excelPages = (int)Math.Round((double)underpoweredIncreasing.Count() / excelPageSize + 0.5);
+            }
+            else
+            {
+                tool.messageBox("The averaged data is not the same size.","Average data error.");
+                return;
+            }
+
+            /* Deconstruct the train details into excel columns. */
+            double[,] kilometerage = new double[excelPageSize, 1];
+            double[,] underpoweredIncreasingSpeed = new double[excelPageSize, 1];
+            double[,] underpoweredDecreasingSpeed = new double[excelPageSize, 1];
+            double[,] overpoweredIncreasingSpeed = new double[excelPageSize, 1];
+            double[,] overpoweredDecreasingSpeed = new double[excelPageSize, 1];
+
+            /* Loop through the excel pages. */
+            for (int excelPage = 0; excelPage < excelPages; excelPage++)
+            {
+                /* Set the active worksheet. */
+                worksheet = (Microsoft.Office.Interop.Excel._Worksheet)workbook.Sheets[excelPage + 1];
+                workbook.Sheets[excelPage + 1].Activate();
+                worksheet.get_Range("A1", "E1").Value2 = headerString;
+
+                /* Loop through the data for each excel page. */
+                for (int j = 0; j < excelPageSize; j++)
+                {
+                    /* Check we dont try to read more data than there really is. */
+                    int checkIdx = j + excelPage * excelPageSize;
+
+                    kilometerage[j, 0] = Settings.startKm + Settings.interval/1000 * checkIdx;
+                    underpoweredIncreasingSpeed[j, 0] = 0;
+                    underpoweredDecreasingSpeed[j, 0] = 0;
+                    overpoweredIncreasingSpeed[j, 0] = 0;
+                    overpoweredDecreasingSpeed[j, 0] = 0;
+
+                    /* Populate the average speed data. */
+                    if (checkIdx < underpoweredIncreasing.Count())
+                    {
+                        underpoweredIncreasingSpeed[j, 0] = underpoweredIncreasing[checkIdx];
+                        underpoweredDecreasingSpeed[j, 0] = underpoweredDecreasing[checkIdx];
+                        overpoweredIncreasingSpeed[j, 0] = overpoweredIncreasing[checkIdx];
+                        overpoweredDecreasingSpeed[j, 0] = overpoweredDecreasing[checkIdx];
+                    }
+                    
+                }
+
+                /* Write the data to the active excel workseet. */
+                worksheet.get_Range("A" + headerOffset, "A" + (headerOffset + excelPageSize - 1)).Value2 = kilometerage;
+                worksheet.get_Range("B" + headerOffset, "B" + (headerOffset + excelPageSize - 1)).Value2 = underpoweredIncreasingSpeed;
+                worksheet.get_Range("C" + headerOffset, "C" + (headerOffset + excelPageSize - 1)).Value2 = underpoweredDecreasingSpeed;
+                worksheet.get_Range("D" + headerOffset, "D" + (headerOffset + excelPageSize - 1)).Value2 = overpoweredIncreasingSpeed;
+                worksheet.get_Range("E" + headerOffset, "E" + (headerOffset + excelPageSize - 1)).Value2 = overpoweredDecreasingSpeed;
+
+            }
+
+            /* Generate the resulting file name and location to save to. */
+            string savePath = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis";
+            string saveFilename = savePath + @"\AverageSpeed_" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx";
+
+            /* Check the file does not exist yet. */
+            if (File.Exists(saveFilename))
+                File.Delete(saveFilename);
+
+            /* Save the excel file. */
+            excel.UserControl = false;
+            workbook.SaveAs(saveFilename, Microsoft.Office.Interop.Excel.XlFileFormat.xlWorkbookDefault, Type.Missing, Type.Missing,
+                false, false, Microsoft.Office.Interop.Excel.XlSaveAsAccessMode.xlNoChange,
+                Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
+
+            workbook.Close();
+
+            return;
+
+
+        }
+
+
+        public static void writeAverageData(List<averagedTrainData> averageData)
+        {
+            /* Create the microsfot excel references. */
+            Microsoft.Office.Interop.Excel.Application excel;
+            Microsoft.Office.Interop.Excel._Workbook workbook;
+            Microsoft.Office.Interop.Excel._Worksheet worksheet;
+
+            /* Start Excel and get Application object. */
+            excel = new Microsoft.Office.Interop.Excel.Application();
+
+            /* Get the reference to the new workbook. */
+            workbook = (Microsoft.Office.Interop.Excel._Workbook)(excel.Workbooks.Add(""));
+
+            /* Create the header details. */
+            string[] headerString = { "Kilometreage", "Underpowered Increasing Speed", "Underpowered Decreasing Speed", "Overpowered Increasing Speed", "Overpowered Decreasing Speed" , "Loop"};
+            /* Pagenate the data for writing to excel. */
+            int excelPageSize = 1000000;        /* Page size of the excel worksheet. */
+            int excelPages = 1;                 /* Number of Excel pages to write. */
+            int headerOffset = 2;
+
+            /* Adjust the excel page size or the number of pages to write. */
+            if (averageData.Count() < excelPageSize)
+                excelPageSize = averageData.Count();
+            else
+                excelPages = (int)Math.Round((double)averageData.Count() / excelPageSize + 0.5);
+            
+
+            /* Deconstruct the train details into excel columns. */
+            double[,] kilometerage = new double[excelPageSize, 1];
+            double[,] underpoweredIncreasingSpeed = new double[excelPageSize, 1];
+            double[,] underpoweredDecreasingSpeed = new double[excelPageSize, 1];
+            double[,] overpoweredIncreasingSpeed = new double[excelPageSize, 1];
+            double[,] overpoweredDecreasingSpeed = new double[excelPageSize, 1];
+            string[,] isLoophere = new string[excelPageSize, 1];
+
+            /* Loop through the excel pages. */
+            for (int excelPage = 0; excelPage < excelPages; excelPage++)
+            {
+                /* Set the active worksheet. */
+                worksheet = (Microsoft.Office.Interop.Excel._Worksheet)workbook.Sheets[excelPage + 1];
+                workbook.Sheets[excelPage + 1].Activate();
+                worksheet.get_Range("A1", "F1").Value2 = headerString;
+
+                /* Loop through the data for each excel page. */
+                for (int j = 0; j < excelPageSize; j++)
+                {
+                    /* Check we dont try to read more data than there really is. */
+                    int checkIdx = j + excelPage * excelPageSize;
+
+                    kilometerage[j, 0] = Settings.startKm + Settings.interval / 1000 * checkIdx;
+                    underpoweredIncreasingSpeed[j, 0] = 0;
+                    underpoweredDecreasingSpeed[j, 0] = 0;
+                    overpoweredIncreasingSpeed[j, 0] = 0;
+                    overpoweredDecreasingSpeed[j, 0] = 0;
+                    isLoophere[j,0] = "";
+
+                    /* Populate the average speed data. */
+                    if (checkIdx < averageData.Count())
+                    {
+                        underpoweredIncreasingSpeed[j, 0] = averageData[checkIdx].underpoweredIncreaseingAverage;
+                        underpoweredDecreasingSpeed[j, 0] = averageData[checkIdx].underpoweredDecreaseingAverage;
+                        overpoweredIncreasingSpeed[j, 0] = averageData[checkIdx].overpoweredIncreaseingAverage;
+                        overpoweredDecreasingSpeed[j, 0] = averageData[checkIdx].overpoweredDecreaseingAverage;
+                        if (averageData[checkIdx].isInLoopBoundary)
+                            isLoophere[j, 0] = "Loop Boundary";
+
+                    }
+
+                }
+
+                /* Write the data to the active excel workseet. */
+                worksheet.get_Range("A" + headerOffset, "A" + (headerOffset + excelPageSize - 1)).Value2 = kilometerage;
+                worksheet.get_Range("B" + headerOffset, "B" + (headerOffset + excelPageSize - 1)).Value2 = underpoweredIncreasingSpeed;
+                worksheet.get_Range("C" + headerOffset, "C" + (headerOffset + excelPageSize - 1)).Value2 = underpoweredDecreasingSpeed;
+                worksheet.get_Range("D" + headerOffset, "D" + (headerOffset + excelPageSize - 1)).Value2 = overpoweredIncreasingSpeed;
+                worksheet.get_Range("E" + headerOffset, "E" + (headerOffset + excelPageSize - 1)).Value2 = overpoweredDecreasingSpeed;
+                worksheet.get_Range("F" + headerOffset, "F" + (headerOffset + excelPageSize - 1)).Value2 = isLoophere;
+
+            }
+
+            /* Generate the resulting file name and location to save to. */
+            string savePath = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis";
+            string saveFilename = savePath + @"\AverageSpeed_" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx";
+
+            /* Check the file does not exist yet. */
+            if (File.Exists(saveFilename))
+                File.Delete(saveFilename);
+
+            /* Save the excel file. */
+            excel.UserControl = false;
+            workbook.SaveAs(saveFilename, Microsoft.Office.Interop.Excel.XlFileFormat.xlWorkbookDefault, Type.Missing, Type.Missing,
+                false, false, Microsoft.Office.Interop.Excel.XlSaveAsAccessMode.xlNoChange,
+                Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
+
+            workbook.Close();
+
+            return;
+
+
+        }
 
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace IceDataForm2
 {
-    class TrackGeometry
+    public class TrackGeometry
     {
         
         public int corridorNumber;

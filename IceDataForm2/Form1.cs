@@ -32,8 +32,9 @@ namespace IceDataForm2
         /// <param name="e">The event arguments.</param>
         private void selectDataFile_Click(object sender, EventArgs e)
         {
-            
-            FileSettings.dataFile = tool.browseFile("Select the data file.");
+
+            FileSettings.dataFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - sample.csv";
+                //tool.browseFile("Select the data file.");
             IceDataFile.Text = Path.GetFileName(FileSettings.dataFile);
             simIceDataFile.Text = Path.GetFileName(FileSettings.dataFile);
         }
@@ -45,7 +46,8 @@ namespace IceDataForm2
         /// <param name="e">The event arguments.</param>
         private void selectGeometryFile_Click(object sender, EventArgs e)
         {
-            FileSettings.geometryFile = tool.browseFile("Select the geometry file.");
+            FileSettings.geometryFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\Macarthur to Botany Geometry.csv";
+            //tool.browseFile("Select the geometry file.");
             GeometryFile.Text = Path.GetFileName(FileSettings.geometryFile);
         }
 
@@ -54,10 +56,11 @@ namespace IceDataForm2
         /// </summary>
         /// <param name="sender">The object container.</param>
         /// <param name="e">The event arguments.</param>
-        private void selectIncreasingSimulationFile_Click(object sender, EventArgs e)
+        private void selectUnderpoweredIncreasingSimulationFile_Click(object sender, EventArgs e)
         {
-            FileSettings.increasingSimulationFile = tool.browseFile("Select the increasing km simulation file.");
-            IncreasingSimulationFile.Text = Path.GetFileName(FileSettings.increasingSimulationFile);
+            FileSettings.underpoweredIncreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Traxim\2017\Projects\Macarthur to Botany\Botany to Macarthur - All - 3.33_ThuW1.csv";
+                //tool.browseFile("Select the increasing km simulation file.");
+            underpoweredIncreasingSimulationFile.Text = Path.GetFileName(FileSettings.underpoweredIncreasingSimulationFile);
         }
 
         /// <summary>
@@ -65,10 +68,34 @@ namespace IceDataForm2
         /// </summary>
         /// <param name="sender">The object container.</param>
         /// <param name="e">The event arguments.</param>
-        private void selectDecreasingSimulationFile_Click(object sender, EventArgs e)
+        private void selectUnderpoweredDecreasingSimulationFile_Click(object sender, EventArgs e)
         {
-            FileSettings.decreasingSimulationFile = tool.browseFile("Select the decreasing km simulation file.");
-            DecreasingSimulationFile.Text = Path.GetFileName(FileSettings.decreasingSimulationFile);
+            FileSettings.underpoweredDecreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Traxim\2017\Projects\Macarthur to Botany\Macarthur to Botany - All - 3.20_SatW1.csv";
+            //tool.browseFile("Select the decreasing km simulation file.");
+            underpoweredDecreasingSimulationFile.Text = Path.GetFileName(FileSettings.underpoweredDecreasingSimulationFile);
+        }
+        /// <summary>
+        /// Select the simulation file with increasing km.
+        /// </summary>
+        /// <param name="sender">The object container.</param>
+        /// <param name="e">The event arguments.</param>
+        private void selectOverpoweredIncreasingSimulationFile_Click(object sender, EventArgs e)
+        {
+            FileSettings.overpoweredIncreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Traxim\2017\Projects\Macarthur to Botany\Botany to Macarthur - All - 7.87_ThuW1.csv";
+            //tool.browseFile("Select the increasing km simulation file.");
+            overpoweredIncreasingSimulationFile.Text = Path.GetFileName(FileSettings.overpoweredIncreasingSimulationFile);
+        }
+
+        /// <summary>
+        /// Selct the simulation file with decreasing km.
+        /// </summary>
+        /// <param name="sender">The object container.</param>
+        /// <param name="e">The event arguments.</param>
+        private void selectOverpoweredDecreasingSimulationFile_Click(object sender, EventArgs e)
+        {
+            FileSettings.overpoweredDecreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Traxim\2017\Projects\Macarthur to Botany\Macarthur to Botany - All - 6.97_SatW1.csv";
+            //tool.browseFile("Select the decreasing km simulation file.");
+            overpoweredDecreasingSimulationFile.Text = Path.GetFileName(FileSettings.overpoweredDecreasingSimulationFile);
         }
 
         /// <summary>
@@ -91,15 +118,37 @@ namespace IceDataForm2
         {
             /* Populate the parameters. */
             processing.populateFormParameters(this);
+            /* Validate the form parameters. */
+            if (!processing.areFormParametersValid())
+            {
+                tool.messageBox("One or more parameters are invalid.");
+                return;
+            }
 
             /* Run the train performance analysis. */
             Algorithm.trainPerformance();
 
         }
 
+        /// <summary>
+        /// Caalcaulte the average power to weight ratios for the simualted trains
+        /// </summary>
+        /// <param name="sender">The object container.</param>
+        /// <param name="e">The event arguments.</param>
         private void averagePowerToWeightRatios_Click(object sender, EventArgs e)
         {
             
+            processing.populateFormParameters(this);
+            /* Validate the form parameters. */
+            if (!processing.areFormParametersValid())
+            {
+                tool.messageBox("One or more parameters are invalid.");
+                return;
+            }
+            if (FileSettings.dataFile == null || FileSettings.geometryFile == null)
+                return;
+
+
             /* Ensure there is a empty list of trains to exclude to start. */
             List<string> excludeTrainList = new List<string> { };
 
@@ -115,6 +164,12 @@ namespace IceDataForm2
             /* Read the data. */
             List<TrainDetails> TrainRecords = new List<TrainDetails>();
             TrainRecords = FileOperations.readICEData(FileSettings.dataFile, excludeTrainList);
+            if (TrainRecords.Count() == 0)
+            {
+                tool.messageBox("There is no data within the specified boundaries.\nCheck the processing parameters.");
+                return;
+            }
+
 
             /* Sort the data by [trainID, locoID, Date & Time, kmPost]. */
             List<TrainDetails> OrderdTrainRecords = new List<TrainDetails>();
@@ -125,7 +180,7 @@ namespace IceDataForm2
             List<Train> CleanTrainRecords = new List<Train>();
             CleanTrainRecords = Algorithm.CleanData(trackGeometry, OrderdTrainRecords);
             
-            
+            /* Calculate the avareage power to weight ratio for a given band and train direction. */
             underpoweredIncreasingP2W.Text = averagePowerToWeightRatio(CleanTrainRecords, Settings.underpoweredLowerBound, Settings.underpoweredUpperBound, direction.increasing).ToString();
             underpoweredDecreasingP2W.Text = averagePowerToWeightRatio(CleanTrainRecords, Settings.underpoweredLowerBound, Settings.underpoweredUpperBound, direction.decreasing).ToString();
 
@@ -135,6 +190,8 @@ namespace IceDataForm2
             combinedIncreasingP2W.Text = averagePowerToWeightRatio(CleanTrainRecords, Settings.underpoweredLowerBound, Settings.overpoweredUpperBound, direction.increasing).ToString();
             combinedDecreasingP2W.Text = averagePowerToWeightRatio(CleanTrainRecords, Settings.underpoweredLowerBound, Settings.overpoweredUpperBound, direction.decreasing).ToString();
 
+            /* Need to run the simulaions bsed on the average power to weight ratios before continueing with the analysis. */
+            SimulationP2WRatioLabel.Text = "Run Simualtions based on these power to weight ratios";
         }
         
         /// <summary>
@@ -164,7 +221,11 @@ namespace IceDataForm2
             }
 
             /* Return the average power to weight ratio. */
-            return power2Weight.Average();
+            if (power2Weight.Count() == 0)
+                return 0;
+            else
+                return power2Weight.Average();
+
         }
 
         /// <summary>
@@ -373,6 +434,9 @@ namespace IceDataForm2
 
             return 0;
         }
+
+      
+      
         
 
 

@@ -338,6 +338,52 @@ namespace IceDataForm2
     }
 
     /// <summary>
+    /// A class to hold all averaged train data.
+    /// </summary>
+    public class averagedTrainData
+    {
+        public double kilometerage;
+        public double underpoweredIncreaseingAverage;
+        public double underpoweredDecreaseingAverage;
+        public double overpoweredIncreaseingAverage;
+        public double overpoweredDecreaseingAverage;
+        public bool isInLoopBoundary;
+
+        /// <summary>
+        /// Default averageTrainData Constructor.
+        /// </summary>
+        public averagedTrainData()
+        {
+            this.kilometerage = 0;
+            this.underpoweredIncreaseingAverage = 0;
+            this.underpoweredDecreaseingAverage = 0;
+            this.overpoweredIncreaseingAverage = 0;
+            this.overpoweredDecreaseingAverage = 0;
+            this.isInLoopBoundary = false;
+        }
+
+        /// <summary>
+        /// averageTrainData Constructor.
+        /// </summary>
+        /// <param name="km">Kilometerage of each location</param>
+        /// <param name="underIncreasing">Average Speed at kilometreage for the underpowered catagory in the increasing direction.</param>
+        /// <param name="underDecreasing">Average Speed at kilometreage for the underpowered catagory in the decreasing direction.</param>
+        /// <param name="overIncreasing">Average Speed at kilometreage for the overpowered catagory in the increasing direction.</param>
+        /// <param name="overDecreasing">Average Speed at kilometreage for the overpowered catagory in the decreasing direction.</param>
+        /// <param name="loop">Flag indicating if the location is within the boudanry of a loop.</param>
+        public averagedTrainData(double km, double underIncreasing, double underDecreasing, double overIncreasing, double overDecreasing, bool loop)
+        {
+            this.kilometerage = km;
+            this.underpoweredIncreaseingAverage = underIncreasing;
+            this.underpoweredDecreaseingAverage = underDecreasing;
+            this.overpoweredIncreaseingAverage = overIncreasing;
+            this.overpoweredDecreaseingAverage = overDecreasing;
+            this.isInLoopBoundary = loop;
+        }
+
+    }
+    
+    /// <summary>
     /// A class describing a geographic location with latitude and longitude.
     /// </summary>
     public class GeoLocation
@@ -408,7 +454,7 @@ namespace IceDataForm2
         }
 
     }
-
+    
 
 
     class Algorithm
@@ -473,17 +519,36 @@ namespace IceDataForm2
             trackGeometry = track.readGeometryfile(FileSettings.geometryFile);
 
             /* Read in the simulation data and interpolate to the desired interval. */
-            /* Increasing direction. */
-            List<simulatedTrain> increasingSimulation = new List<simulatedTrain>();
-            increasingSimulation = FileOperations.readSimulationData(FileSettings.increasingSimulationFile);
-            List<InterpolatedTrain> simulationIncreasing = new List<InterpolatedTrain>();
-            simulationIncreasing = processing.interpolateSimulationData(increasingSimulation, trackGeometry);
-            /* Decreasing direction. */
-            List<simulatedTrain> decreasingSimulation = new List<simulatedTrain>();
-            decreasingSimulation = FileOperations.readSimulationData(FileSettings.decreasingSimulationFile);
-            List<InterpolatedTrain> simulationDecreasing = new List<InterpolatedTrain>();
-            simulationDecreasing = processing.interpolateSimulationData(decreasingSimulation, trackGeometry);
+            /* Underpowered Simualtions. */
+            List<simulatedTrain> underpoweredIncreasingSimulation = new List<simulatedTrain>();
+            underpoweredIncreasingSimulation = FileOperations.readSimulationData(FileSettings.underpoweredIncreasingSimulationFile);
+            List<InterpolatedTrain> simulationUnderpoweredIncreasing = new List<InterpolatedTrain>();
+            simulationUnderpoweredIncreasing = processing.interpolateSimulationData(underpoweredIncreasingSimulation, trackGeometry);
 
+            List<simulatedTrain> underpoweredDecreasingSimulation = new List<simulatedTrain>();
+            underpoweredDecreasingSimulation = FileOperations.readSimulationData(FileSettings.underpoweredDecreasingSimulationFile);
+            List<InterpolatedTrain> simulationUnderpoweredDecreasing = new List<InterpolatedTrain>();
+            simulationUnderpoweredDecreasing = processing.interpolateSimulationData(underpoweredDecreasingSimulation, trackGeometry);
+            
+            /* Ovderpowered Simualtions. */
+            List<simulatedTrain> overpoweredIncreasingSimulation = new List<simulatedTrain>();
+            overpoweredIncreasingSimulation = FileOperations.readSimulationData(FileSettings.overpoweredIncreasingSimulationFile);
+            List<InterpolatedTrain> simulationOverpoweredIncreasing = new List<InterpolatedTrain>();
+            simulationOverpoweredIncreasing = processing.interpolateSimulationData(overpoweredIncreasingSimulation, trackGeometry);
+
+            List<simulatedTrain> overpoweredDecreasingSimulation = new List<simulatedTrain>();
+            overpoweredDecreasingSimulation = FileOperations.readSimulationData(FileSettings.overpoweredDecreasingSimulationFile);
+            List<InterpolatedTrain> simulationOverpoweredDecreasing = new List<InterpolatedTrain>();
+            simulationOverpoweredDecreasing = processing.interpolateSimulationData(overpoweredDecreasingSimulation, trackGeometry);
+
+            /* Sort the decreasing data to match the increasing data. */
+            underpoweredDecreasingSimulation = underpoweredDecreasingSimulation.OrderBy(t => t.singleLineKm).ToList();
+            simulationUnderpoweredDecreasing = simulationUnderpoweredDecreasing.OrderBy(t => t.geometryKm).ToList();
+            overpoweredDecreasingSimulation = overpoweredDecreasingSimulation.OrderBy(t => t.singleLineKm).ToList();
+            simulationOverpoweredDecreasing = simulationOverpoweredDecreasing.OrderBy(t => t.geometryKm).ToList();
+
+            
+            
             /* Read the data. */
             List<TrainDetails> TrainRecords = new List<TrainDetails>();
             TrainRecords = FileOperations.readICEData(FileSettings.dataFile, excludeTrainList);
@@ -506,15 +571,12 @@ namespace IceDataForm2
             FileOperations.writeTrainData(unpackedInterpolation);
 
             /* Average the train data for each direction with regard for TSR's and loop locations. */
-            /* There will be one call for each train class and direciton, ie:
-             * underpowered - increasing km
-             * underpowered - decreasing km
-             * overpowered - increasing km
-             * overpowered - decreasing km
-             */
-            List<double> averageSpeed = new List<double>();
-            averageSpeed = processing.powerToWeightAverageSpeed(interpolatedRecords, simulationIncreasing, 0, 2, direction.increasing);
+            List<averagedTrainData> averageData = new List<averagedTrainData>();
+            averageData = processing.powerToWeightAverageSpeed(interpolatedRecords, simulationUnderpoweredIncreasing, simulationUnderpoweredDecreasing, simulationOverpoweredIncreasing, simulationOverpoweredDecreasing);
 
+            /* Write the averaged Data to file for inspection. */
+            FileOperations.writeAverageData(averageData);
+            
             /* seperate averages for P/W ratio groups, commodity, Operator */
 
             /* Unpack the records into a single trainDetails object list. */
@@ -531,10 +593,8 @@ namespace IceDataForm2
         /// Remove the whole train journey that does not contain successive points that conform to 
         /// the minimum distance threshold.
         /// </summary>
-        /// <param name="trackGeometry">A lit of track Geometry objects</param>
+        /// <param name="trackGeometry">A list of track Geometry objects</param>
         /// <param name="OrderdTrainRecords">List of TrainDetail objects</param>
-        /// <param name="minimumJourneyDistance">The minimum required distance a train must travel 
-        /// to be included in the analysis.</param>
         /// <returns>List of Train objects containign the journey details of each train.</returns>
         public static List<Train> CleanData(List<TrackGeometry> trackGeometry, List<TrainDetails> OrderdTrainRecords)
         {
@@ -587,7 +647,7 @@ namespace IceDataForm2
                     /* The end of the train journey had been reached. */
                     if (!removeTrain && journeyDistance > Settings.minimumJourneyDistance)
                     {
-                        /* If all points are acceptable and the train ravels the minimum distance, 
+                        /* If all points are acceptable and the train travels the minimum distance, 
                          * add the train journey to the cleaned list. 
                          */
                         Train item = new Train();
@@ -598,6 +658,9 @@ namespace IceDataForm2
                         processing.populateGeometryKm(item);
                         processing.populateLoopLocations(item, trackGeometry);
                         processing.populateTemporarySpeedRestrictions(item, trackGeometry);
+
+                        /* Sort the journey in ascending order. */
+                        item.TrainJourney = item.TrainJourney.OrderBy(t => t.geometryKm).ToList();
 
                         cleanTrainList.Add(item);
 
@@ -624,6 +687,9 @@ namespace IceDataForm2
                     processing.populateGeometryKm(item);
                     processing.populateLoopLocations(item, trackGeometry);
                     processing.populateTemporarySpeedRestrictions(item, trackGeometry);
+                    
+                    /* Sort the journey in ascending order. */
+                    item.TrainJourney = item.TrainJourney.OrderBy(t => t.geometryKm).ToList();
 
                     cleanTrainList.Add(item);
 
