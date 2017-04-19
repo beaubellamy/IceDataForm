@@ -51,8 +51,8 @@ namespace IceDataForm2
         public static List<TrainDetails> readICEData(string filename, List<string> excludeTrainList)
         {
             /* Read all the lines of the data file. */
-            tool.isFileOpen(filename);
-
+            isFileOpen(filename);
+                        
             string[] lines = System.IO.File.ReadAllLines(filename);
             char[] delimeters = { ',', '\t' };
 
@@ -128,7 +128,7 @@ namespace IceDataForm2
             List<string> excludeTrainList = new List<string>();
 
             /* Read all the lines of the file. */
-            tool.isFileOpen(filename);
+            isFileOpen(filename);
 
             string[] lines = System.IO.File.ReadAllLines(filename);
             char[] delimeters = { ',', '\'', '"', '\t', '\n' };     // not sure of the delimter ??
@@ -152,7 +152,7 @@ namespace IceDataForm2
         public static List<simulatedTrain> readSimulationData(string filename)
         {
             /* Read all the lines of the data file. */
-            tool.isFileOpen(filename);
+            isFileOpen(filename);
 
             string[] lines = System.IO.File.ReadAllLines(filename);
             char[] delimeters = { ',', '\t' };
@@ -471,14 +471,14 @@ namespace IceDataForm2
         /// <summary>
         /// Write the averaged Ice data to file.
         /// </summary>
-        /// <param name="averageData">The average speed data for a train catagory in a single direction</param>
-        /// <param name="averageCatagory">A string describing the catagory for the average speed data; Suggested values: 
+        /// <param name="averageData">The average speed data for a train category in a single direction</param>
+        /// <param name="averagecategory">A string describing the category for the average speed data; Suggested values: 
         /// underpoweredIncreasing
         /// underpoweredDecreasing
         /// overpoweredIncreasing
         /// overpoweredDecreasing
         /// </param>
-        public static void writeAverageData(List<double> averageData, string averageCatagory)
+        public static void writeAverageData(List<double> averageData, string averagecategory)
         {
             /* Create the microsfot excel references. */
             Microsoft.Office.Interop.Excel.Application excel;
@@ -544,7 +544,7 @@ namespace IceDataForm2
 
             /* Generate the resulting file name and location to save to. */
             string savePath = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis";
-            string saveFilename = savePath + @"\"+averageCatagory+"AverageSpeed_" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx";
+            string saveFilename = savePath + @"\"+averagecategory+"AverageSpeed_" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx";
 
             /* Check the file does not exist yet. */
             if (File.Exists(saveFilename))
@@ -675,7 +675,10 @@ namespace IceDataForm2
 
         }
 
-
+        /// <summary>
+        /// Write all catagories of the averaged Ice data to a file, information includes the loop boundary flags.
+        /// </summary>
+        /// <param name="averageData">A list of train data containing the average speed and loop boundary locations for each catagory.</param>
         public static void writeAverageData(List<averagedTrainData> averageData)
         {
             /* Create the microsfot excel references. */
@@ -777,5 +780,26 @@ namespace IceDataForm2
 
         }
 
-    }
+        /// <summary>
+        /// Determine if a file is already open before trying to read the file.
+        /// </summary>
+        /// <param name="filename">Filename of the file to be opened</param>
+        /// <returns>True if the file is already open.</returns>
+        public static void isFileOpen(string filename)
+        {
+            /* Can the file be opened and read. */
+            try
+            {
+                string[] l = System.IO.File.ReadAllLines(filename);
+            }
+            catch (IOException e)
+            {
+                /* File is already opended and locked for reading. */
+                tool.messageBox(e.Message + ":\n\nClose the file and start again");
+                Environment.Exit(0);
+            }
+
+        }
+
+    }   // Class FileOperations
 }

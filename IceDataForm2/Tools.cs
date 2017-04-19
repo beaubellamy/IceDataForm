@@ -163,25 +163,6 @@ namespace IceDataForm2
             return filename;
         }
 
-        /// <summary>
-        /// Determine if a file is already open before trying to read the file.
-        /// </summary>
-        /// <param name="filename">Filename of the file to be opened</param>
-        /// <returns>True if the file is already open.</returns>
-        public void isFileOpen(string filename)
-        {
-            /* Can the file be opened and read. */
-            try
-            {
-                string[] l = System.IO.File.ReadAllLines(filename);
-            }
-            catch (IOException e)
-            {
-                /* File is already opended and locked for reading. */
-                messageBox(e.Message + ":\n\nClose the file and start again");
-                Environment.Exit(0);
-            }
-
-        }
+        
     }
 }

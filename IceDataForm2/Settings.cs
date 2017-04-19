@@ -50,6 +50,8 @@ namespace Globalsettings
         public static double combinedLowerBound;
         public static double combinedUpperBound;
         
+
+        
     }
 
 }

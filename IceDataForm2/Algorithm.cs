@@ -366,10 +366,10 @@ namespace IceDataForm2
         /// averageTrainData Constructor.
         /// </summary>
         /// <param name="km">Kilometerage of each location</param>
-        /// <param name="underIncreasing">Average Speed at kilometreage for the underpowered catagory in the increasing direction.</param>
-        /// <param name="underDecreasing">Average Speed at kilometreage for the underpowered catagory in the decreasing direction.</param>
-        /// <param name="overIncreasing">Average Speed at kilometreage for the overpowered catagory in the increasing direction.</param>
-        /// <param name="overDecreasing">Average Speed at kilometreage for the overpowered catagory in the decreasing direction.</param>
+        /// <param name="underIncreasing">Average Speed at kilometreage for the underpowered category in the increasing direction.</param>
+        /// <param name="underDecreasing">Average Speed at kilometreage for the underpowered category in the decreasing direction.</param>
+        /// <param name="overIncreasing">Average Speed at kilometreage for the overpowered category in the increasing direction.</param>
+        /// <param name="overDecreasing">Average Speed at kilometreage for the overpowered category in the decreasing direction.</param>
         /// <param name="loop">Flag indicating if the location is within the boudanry of a loop.</param>
         public averagedTrainData(double km, double underIncreasing, double underDecreasing, double overIncreasing, double overDecreasing, bool loop)
         {
@@ -454,7 +454,7 @@ namespace IceDataForm2
         }
 
     }
-    
+
 
 
     class Algorithm
@@ -484,9 +484,8 @@ namespace IceDataForm2
         /// progresive steps.
         /// </summary>        
         [STAThread]
-        public static void trainPerformance()
+        public static List<Train> trainPerformance()
         {
-
 
 
             /* Ensure there is a empty list of trains to exclude to start. */
@@ -527,6 +526,7 @@ namespace IceDataForm2
 
             List<simulatedTrain> underpoweredDecreasingSimulation = new List<simulatedTrain>();
             underpoweredDecreasingSimulation = FileOperations.readSimulationData(FileSettings.underpoweredDecreasingSimulationFile);
+            underpoweredDecreasingSimulation = underpoweredDecreasingSimulation.OrderBy(t => t.singleLineKm).ToList();
             List<InterpolatedTrain> simulationUnderpoweredDecreasing = new List<InterpolatedTrain>();
             simulationUnderpoweredDecreasing = processing.interpolateSimulationData(underpoweredDecreasingSimulation, trackGeometry);
             
@@ -538,16 +538,14 @@ namespace IceDataForm2
 
             List<simulatedTrain> overpoweredDecreasingSimulation = new List<simulatedTrain>();
             overpoweredDecreasingSimulation = FileOperations.readSimulationData(FileSettings.overpoweredDecreasingSimulationFile);
+            overpoweredDecreasingSimulation = overpoweredDecreasingSimulation.OrderBy(t => t.singleLineKm).ToList();
             List<InterpolatedTrain> simulationOverpoweredDecreasing = new List<InterpolatedTrain>();
             simulationOverpoweredDecreasing = processing.interpolateSimulationData(overpoweredDecreasingSimulation, trackGeometry);
 
             /* Sort the decreasing data to match the increasing data. */
-            underpoweredDecreasingSimulation = underpoweredDecreasingSimulation.OrderBy(t => t.singleLineKm).ToList();
-            simulationUnderpoweredDecreasing = simulationUnderpoweredDecreasing.OrderBy(t => t.geometryKm).ToList();
-            overpoweredDecreasingSimulation = overpoweredDecreasingSimulation.OrderBy(t => t.singleLineKm).ToList();
-            simulationOverpoweredDecreasing = simulationOverpoweredDecreasing.OrderBy(t => t.geometryKm).ToList();
-
-            
+            //simulationUnderpoweredDecreasing = simulationUnderpoweredDecreasing.OrderBy(t => t.geometryKm).ToList();
+            //simulationOverpoweredDecreasing = simulationOverpoweredDecreasing.OrderBy(t => t.geometryKm).ToList();
+                        
             
             /* Read the data. */
             List<TrainDetails> TrainRecords = new List<TrainDetails>();
@@ -586,7 +584,7 @@ namespace IceDataForm2
             /* Write data to an excel file. */
             FileOperations.writeTrainData(unpackedData);
 
-            tool.messageBox("Program Complete.");
+            return interpolatedRecords;
         }
 
         /// <summary>

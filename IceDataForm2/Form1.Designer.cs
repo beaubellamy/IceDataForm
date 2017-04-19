@@ -37,7 +37,6 @@
             this.selectTrainList = new System.Windows.Forms.Button();
             this.selectGeomtryFile = new System.Windows.Forms.Button();
             this.selectDataFile = new System.Windows.Forms.Button();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.processingTab = new System.Windows.Forms.TabPage();
             this.TSRWindowBoundary = new System.Windows.Forms.TextBox();
             this.timeSeparation = new System.Windows.Forms.TextBox();
@@ -74,6 +73,12 @@
             this.DateRangeLabel = new System.Windows.Forms.Label();
             this.fromDate = new System.Windows.Forms.DateTimePicker();
             this.simulationTab = new System.Windows.Forms.TabPage();
+            this.totalDecreasingCount = new System.Windows.Forms.Label();
+            this.totalIncreasingCount = new System.Windows.Forms.Label();
+            this.overpoweredDecreasingCount = new System.Windows.Forms.Label();
+            this.overpoweredIncreasingCount = new System.Windows.Forms.Label();
+            this.underpoweredDecreasingCount = new System.Windows.Forms.Label();
+            this.underpoweredIncreasingCount = new System.Windows.Forms.Label();
             this.SimulationP2WRatioLabel = new System.Windows.Forms.Label();
             this.combinedDecreasingP2W = new System.Windows.Forms.Label();
             this.combinedIncreasingP2W = new System.Windows.Forms.Label();
@@ -110,7 +115,10 @@
             this.underpoweredIncreasingSimulationFile = new System.Windows.Forms.TextBox();
             this.selectDecreasingSimulation = new System.Windows.Forms.Button();
             this.selectIncreasingSimulation = new System.Windows.Forms.Button();
-            this.directorySearcher1 = new System.DirectoryServices.DirectorySearcher();
+            this.PWRatioLabel1 = new System.Windows.Forms.Label();
+            this.PWRatioLabel2 = new System.Windows.Forms.Label();
+            this.PWCountLabel2 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
             this.SimualtionFileTab.SuspendLayout();
             this.fileSelectionTab.SuspendLayout();
             this.processingTab.SuspendLayout();
@@ -139,7 +147,6 @@
             this.fileSelectionTab.Controls.Add(this.selectTrainList);
             this.fileSelectionTab.Controls.Add(this.selectGeomtryFile);
             this.fileSelectionTab.Controls.Add(this.selectDataFile);
-            this.fileSelectionTab.Controls.Add(this.menuStrip1);
             this.fileSelectionTab.Location = new System.Drawing.Point(4, 22);
             this.fileSelectionTab.Name = "fileSelectionTab";
             this.fileSelectionTab.Padding = new System.Windows.Forms.Padding(3);
@@ -210,14 +217,6 @@
             this.selectDataFile.Text = "Select Ice Data File";
             this.selectDataFile.UseVisualStyleBackColor = true;
             this.selectDataFile.Click += new System.EventHandler(this.selectDataFile_Click);
-            // 
-            // menuStrip1
-            // 
-            this.menuStrip1.Location = new System.Drawing.Point(3, 3);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(855, 24);
-            this.menuStrip1.TabIndex = 6;
-            this.menuStrip1.Text = "menuStrip1";
             // 
             // processingTab
             // 
@@ -558,6 +557,16 @@
             // 
             // simulationTab
             // 
+            this.simulationTab.Controls.Add(this.label2);
+            this.simulationTab.Controls.Add(this.PWCountLabel2);
+            this.simulationTab.Controls.Add(this.PWRatioLabel2);
+            this.simulationTab.Controls.Add(this.PWRatioLabel1);
+            this.simulationTab.Controls.Add(this.totalDecreasingCount);
+            this.simulationTab.Controls.Add(this.totalIncreasingCount);
+            this.simulationTab.Controls.Add(this.overpoweredDecreasingCount);
+            this.simulationTab.Controls.Add(this.overpoweredIncreasingCount);
+            this.simulationTab.Controls.Add(this.underpoweredDecreasingCount);
+            this.simulationTab.Controls.Add(this.underpoweredIncreasingCount);
             this.simulationTab.Controls.Add(this.SimulationP2WRatioLabel);
             this.simulationTab.Controls.Add(this.combinedDecreasingP2W);
             this.simulationTab.Controls.Add(this.combinedIncreasingP2W);
@@ -590,10 +599,59 @@
             this.simulationTab.Text = "Simulation Parameters";
             this.simulationTab.UseVisualStyleBackColor = true;
             // 
+            // totalDecreasingCount
+            // 
+            this.totalDecreasingCount.AutoSize = true;
+            this.totalDecreasingCount.Location = new System.Drawing.Point(511, 336);
+            this.totalDecreasingCount.Name = "totalDecreasingCount";
+            this.totalDecreasingCount.Size = new System.Drawing.Size(0, 13);
+            this.totalDecreasingCount.TabIndex = 31;
+            // 
+            // totalIncreasingCount
+            // 
+            this.totalIncreasingCount.AutoSize = true;
+            this.totalIncreasingCount.Location = new System.Drawing.Point(283, 336);
+            this.totalIncreasingCount.Name = "totalIncreasingCount";
+            this.totalIncreasingCount.Size = new System.Drawing.Size(0, 13);
+            this.totalIncreasingCount.TabIndex = 30;
+            // 
+            // overpoweredDecreasingCount
+            // 
+            this.overpoweredDecreasingCount.AutoSize = true;
+            this.overpoweredDecreasingCount.Location = new System.Drawing.Point(511, 299);
+            this.overpoweredDecreasingCount.Name = "overpoweredDecreasingCount";
+            this.overpoweredDecreasingCount.Size = new System.Drawing.Size(0, 13);
+            this.overpoweredDecreasingCount.TabIndex = 29;
+            // 
+            // overpoweredIncreasingCount
+            // 
+            this.overpoweredIncreasingCount.AutoSize = true;
+            this.overpoweredIncreasingCount.Location = new System.Drawing.Point(283, 299);
+            this.overpoweredIncreasingCount.Name = "overpoweredIncreasingCount";
+            this.overpoweredIncreasingCount.Size = new System.Drawing.Size(0, 13);
+            this.overpoweredIncreasingCount.TabIndex = 28;
+            // 
+            // underpoweredDecreasingCount
+            // 
+            this.underpoweredDecreasingCount.AutoSize = true;
+            this.underpoweredDecreasingCount.Location = new System.Drawing.Point(511, 268);
+            this.underpoweredDecreasingCount.Name = "underpoweredDecreasingCount";
+            this.underpoweredDecreasingCount.Size = new System.Drawing.Size(0, 13);
+            this.underpoweredDecreasingCount.TabIndex = 27;
+            // 
+            // underpoweredIncreasingCount
+            // 
+            this.underpoweredIncreasingCount.AutoSize = true;
+            this.underpoweredIncreasingCount.Location = new System.Drawing.Point(283, 268);
+            this.underpoweredIncreasingCount.Name = "underpoweredIncreasingCount";
+            this.underpoweredIncreasingCount.Size = new System.Drawing.Size(0, 13);
+            this.underpoweredIncreasingCount.TabIndex = 26;
+            // 
             // SimulationP2WRatioLabel
             // 
             this.SimulationP2WRatioLabel.AutoSize = true;
-            this.SimulationP2WRatioLabel.Location = new System.Drawing.Point(511, 296);
+            this.SimulationP2WRatioLabel.ForeColor = System.Drawing.Color.Red;
+            this.SimulationP2WRatioLabel.Location = new System.Drawing.Point(578, 286);
             this.SimulationP2WRatioLabel.Name = "SimulationP2WRatioLabel";
             this.SimulationP2WRatioLabel.Size = new System.Drawing.Size(0, 13);
             this.SimulationP2WRatioLabel.TabIndex = 25;
@@ -601,7 +659,7 @@
             // combinedDecreasingP2W
             // 
             this.combinedDecreasingP2W.AutoSize = true;
-            this.combinedDecreasingP2W.Location = new System.Drawing.Point(444, 351);
+            this.combinedDecreasingP2W.Location = new System.Drawing.Point(444, 336);
             this.combinedDecreasingP2W.Name = "combinedDecreasingP2W";
             this.combinedDecreasingP2W.Size = new System.Drawing.Size(13, 13);
             this.combinedDecreasingP2W.TabIndex = 24;
@@ -610,7 +668,7 @@
             // combinedIncreasingP2W
             // 
             this.combinedIncreasingP2W.AutoSize = true;
-            this.combinedIncreasingP2W.Location = new System.Drawing.Point(216, 351);
+            this.combinedIncreasingP2W.Location = new System.Drawing.Point(213, 336);
             this.combinedIncreasingP2W.Name = "combinedIncreasingP2W";
             this.combinedIncreasingP2W.Size = new System.Drawing.Size(13, 13);
             this.combinedIncreasingP2W.TabIndex = 23;
@@ -619,7 +677,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(49, 351);
+            this.label1.Location = new System.Drawing.Point(49, 336);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(83, 13);
             this.label1.TabIndex = 22;
@@ -628,7 +686,7 @@
             // overpoweredDecreasingP2W
             // 
             this.overpoweredDecreasingP2W.AutoSize = true;
-            this.overpoweredDecreasingP2W.Location = new System.Drawing.Point(444, 314);
+            this.overpoweredDecreasingP2W.Location = new System.Drawing.Point(444, 299);
             this.overpoweredDecreasingP2W.Name = "overpoweredDecreasingP2W";
             this.overpoweredDecreasingP2W.Size = new System.Drawing.Size(13, 13);
             this.overpoweredDecreasingP2W.TabIndex = 21;
@@ -637,7 +695,7 @@
             // overpoweredIncreasingP2W
             // 
             this.overpoweredIncreasingP2W.AutoSize = true;
-            this.overpoweredIncreasingP2W.Location = new System.Drawing.Point(216, 314);
+            this.overpoweredIncreasingP2W.Location = new System.Drawing.Point(213, 299);
             this.overpoweredIncreasingP2W.Name = "overpoweredIncreasingP2W";
             this.overpoweredIncreasingP2W.Size = new System.Drawing.Size(13, 13);
             this.overpoweredIncreasingP2W.TabIndex = 20;
@@ -646,7 +704,7 @@
             // underpoweredDecreasingP2W
             // 
             this.underpoweredDecreasingP2W.AutoSize = true;
-            this.underpoweredDecreasingP2W.Location = new System.Drawing.Point(444, 283);
+            this.underpoweredDecreasingP2W.Location = new System.Drawing.Point(444, 268);
             this.underpoweredDecreasingP2W.Name = "underpoweredDecreasingP2W";
             this.underpoweredDecreasingP2W.Size = new System.Drawing.Size(13, 13);
             this.underpoweredDecreasingP2W.TabIndex = 19;
@@ -655,7 +713,7 @@
             // SimOverpoweredLabel
             // 
             this.SimOverpoweredLabel.AutoSize = true;
-            this.SimOverpoweredLabel.Location = new System.Drawing.Point(49, 314);
+            this.SimOverpoweredLabel.Location = new System.Drawing.Point(49, 299);
             this.SimOverpoweredLabel.Name = "SimOverpoweredLabel";
             this.SimOverpoweredLabel.Size = new System.Drawing.Size(74, 13);
             this.SimOverpoweredLabel.TabIndex = 18;
@@ -664,7 +722,7 @@
             // SimUnderpoweredLabel
             // 
             this.SimUnderpoweredLabel.AutoSize = true;
-            this.SimUnderpoweredLabel.Location = new System.Drawing.Point(49, 283);
+            this.SimUnderpoweredLabel.Location = new System.Drawing.Point(49, 268);
             this.SimUnderpoweredLabel.Name = "SimUnderpoweredLabel";
             this.SimUnderpoweredLabel.Size = new System.Drawing.Size(80, 13);
             this.SimUnderpoweredLabel.TabIndex = 17;
@@ -673,7 +731,7 @@
             // underpoweredIncreasingP2W
             // 
             this.underpoweredIncreasingP2W.AutoSize = true;
-            this.underpoweredIncreasingP2W.Location = new System.Drawing.Point(216, 283);
+            this.underpoweredIncreasingP2W.Location = new System.Drawing.Point(213, 268);
             this.underpoweredIncreasingP2W.Name = "underpoweredIncreasingP2W";
             this.underpoweredIncreasingP2W.Size = new System.Drawing.Size(13, 13);
             this.underpoweredIncreasingP2W.TabIndex = 16;
@@ -682,7 +740,7 @@
             // SimDecreasingLabel
             // 
             this.SimDecreasingLabel.AutoSize = true;
-            this.SimDecreasingLabel.Location = new System.Drawing.Point(444, 247);
+            this.SimDecreasingLabel.Location = new System.Drawing.Point(444, 220);
             this.SimDecreasingLabel.Name = "SimDecreasingLabel";
             this.SimDecreasingLabel.Size = new System.Drawing.Size(106, 13);
             this.SimDecreasingLabel.TabIndex = 15;
@@ -691,7 +749,7 @@
             // SimIncreasingLabel
             // 
             this.SimIncreasingLabel.AutoSize = true;
-            this.SimIncreasingLabel.Location = new System.Drawing.Point(216, 247);
+            this.SimIncreasingLabel.Location = new System.Drawing.Point(213, 220);
             this.SimIncreasingLabel.Name = "SimIncreasingLabel";
             this.SimIncreasingLabel.Size = new System.Drawing.Size(104, 13);
             this.SimIncreasingLabel.TabIndex = 14;
@@ -699,7 +757,7 @@
             // 
             // averagePowerToWeightRatios
             // 
-            this.averagePowerToWeightRatios.Location = new System.Drawing.Point(52, 202);
+            this.averagePowerToWeightRatios.Location = new System.Drawing.Point(52, 187);
             this.averagePowerToWeightRatios.Name = "averagePowerToWeightRatios";
             this.averagePowerToWeightRatios.Size = new System.Drawing.Size(148, 46);
             this.averagePowerToWeightRatios.TabIndex = 11;
@@ -717,7 +775,7 @@
             // 
             // overpoweredLowerBound
             // 
-            this.overpoweredLowerBound.Location = new System.Drawing.Point(209, 141);
+            this.overpoweredLowerBound.Location = new System.Drawing.Point(216, 141);
             this.overpoweredLowerBound.Name = "overpoweredLowerBound";
             this.overpoweredLowerBound.Size = new System.Drawing.Size(100, 20);
             this.overpoweredLowerBound.TabIndex = 9;
@@ -725,7 +783,7 @@
             // 
             // underpoweredUpperBound
             // 
-            this.underpoweredUpperBound.Location = new System.Drawing.Point(447, 115);
+            this.underpoweredUpperBound.Location = new System.Drawing.Point(447, 111);
             this.underpoweredUpperBound.Name = "underpoweredUpperBound";
             this.underpoweredUpperBound.Size = new System.Drawing.Size(100, 20);
             this.underpoweredUpperBound.TabIndex = 8;
@@ -733,7 +791,7 @@
             // 
             // underpoweredLowerBound
             // 
-            this.underpoweredLowerBound.Location = new System.Drawing.Point(209, 115);
+            this.underpoweredLowerBound.Location = new System.Drawing.Point(216, 115);
             this.underpoweredLowerBound.Name = "underpoweredLowerBound";
             this.underpoweredLowerBound.Size = new System.Drawing.Size(100, 20);
             this.underpoweredLowerBound.TabIndex = 7;
@@ -751,7 +809,7 @@
             // LowerBoundLabel
             // 
             this.LowerBoundLabel.AutoSize = true;
-            this.LowerBoundLabel.Location = new System.Drawing.Point(216, 92);
+            this.LowerBoundLabel.Location = new System.Drawing.Point(213, 92);
             this.LowerBoundLabel.Name = "LowerBoundLabel";
             this.LowerBoundLabel.Size = new System.Drawing.Size(70, 13);
             this.LowerBoundLabel.TabIndex = 5;
@@ -916,11 +974,41 @@
             this.selectIncreasingSimulation.UseVisualStyleBackColor = true;
             this.selectIncreasingSimulation.Click += new System.EventHandler(this.selectUnderpoweredIncreasingSimulationFile_Click);
             // 
-            // directorySearcher1
+            // PWRatioLabel1
             // 
-            this.directorySearcher1.ClientTimeout = System.TimeSpan.Parse("-00:00:01");
-            this.directorySearcher1.ServerPageTimeLimit = System.TimeSpan.Parse("-00:00:01");
-            this.directorySearcher1.ServerTimeLimit = System.TimeSpan.Parse("-00:00:01");
+            this.PWRatioLabel1.AutoSize = true;
+            this.PWRatioLabel1.Location = new System.Drawing.Point(213, 245);
+            this.PWRatioLabel1.Name = "PWRatioLabel1";
+            this.PWRatioLabel1.Size = new System.Drawing.Size(53, 13);
+            this.PWRatioLabel1.TabIndex = 32;
+            this.PWRatioLabel1.Text = "P/W ratio";
+            // 
+            // PWRatioLabel2
+            // 
+            this.PWRatioLabel2.AutoSize = true;
+            this.PWRatioLabel2.Location = new System.Drawing.Point(444, 245);
+            this.PWRatioLabel2.Name = "PWRatioLabel2";
+            this.PWRatioLabel2.Size = new System.Drawing.Size(53, 13);
+            this.PWRatioLabel2.TabIndex = 33;
+            this.PWRatioLabel2.Text = "P/W ratio";
+            // 
+            // PWCountLabel2
+            // 
+            this.PWCountLabel2.AutoSize = true;
+            this.PWCountLabel2.Location = new System.Drawing.Point(511, 245);
+            this.PWCountLabel2.Name = "PWCountLabel2";
+            this.PWCountLabel2.Size = new System.Drawing.Size(35, 13);
+            this.PWCountLabel2.TabIndex = 34;
+            this.PWCountLabel2.Text = "Count";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(283, 245);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(35, 13);
+            this.label2.TabIndex = 35;
+            this.label2.Text = "Count";
             // 
             // Form1
             // 
@@ -928,7 +1016,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(904, 459);
             this.Controls.Add(this.SimualtionFileTab);
-            this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
             this.Text = "Form1";
             this.SimualtionFileTab.ResumeLayout(false);
@@ -957,7 +1044,6 @@
         private System.Windows.Forms.Button selectTrainList;
         private System.Windows.Forms.Button selectGeomtryFile;
         private System.Windows.Forms.Button selectDataFile;
-        private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.Label overpoweredDecreasingP2W;
         private System.Windows.Forms.Label overpoweredIncreasingP2W;
         private System.Windows.Forms.Label underpoweredDecreasingP2W;
@@ -1003,7 +1089,6 @@
         private System.Windows.Forms.DateTimePicker toDate;
         private System.Windows.Forms.Label DateRangeLabel;
         private System.Windows.Forms.DateTimePicker fromDate;
-        private System.DirectoryServices.DirectorySearcher directorySearcher1;
         private System.Windows.Forms.TextBox TSRWindowBoundary;
         private System.Windows.Forms.TextBox timeSeparation;
         private System.Windows.Forms.TextBox loopSpeedFactor;
@@ -1029,6 +1114,16 @@
         private System.Windows.Forms.Button selectDecreasingSimulation;
         private System.Windows.Forms.Button selectIncreasingSimulation;
         private System.Windows.Forms.Button Execute;
+        private System.Windows.Forms.Label totalDecreasingCount;
+        private System.Windows.Forms.Label totalIncreasingCount;
+        private System.Windows.Forms.Label overpoweredDecreasingCount;
+        private System.Windows.Forms.Label overpoweredIncreasingCount;
+        private System.Windows.Forms.Label underpoweredDecreasingCount;
+        private System.Windows.Forms.Label underpoweredIncreasingCount;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label PWCountLabel2;
+        private System.Windows.Forms.Label PWRatioLabel2;
+        private System.Windows.Forms.Label PWRatioLabel1;
     }
 }
 

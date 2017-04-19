@@ -126,8 +126,31 @@ namespace IceDataForm2
             }
 
             /* Run the train performance analysis. */
-            Algorithm.trainPerformance();
+            List<Train> trains = new List<Train>();
+            trains = Algorithm.trainPerformance();
+            
+            /* Populate the counts for each train catagory. */
+            underpoweredIncreasingCount.Text = trains.Where(t => t.TrainJourney[0].trainDirection == direction.increasing).
+                                            Where(t => t.TrainJourney[0].powerToWeight > Settings.underpoweredLowerBound).
+                                            Where(t => t.TrainJourney[0].powerToWeight <= Settings.underpoweredUpperBound).Count().ToString();
+            underpoweredDecreasingCount.Text = trains.Where(t => t.TrainJourney[0].trainDirection == direction.decreasing).
+                                            Where(t => t.TrainJourney[0].powerToWeight > Settings.underpoweredLowerBound).
+                                            Where(t => t.TrainJourney[0].powerToWeight <= Settings.underpoweredUpperBound).Count().ToString();
+            overpoweredIncreasingCount.Text = trains.Where(t => t.TrainJourney[0].trainDirection == direction.increasing).
+                                            Where(t => t.TrainJourney[0].powerToWeight > Settings.overpoweredLowerBound).
+                                            Where(t => t.TrainJourney[0].powerToWeight <= Settings.overpoweredUpperBound).Count().ToString();
+            overpoweredDecreasingCount.Text = trains.Where(t => t.TrainJourney[0].trainDirection == direction.decreasing).
+                                            Where(t => t.TrainJourney[0].powerToWeight > Settings.overpoweredLowerBound).
+                                            Where(t => t.TrainJourney[0].powerToWeight <= Settings.overpoweredUpperBound).Count().ToString();
 
+            totalIncreasingCount.Text = trains.Where(t => t.TrainJourney[0].trainDirection == direction.increasing).
+                                            Where(t => t.TrainJourney[0].powerToWeight > Settings.underpoweredLowerBound).
+                                            Where(t => t.TrainJourney[0].powerToWeight <= Settings.overpoweredUpperBound).Count().ToString();
+            totalDecreasingCount.Text = trains.Where(t => t.TrainJourney[0].trainDirection == direction.decreasing).
+                                            Where(t => t.TrainJourney[0].powerToWeight > Settings.underpoweredLowerBound).
+                                            Where(t => t.TrainJourney[0].powerToWeight <= Settings.overpoweredUpperBound).Count().ToString();
+            
+            tool.messageBox("Program Complete.");
         }
 
         /// <summary>
