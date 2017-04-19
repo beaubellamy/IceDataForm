@@ -132,13 +132,12 @@ namespace IceDataForm2
         /// <param name="trainDirection">The direction of kilometreage of the train.</param>
         public Train(List<InterpolatedTrain> trainDetails, direction trainDirection)
         {
-            double powerToWeight = 1;
             List<TrainDetails> journey = new List<TrainDetails>();
 
             for (int journeyIdx = 0; journeyIdx < trainDetails.Count(); journeyIdx++)
             {
                 /* Convert each interpolatedTrain object to a trainDetail object. */
-                TrainDetails newitem = new TrainDetails(trainDetails[journeyIdx].TrainID, trainDetails[journeyIdx].LocoID, powerToWeight, trainDetails[journeyIdx].NotificationDateTime, 0, 0,
+                TrainDetails newitem = new TrainDetails(trainDetails[journeyIdx].TrainID, trainDetails[journeyIdx].LocoID, trainDetails[journeyIdx].powerToWeight, trainDetails[journeyIdx].NotificationDateTime, 0, 0,
                                                         trainDetails[journeyIdx].speed, 0, trainDetails[journeyIdx].geometryKm, trainDirection, trainDetails[journeyIdx].isLoopeHere,
                                                         trainDetails[journeyIdx].isTSRHere, trainDetails[journeyIdx].TSRspeed);
 
@@ -567,6 +566,7 @@ namespace IceDataForm2
             List<InterpolatedTrain> unpackedInterpolation = new List<InterpolatedTrain>();
             unpackedInterpolation = unpackInterpolatedData(interpolatedRecords);
             FileOperations.writeTrainData(unpackedInterpolation);
+            FileOperations.writeTrainDataForComparison(interpolatedRecords);
 
             /* Average the train data for each direction with regard for TSR's and loop locations. */
             List<averagedTrainData> averageData = new List<averagedTrainData>();

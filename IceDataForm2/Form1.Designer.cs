@@ -73,6 +73,10 @@
             this.DateRangeLabel = new System.Windows.Forms.Label();
             this.fromDate = new System.Windows.Forms.DateTimePicker();
             this.simulationTab = new System.Windows.Forms.TabPage();
+            this.label2 = new System.Windows.Forms.Label();
+            this.PWCountLabel2 = new System.Windows.Forms.Label();
+            this.PWRatioLabel2 = new System.Windows.Forms.Label();
+            this.PWRatioLabel1 = new System.Windows.Forms.Label();
             this.totalDecreasingCount = new System.Windows.Forms.Label();
             this.totalIncreasingCount = new System.Windows.Forms.Label();
             this.overpoweredDecreasingCount = new System.Windows.Forms.Label();
@@ -115,10 +119,6 @@
             this.underpoweredIncreasingSimulationFile = new System.Windows.Forms.TextBox();
             this.selectDecreasingSimulation = new System.Windows.Forms.Button();
             this.selectIncreasingSimulation = new System.Windows.Forms.Button();
-            this.PWRatioLabel1 = new System.Windows.Forms.Label();
-            this.PWRatioLabel2 = new System.Windows.Forms.Label();
-            this.PWCountLabel2 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
             this.SimualtionFileTab.SuspendLayout();
             this.fileSelectionTab.SuspendLayout();
             this.processingTab.SuspendLayout();
@@ -599,6 +599,42 @@
             this.simulationTab.Text = "Simulation Parameters";
             this.simulationTab.UseVisualStyleBackColor = true;
             // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(283, 245);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(35, 13);
+            this.label2.TabIndex = 35;
+            this.label2.Text = "Count";
+            // 
+            // PWCountLabel2
+            // 
+            this.PWCountLabel2.AutoSize = true;
+            this.PWCountLabel2.Location = new System.Drawing.Point(511, 245);
+            this.PWCountLabel2.Name = "PWCountLabel2";
+            this.PWCountLabel2.Size = new System.Drawing.Size(35, 13);
+            this.PWCountLabel2.TabIndex = 34;
+            this.PWCountLabel2.Text = "Count";
+            // 
+            // PWRatioLabel2
+            // 
+            this.PWRatioLabel2.AutoSize = true;
+            this.PWRatioLabel2.Location = new System.Drawing.Point(444, 245);
+            this.PWRatioLabel2.Name = "PWRatioLabel2";
+            this.PWRatioLabel2.Size = new System.Drawing.Size(53, 13);
+            this.PWRatioLabel2.TabIndex = 33;
+            this.PWRatioLabel2.Text = "P/W ratio";
+            // 
+            // PWRatioLabel1
+            // 
+            this.PWRatioLabel1.AutoSize = true;
+            this.PWRatioLabel1.Location = new System.Drawing.Point(213, 245);
+            this.PWRatioLabel1.Name = "PWRatioLabel1";
+            this.PWRatioLabel1.Size = new System.Drawing.Size(53, 13);
+            this.PWRatioLabel1.TabIndex = 32;
+            this.PWRatioLabel1.Text = "P/W ratio";
+            // 
             // totalDecreasingCount
             // 
             this.totalDecreasingCount.AutoSize = true;
@@ -771,7 +807,7 @@
             this.overpoweredUpperBound.Name = "overpoweredUpperBound";
             this.overpoweredUpperBound.Size = new System.Drawing.Size(100, 20);
             this.overpoweredUpperBound.TabIndex = 10;
-            this.overpoweredUpperBound.Text = "5";
+            this.overpoweredUpperBound.Text = "11.5";
             // 
             // overpoweredLowerBound
             // 
@@ -779,7 +815,7 @@
             this.overpoweredLowerBound.Name = "overpoweredLowerBound";
             this.overpoweredLowerBound.Size = new System.Drawing.Size(100, 20);
             this.overpoweredLowerBound.TabIndex = 9;
-            this.overpoweredLowerBound.Text = "2";
+            this.overpoweredLowerBound.Text = "4.5";
             // 
             // underpoweredUpperBound
             // 
@@ -787,7 +823,7 @@
             this.underpoweredUpperBound.Name = "underpoweredUpperBound";
             this.underpoweredUpperBound.Size = new System.Drawing.Size(100, 20);
             this.underpoweredUpperBound.TabIndex = 8;
-            this.underpoweredUpperBound.Text = "2";
+            this.underpoweredUpperBound.Text = "4.5";
             // 
             // underpoweredLowerBound
             // 
@@ -795,7 +831,7 @@
             this.underpoweredLowerBound.Name = "underpoweredLowerBound";
             this.underpoweredLowerBound.Size = new System.Drawing.Size(100, 20);
             this.underpoweredLowerBound.TabIndex = 7;
-            this.underpoweredLowerBound.Text = "0";
+            this.underpoweredLowerBound.Text = "1.5";
             // 
             // UpperBoundLabel
             // 
@@ -973,42 +1009,6 @@
             this.selectIncreasingSimulation.Text = "Select Increasing Simulation File";
             this.selectIncreasingSimulation.UseVisualStyleBackColor = true;
             this.selectIncreasingSimulation.Click += new System.EventHandler(this.selectUnderpoweredIncreasingSimulationFile_Click);
-            // 
-            // PWRatioLabel1
-            // 
-            this.PWRatioLabel1.AutoSize = true;
-            this.PWRatioLabel1.Location = new System.Drawing.Point(213, 245);
-            this.PWRatioLabel1.Name = "PWRatioLabel1";
-            this.PWRatioLabel1.Size = new System.Drawing.Size(53, 13);
-            this.PWRatioLabel1.TabIndex = 32;
-            this.PWRatioLabel1.Text = "P/W ratio";
-            // 
-            // PWRatioLabel2
-            // 
-            this.PWRatioLabel2.AutoSize = true;
-            this.PWRatioLabel2.Location = new System.Drawing.Point(444, 245);
-            this.PWRatioLabel2.Name = "PWRatioLabel2";
-            this.PWRatioLabel2.Size = new System.Drawing.Size(53, 13);
-            this.PWRatioLabel2.TabIndex = 33;
-            this.PWRatioLabel2.Text = "P/W ratio";
-            // 
-            // PWCountLabel2
-            // 
-            this.PWCountLabel2.AutoSize = true;
-            this.PWCountLabel2.Location = new System.Drawing.Point(511, 245);
-            this.PWCountLabel2.Name = "PWCountLabel2";
-            this.PWCountLabel2.Size = new System.Drawing.Size(35, 13);
-            this.PWCountLabel2.TabIndex = 34;
-            this.PWCountLabel2.Text = "Count";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(283, 245);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(35, 13);
-            this.label2.TabIndex = 35;
-            this.label2.Text = "Count";
             // 
             // Form1
             // 

@@ -344,11 +344,7 @@ namespace IceDataForm2
 
                     }
 
-                    /* Determine if we need to extract the time from the data or interpolate it. */
-                    if (index1 >= 0)
-                        if (currentKm >= journey[index1].geometryKm)
-                            timeChange = true;
-
+                    
                     geometryIdx = trackGeometry[0].findClosestTrackGeometryPoint(trackGeometry, currentKm);
 
                     if (geometryIdx >= 0)
@@ -363,12 +359,17 @@ namespace IceDataForm2
 
                     /* Create the interpolated data object and add it to the list. */
                     InterpolatedTrain item = new InterpolatedTrain(trains[trainIdx].TrainJourney[0].TrainID, trains[trainIdx].TrainJourney[0].LocoID,
-                                                                    powerToWeight, time, currentKm, interpolatedSpeed, loop, TSR, TSRspeed);
+                                                                    trains[trainIdx].TrainJourney[0].powerToWeight, time, currentKm, interpolatedSpeed, loop, TSR, TSRspeed);
                     interpolatedTrainList.Add(item);
 
                     /* Create a copy of the current km marker and increment. */
                     previousKm = currentKm;
                     currentKm = currentKm + Settings.interval / 1000;
+
+                    /* Determine if we need to extract the time from the data or interpolate it. */
+                    if (index1 >= 0)
+                        if (currentKm >= journey[index1].geometryKm)
+                            timeChange = true;
 
                 }
 
@@ -506,7 +507,10 @@ namespace IceDataForm2
         /// <returns>The time taken to traverse the distance in hours.</returns>
         private double calculateTimeInterval(double startPositon, double endPosition, double speed)
         {
-            return Math.Abs(endPosition - startPositon) / speed;    // hours.
+            if (speed > 0)
+                return Math.Abs(endPosition - startPositon) / speed;    // hours.
+            else
+                return 0;
         }
 
         /// <summary>
