@@ -33,8 +33,8 @@ namespace IceDataForm2
         private void selectDataFile_Click(object sender, EventArgs e)
         {
 
-            FileSettings.dataFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - sample.csv";
-                //tool.browseFile("Select the data file.");
+            FileSettings.dataFile = //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - sample.csv";
+                tool.browseFile("Select the data file.");
             IceDataFile.Text = Path.GetFileName(FileSettings.dataFile);
             simIceDataFile.Text = Path.GetFileName(FileSettings.dataFile);
         }
@@ -128,7 +128,7 @@ namespace IceDataForm2
             /* Run the train performance analysis. */
             List<Train> trains = new List<Train>();
             trains = Algorithm.trainPerformance();
-            
+
             /* Populate the counts for each train catagory. */
             underpoweredIncreasingCount.Text = trains.Where(t => t.TrainJourney[0].trainDirection == direction.increasing).
                                             Where(t => t.TrainJourney[0].powerToWeight > Settings.underpoweredLowerBound).
@@ -149,8 +149,9 @@ namespace IceDataForm2
             totalDecreasingCount.Text = trains.Where(t => t.TrainJourney[0].trainDirection == direction.decreasing).
                                             Where(t => t.TrainJourney[0].powerToWeight > Settings.underpoweredLowerBound).
                                             Where(t => t.TrainJourney[0].powerToWeight <= Settings.overpoweredUpperBound).Count().ToString();
-            
+
             tool.messageBox("Program Complete.");
+
         }
 
         /// <summary>
@@ -204,14 +205,14 @@ namespace IceDataForm2
             CleanTrainRecords = Algorithm.CleanData(trackGeometry, OrderdTrainRecords);
             
             /* Calculate the avareage power to weight ratio for a given band and train direction. */
-            underpoweredIncreasingP2W.Text = averagePowerToWeightRatio(CleanTrainRecords, Settings.underpoweredLowerBound, Settings.underpoweredUpperBound, direction.increasing).ToString();
-            underpoweredDecreasingP2W.Text = averagePowerToWeightRatio(CleanTrainRecords, Settings.underpoweredLowerBound, Settings.underpoweredUpperBound, direction.decreasing).ToString();
+            underpoweredIncreasingP2W.Text = string.Format("{0:#.000}", averagePowerToWeightRatio(CleanTrainRecords, Settings.underpoweredLowerBound, Settings.underpoweredUpperBound, direction.increasing));
+            underpoweredDecreasingP2W.Text = string.Format("{0:#.000}", averagePowerToWeightRatio(CleanTrainRecords, Settings.underpoweredLowerBound, Settings.underpoweredUpperBound, direction.decreasing));
 
-            overpoweredIncreasingP2W.Text = averagePowerToWeightRatio(CleanTrainRecords, Settings.overpoweredLowerBound, Settings.overpoweredUpperBound, direction.increasing).ToString();
-            overpoweredDecreasingP2W.Text = averagePowerToWeightRatio(CleanTrainRecords, Settings.overpoweredLowerBound, Settings.overpoweredUpperBound, direction.decreasing).ToString();
+            overpoweredIncreasingP2W.Text = string.Format("{0:#.000}", averagePowerToWeightRatio(CleanTrainRecords, Settings.overpoweredLowerBound, Settings.overpoweredUpperBound, direction.increasing));
+            overpoweredDecreasingP2W.Text = string.Format("{0:#.000}", averagePowerToWeightRatio(CleanTrainRecords, Settings.overpoweredLowerBound, Settings.overpoweredUpperBound, direction.decreasing));
 
-            combinedIncreasingP2W.Text = averagePowerToWeightRatio(CleanTrainRecords, Settings.underpoweredLowerBound, Settings.overpoweredUpperBound, direction.increasing).ToString();
-            combinedDecreasingP2W.Text = averagePowerToWeightRatio(CleanTrainRecords, Settings.underpoweredLowerBound, Settings.overpoweredUpperBound, direction.decreasing).ToString();
+            combinedIncreasingP2W.Text = string.Format("{0:#.000}", averagePowerToWeightRatio(CleanTrainRecords, Settings.underpoweredLowerBound, Settings.overpoweredUpperBound, direction.increasing));
+            combinedDecreasingP2W.Text = string.Format("{0:#.000}", averagePowerToWeightRatio(CleanTrainRecords, Settings.underpoweredLowerBound, Settings.overpoweredUpperBound, direction.decreasing));
 
             /* Need to run the simulaions bsed on the average power to weight ratios before continueing with the analysis. */
             SimulationP2WRatioLabel.Text = "Run Simualtions based on these power to weight ratios";
