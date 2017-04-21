@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IceDataForm2
+namespace TrainPerformance
 {
     public class TrackGeometry
     {
@@ -168,6 +168,7 @@ namespace IceDataForm2
                     TrackGeometry geometry = new TrackGeometry(0, geometryName, latitude, longitude, elevation, kilometreage, virtualKilometreage, isLoopHere);
                     trackGeometry.Add(geometry);
 
+                    
                 }
             }
 
@@ -243,7 +244,7 @@ namespace IceDataForm2
             }
 
             /* Return the kilometreage of the point that is closest to the location supplied. */
-            return trackGeometry[minimumIndex].kilometreage;
+            return trackGeometry[minimumIndex].virtualKilometreage;
         }
 
         /// <summary>
@@ -280,6 +281,24 @@ namespace IceDataForm2
                 return -1;
 
             return minimumIndex;
+        }
+
+        /// <summary>
+        /// Mathc the train location with the closest point on the track for the real track kmPost.
+        /// </summary>
+        /// <param name="train">A single train journey</param>
+        /// <param name="track">The track geometry information.</param>
+        public void matchTrainLocationToTrackGeometry(Train train, List<TrackGeometry> track)
+        {
+
+            foreach (TrainDetails journey in train.TrainJourney)
+            {
+                // Consider having a seperate kmPost for the track points.
+                //journey.trackKmPost = findClosestTrackGeometryPoint(track, journey.location);
+                journey.kmPost = findClosestTrackGeometryPoint(track, journey.location);
+
+            }
+
         }
 
     }

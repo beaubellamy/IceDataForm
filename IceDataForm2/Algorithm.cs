@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Globalsettings;
 
-namespace IceDataForm2
+namespace TrainPerformance
 {
 
     /// <summary>
@@ -27,6 +27,7 @@ namespace IceDataForm2
         public GeoLocation location = new GeoLocation();
         public double speed;
         public double kmPost;
+        //public double trackKmPost;
         public double geometryKm;
         public direction trainDirection;
         public bool isLoopHere;
@@ -46,6 +47,7 @@ namespace IceDataForm2
             this.location.longitude = 151.2108;
             this.speed = 0;
             this.kmPost = 0;
+            //this.trackKmPost = 0;
             this.geometryKm = 0;
             this.trainDirection = direction.notSpecified;
             this.isLoopHere = false;
@@ -77,6 +79,7 @@ namespace IceDataForm2
             this.location.longitude = longitude;
             this.speed = speed;
             this.kmPost = kmPost;
+            //this.trackKmPost = kmPost;
             this.geometryKm = geometryKm;
             this.trainDirection = trainDirection;
             this.isLoopHere = loop;
@@ -132,13 +135,12 @@ namespace IceDataForm2
         /// <param name="trainDirection">The direction of kilometreage of the train.</param>
         public Train(List<InterpolatedTrain> trainDetails, direction trainDirection)
         {
-            double powerToWeight = 1;
             List<TrainDetails> journey = new List<TrainDetails>();
 
             for (int journeyIdx = 0; journeyIdx < trainDetails.Count(); journeyIdx++)
             {
                 /* Convert each interpolatedTrain object to a trainDetail object. */
-                TrainDetails newitem = new TrainDetails(trainDetails[journeyIdx].TrainID, trainDetails[journeyIdx].LocoID, powerToWeight, trainDetails[journeyIdx].NotificationDateTime, 0, 0,
+                TrainDetails newitem = new TrainDetails(trainDetails[journeyIdx].TrainID, trainDetails[journeyIdx].LocoID, trainDetails[journeyIdx].powerToWeight, trainDetails[journeyIdx].NotificationDateTime, 0, 0,
                                                         trainDetails[journeyIdx].speed, 0, trainDetails[journeyIdx].geometryKm, trainDirection, trainDetails[journeyIdx].isLoopeHere,
                                                         trainDetails[journeyIdx].isTSRHere, trainDetails[journeyIdx].TSRspeed);
 
@@ -559,6 +561,7 @@ namespace IceDataForm2
             /******** Should only be required while we are waiting for the data in the prefered format ********/
             List<Train> CleanTrainRecords = new List<Train>();
             CleanTrainRecords = CleanData(trackGeometry, OrderdTrainRecords);
+            //CleanTrainRecords = MakeTrains(trackGeometry, OrderdTrainRecords);
 
             /* interpolate data */
             /******** Should only be required while we are waiting for the data in the prefered format ********/
@@ -567,6 +570,7 @@ namespace IceDataForm2
             List<InterpolatedTrain> unpackedInterpolation = new List<InterpolatedTrain>();
             unpackedInterpolation = unpackInterpolatedData(interpolatedRecords);
             FileOperations.writeTrainData(unpackedInterpolation);
+            FileOperations.writeTrainDataForComparison(interpolatedRecords);
 
             /* Average the train data for each direction with regard for TSR's and loop locations. */
             List<averagedTrainData> averageData = new List<averagedTrainData>();
@@ -592,13 +596,14 @@ namespace IceDataForm2
         /// the minimum distance threshold.
         /// </summary>
         /// <param name="trackGeometry">A list of track Geometry objects</param>
-        /// <param name="OrderdTrainRecords">List of TrainDetail objects</param>
+        /// <param name="trainRecords">List of TrainDetail objects</param>
         /// <returns>List of Train objects containign the journey details of each train.</returns>
-        public static List<Train> CleanData(List<TrackGeometry> trackGeometry, List<TrainDetails> OrderdTrainRecords)
+        public static List<Train> CleanData(List<TrackGeometry> trackGeometry, List<TrainDetails> trainRecords)
         {
             bool removeTrain = false;
             double distance = 0;
             double journeyDistance = 0;
+            int startIdx = 0;
 
             GeoLocation point1 = null;
             GeoLocation point2 = null;
@@ -609,24 +614,28 @@ namespace IceDataForm2
             List<Train> cleanTrainList = new List<Train>();
 
             /* Add the first record to the list. */
-            newTrainList.Add(OrderdTrainRecords[0]);
-            GeoLocation trainPoint = new GeoLocation(OrderdTrainRecords[0]);
+            newTrainList.Add(trainRecords[0]);
+            GeoLocation trainPoint = new GeoLocation(trainRecords[0]);
             /* Populate the first actual kilometreage point. */
             newTrainList[0].geometryKm = track.findClosestTrackGeometryPoint(trackGeometry, trainPoint);
 
-
-            for (int trainIndex = 1; trainIndex < OrderdTrainRecords.Count(); trainIndex++)
+            double journeyDistance0 = 0;
+            
+            for (int trainIndex = 1; trainIndex < trainRecords.Count(); trainIndex++)
             {
+                //if (trainRecords[trainIndex].TrainID.Equals("1811") && trainRecords[trainIndex].LocoID.Equals("CM3303"))
+                if(trainIndex == 15248)
+                    journeyDistance0 = 0;
 
-                if (OrderdTrainRecords[trainIndex].TrainID.Equals(OrderdTrainRecords[trainIndex - 1].TrainID) &&
-                    OrderdTrainRecords[trainIndex].LocoID.Equals(OrderdTrainRecords[trainIndex - 1].LocoID) &&
-                    (OrderdTrainRecords[trainIndex].NotificationDateTime - OrderdTrainRecords[trainIndex - 1].NotificationDateTime).TotalMinutes < Settings.timeThreshold)
+                if (trainRecords[trainIndex].TrainID.Equals(trainRecords[trainIndex - 1].TrainID) &&
+                    trainRecords[trainIndex].LocoID.Equals(trainRecords[trainIndex - 1].LocoID) &&
+                    (trainRecords[trainIndex].NotificationDateTime - trainRecords[trainIndex - 1].NotificationDateTime).TotalMinutes < Settings.timeThreshold)
                 {
                     /* If the current and previous record represent the same train journey, add it to the list. */
-                    newTrainList.Add(OrderdTrainRecords[trainIndex]);
+                    newTrainList.Add(trainRecords[trainIndex]);
 
-                    point1 = new GeoLocation(OrderdTrainRecords[trainIndex - 1]);
-                    point2 = new GeoLocation(OrderdTrainRecords[trainIndex]);
+                    point1 = new GeoLocation(trainRecords[trainIndex - 1]);
+                    point2 = new GeoLocation(trainRecords[trainIndex]);
 
                     distance = processing.calculateDistance(point1, point2);
                     journeyDistance = journeyDistance + distance;
@@ -642,6 +651,19 @@ namespace IceDataForm2
                 }
                 else
                 {
+                    journeyDistance0 = processing.calculateDistance(trainRecords[trainIndex-1].location, trainRecords[startIdx].location);
+                    List<TrainDetails> shortList = new List<TrainDetails>();
+                    if (trainIndex > 1)
+                        shortList = trainRecords.GetRange(startIdx,(trainIndex - startIdx - 1));
+
+                    string tID = trainRecords[startIdx].TrainID;
+                    string lID = trainRecords[startIdx].LocoID;
+
+                    // need to beable to get a true/false flag back to test if it should be kept in the list.
+                    //if (processing.populateDirection(new Train(newTrainList.ToList()), trackGeometry))
+                    //    removeTrain = true;
+
+
                     /* The end of the train journey had been reached. */
                     if (!removeTrain && journeyDistance > Settings.minimumJourneyDistance)
                     {
@@ -652,8 +674,8 @@ namespace IceDataForm2
                         item.TrainJourney = newTrainList.ToList();
 
                         /* Determine direction and actual km. */
-                        processing.populateDirection(item);
-                        processing.populateGeometryKm(item);
+                        processing.populateDirection(item, trackGeometry);
+                        processing.populateGeometryKm(item, trackGeometry);
                         processing.populateLoopLocations(item, trackGeometry);
                         processing.populateTemporarySpeedRestrictions(item, trackGeometry);
 
@@ -670,19 +692,27 @@ namespace IceDataForm2
                     newTrainList.Clear();
 
                     /* Add the first record of the new train journey. */
-                    newTrainList.Add(OrderdTrainRecords[trainIndex]);
-                    trainPoint = new GeoLocation(OrderdTrainRecords[trainIndex]);
+                    newTrainList.Add(trainRecords[trainIndex]);
+                    trainPoint = new GeoLocation(trainRecords[trainIndex]);
+
+                    if (track.findClosestTrackGeometryPoint(trackGeometry, trainPoint) < 0)
+                        journeyDistance0 = 0;
+
                     newTrainList[0].geometryKm = track.findClosestTrackGeometryPoint(trackGeometry, trainPoint);
+                    startIdx = trainIndex;
                 }
 
+                //if (processing.populateDirection(new Train(newTrainList.ToList()), trackGeometry))
+                //    removeTrain = true;
+
                 /* The end of the records have been reached. */
-                if (trainIndex == OrderdTrainRecords.Count() - 1 && !removeTrain)
+                if (trainIndex == trainRecords.Count() - 1 && !removeTrain)
                 {
                     /* If all points are aceptable, add the train journey to the cleaned list. */
                     Train item = new Train();
                     item.TrainJourney = newTrainList.ToList();
-                    processing.populateDirection(item);
-                    processing.populateGeometryKm(item);
+                    processing.populateDirection(item, trackGeometry);
+                    processing.populateGeometryKm(item, trackGeometry);
                     processing.populateLoopLocations(item, trackGeometry);
                     processing.populateTemporarySpeedRestrictions(item, trackGeometry);
                     
@@ -696,6 +726,93 @@ namespace IceDataForm2
             }
 
             return cleanTrainList;
+
+        }
+
+        /// <summary>
+        /// Contruct a list of Trains with individual train journey and details
+        /// </summary>
+        /// <param name="trackGeometry">A list of track Geometry objects</param>
+        /// <param name="trainRecords">List of TrainDetail objects</param>
+        /// <returns>List of Train objects containign the journey details of each train.</returns>
+        public static List<Train> MakeTrains(List<TrackGeometry> trackGeometry, List<TrainDetails> trainRecords)
+        {
+            int a = 0;
+
+            /* Place holder for the train records that are acceptable. */
+            List<TrainDetails> newTrainList = new List<TrainDetails>();
+            /* List of each Train with its journey details that is acceptable. */
+            List<Train> TrainList = new List<Train>();
+
+            /* Add the first record to the list. */
+            newTrainList.Add(trainRecords[0]);
+            GeoLocation trainPoint = new GeoLocation(trainRecords[0]);
+            /* Populate the first actual kilometreage point. */
+            newTrainList[0].geometryKm = track.findClosestTrackGeometryPoint(trackGeometry, trainPoint);
+
+
+            for (int trainIndex = 1; trainIndex < trainRecords.Count(); trainIndex++)
+            {
+                if (trainRecords[trainIndex].TrainID.Equals("1229"))
+                    a = 0;
+
+                if (trainRecords[trainIndex].TrainID.Equals(trainRecords[trainIndex - 1].TrainID) &&
+                    trainRecords[trainIndex].LocoID.Equals(trainRecords[trainIndex - 1].LocoID) &&
+                    (trainRecords[trainIndex].NotificationDateTime - trainRecords[trainIndex - 1].NotificationDateTime).TotalMinutes < Settings.timeThreshold)
+                {
+                    /* If the current and previous record represent the same train journey, add it to the list. */
+                    newTrainList.Add(trainRecords[trainIndex]);
+
+                }
+                else
+                {
+                    /* The end of the train journey had been reached. */
+
+                    Train item = new Train();
+                    item.TrainJourney = newTrainList.ToList();
+
+                    /* Determine direction and actual km. */
+                    processing.populateDirection(item, trackGeometry);
+                    processing.populateGeometryKm(item, trackGeometry);
+                    processing.populateLoopLocations(item, trackGeometry);
+                    processing.populateTemporarySpeedRestrictions(item, trackGeometry);
+
+                    double d = processing.calculateDistance(item.TrainJourney[item.TrainJourney.Count()-1].location, item.TrainJourney[0].location);
+                    /* Sort the journey in ascending order. */
+                    item.TrainJourney = item.TrainJourney.OrderBy(t => t.geometryKm).ToList();
+
+                    TrainList.Add(item);
+
+                    /* Reset the parameters for the next train. */
+                    newTrainList.Clear();
+
+                    /* Add the first record of the new train journey. */
+                    newTrainList.Add(trainRecords[trainIndex]);
+                    trainPoint = new GeoLocation(trainRecords[trainIndex]);
+                    newTrainList[0].geometryKm = track.findClosestTrackGeometryPoint(trackGeometry, trainPoint);
+                }
+
+                /* The end of the records have been reached. */
+                if (trainIndex == trainRecords.Count() - 1) //&& !removeTrain)
+                {
+                    /* If all points are aceptable, add the train journey to the cleaned list. */
+                    Train item = new Train();
+                    item.TrainJourney = newTrainList.ToList();
+                    processing.populateDirection(item, trackGeometry);
+                    processing.populateGeometryKm(item, trackGeometry);
+                    processing.populateLoopLocations(item, trackGeometry);
+                    processing.populateTemporarySpeedRestrictions(item, trackGeometry);
+
+                    /* Sort the journey in ascending order. */
+                    item.TrainJourney = item.TrainJourney.OrderBy(t => t.geometryKm).ToList();
+
+                    TrainList.Add(item);
+
+                }
+
+            }
+
+            return TrainList;
 
         }
 

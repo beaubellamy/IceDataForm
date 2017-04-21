@@ -1,6 +1,6 @@
-﻿namespace IceDataForm2
+﻿namespace TrainPerformance
 {
-    partial class Form1
+    partial class TrainPerformanceAnalysis
     {
         /// <summary>
         /// Required designer variable.

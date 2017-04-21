@@ -5,11 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Globalsettings;
 
-namespace IceDataForm2
+namespace TrainPerformance
 {
     public class Processing
     {
         Tools tool = new Tools();
+        //TrackGeometry track = new TrackGeometry();
 
         /* Mean radius of the Earth */
         private const double EarthRadius = 6371000.0;   // metres
@@ -77,13 +78,41 @@ namespace IceDataForm2
         /// <returns>Enumerated direction of the train km's.</returns>
         private direction determineTrainDirection(Train train)
         {
+            string T = train.TrainJourney[0].TrainID;
+            string L = train.TrainJourney[0].LocoID;
+            DateTime D = train.TrainJourney[0].NotificationDateTime;
+
             /* Determine the distance and sign from the first point to the last point */
+            //double journeyDistance = train.TrainJourney[train.TrainJourney.Count - 1].trackKmPost - train.TrainJourney[0].trackKmPost; 
             double journeyDistance = train.TrainJourney[train.TrainJourney.Count - 1].kmPost - train.TrainJourney[0].kmPost;
+            double distance = 0;
+            int increasingcount = 0;
+            int decreasingCount = 0;
+            int zeroCount = 0;
 
             if (journeyDistance > 0)
                 return direction.increasing;
             else
                 return direction.decreasing;
+
+
+            //for (int journeyIdx = 1; journeyIdx < train.TrainJourney.Count(); journeyIdx++)
+            //{
+            //    distance = train.TrainJourney[journeyIdx].kmPost - train.TrainJourney[journeyIdx - 1].kmPost;
+            //    if (distance > 0)
+            //        increasingcount++;
+            //    else if (distance < 0)
+            //        decreasingCount++;
+            //    else
+            //        zeroCount++;
+            //}
+
+            //if (increasingcount > 0 && decreasingCount < 0.4*increasingcount)
+            //    return direction.increasing;
+            //else if (decreasingCount > 0 && increasingcount < 0.4*decreasingCount)
+            //    return direction.decreasing;
+            //else
+            //    return direction.notSpecified;
 
         }
 
@@ -91,7 +120,7 @@ namespace IceDataForm2
         /// Populate the Setting parameters from the form profived.
         /// </summary>
         /// <param name="form">The Form object containg the form parameters.</param>
-        public void populateFormParameters(Form1 form)
+        public void populateFormParameters(TrainPerformanceAnalysis form)
         {
 
             /* Extract the form parameters. */
@@ -125,8 +154,8 @@ namespace IceDataForm2
             if (Settings.dateRange == null ||
             Settings.topLeftLocation == null ||
             Settings.bottomRightlocation == null ||
-            Settings.includeAListOfTrainsToExclude == null ||
-            Settings.startKm == null ||
+            //Settings.includeAListOfTrainsToExclude == null ||
+            Settings.startKm == null || 
             Settings.endKm == null ||
             Settings.interval == null ||
             Settings.minimumJourneyDistance == null ||
@@ -150,8 +179,12 @@ namespace IceDataForm2
         /// Function populates the direction parameter for the train.
         /// </summary>
         /// <param name="train">The train object</param>
-        public void populateDirection(Train train)
+        public void populateDirection(Train train, List<TrackGeometry> trackGeometry)
         {
+            /* Match the track km post with the track geoemtry */
+            //track.matchTrainLocationToTrackGeometry(train, trackGeometry);
+            TrainPerformanceAnalysis.track.matchTrainLocationToTrackGeometry(train, trackGeometry);
+
             /* Determine the direction of the train */
             direction direction = determineTrainDirection(train);
 
@@ -167,26 +200,35 @@ namespace IceDataForm2
         /// Populate the geometry km information based on the calculated distance from the first km post.
         /// </summary>
         /// <param name="train">A train object.</param>
-        public void populateGeometryKm(Train train)
+        public void populateGeometryKm(Train train, List<TrackGeometry> trackGeometry)
         {
             /* Determine the direction of the km's the train is travelling. */
             direction direction = determineTrainDirection(train);
             double point2PointDistance = 0;
+            double x = 0, y = 0;
+            
 
             /* Thie first km point is populated by the parent function ICEData.CleanData(). */
             for (int journeyIdx = 1; journeyIdx < train.TrainJourney.Count(); journeyIdx++)
             {
+                
+
                 /* Calculate the distance between successive points. */
                 GeoLocation point1 = new GeoLocation(train.TrainJourney[journeyIdx - 1]);
                 GeoLocation point2 = new GeoLocation(train.TrainJourney[journeyIdx]);
                 point2PointDistance = calculateDistance(point1, point2);
 
+                //x = TrainPerformance.TrackGeometry.findClosestTrackGeometryPoint(trackGeometry, point1);
+                //y = track.findClosestTrackGeometryPoint(trackGeometry, point2);
+
                 /* Determine the cumulative actual geometry km based on the direction. */
                 if (direction.Equals(direction.increasing))
                     train.TrainJourney[journeyIdx].geometryKm = train.TrainJourney[journeyIdx - 1].geometryKm + point2PointDistance / 1000;
+                    // if y < km-offest, then the direction has changed.
 
                 else if (direction.Equals(direction.decreasing))
                     train.TrainJourney[journeyIdx].geometryKm = train.TrainJourney[journeyIdx - 1].geometryKm - point2PointDistance / 1000;
+                    // if y > km+offest, then the direction has changed.
 
                 else
                     train.TrainJourney[journeyIdx].geometryKm = train.TrainJourney[journeyIdx].kmPost;
@@ -284,8 +326,6 @@ namespace IceDataForm2
             bool TSR = false;
             double TSRspeed = 0;
 
-            double powerToWeight = 0;
-
             /* Index values for the interpolation parameters */
             int index0 = -1;
             int index1 = -1;
@@ -293,6 +333,8 @@ namespace IceDataForm2
             /* Interplation parameters. */
             double interpolatedSpeed = 0;
             double X0, X1, Y0, Y1;
+
+            int a = 0;
 
 
             /* Create a new list of trains for the journies interpolated values. */
@@ -303,17 +345,21 @@ namespace IceDataForm2
             /* Cycle through each train to interpolate between points. */
             for (int trainIdx = 0; trainIdx < trains.Count(); trainIdx++)
             {
+                
                 /* Create a new journey list of interpolated values. */
                 List<InterpolatedTrain> interpolatedTrainList = new List<InterpolatedTrain>();
 
                 journey = trains[trainIdx].TrainJourney;
+
+                string d = journey[0].trainDirection.ToString();
 
                 /* Set the start of the interpolation. */
                 currentKm = Settings.startKm;
 
                 while (currentKm < Settings.endKm)
                 {
-                    /* Find the closest kilometerage markers either side of the current interpoaltion point. */
+                    
+                    /* Find the closest kilometerage markers either side of the current interpolation point. */
                     index0 = findClosestLowerKm(currentKm, journey);
                     index1 = findClosestGreaterKm(currentKm, journey);
 
@@ -335,19 +381,20 @@ namespace IceDataForm2
                         /* Interpolate the time. */
                         time = time.AddHours(calculateTimeInterval(previousKm, currentKm, interpolatedSpeed));
 
+
+                        if (X0 < 6)
+                            a = 0;
+
                     }
                     else
                     {
                         /* Boundary conditions for interpolating the data prior to and beyond the existing journey points. */
-                        time = new DateTime(2000, 1, 1);
+                        time = new DateTime(2000, 1, 1);    // journey[0].NotificationDateTime
                         interpolatedSpeed = 0;
 
                     }
 
-                    /* Determine if we need to extract the time from the data or interpolate it. */
-                    if (index1 >= 0)
-                        if (currentKm >= journey[index1].geometryKm)
-                            timeChange = true;
+                    
 
                     geometryIdx = trackGeometry[0].findClosestTrackGeometryPoint(trackGeometry, currentKm);
 
@@ -363,19 +410,26 @@ namespace IceDataForm2
 
                     /* Create the interpolated data object and add it to the list. */
                     InterpolatedTrain item = new InterpolatedTrain(trains[trainIdx].TrainJourney[0].TrainID, trains[trainIdx].TrainJourney[0].LocoID,
-                                                                    powerToWeight, time, currentKm, interpolatedSpeed, loop, TSR, TSRspeed);
+                                                                    trains[trainIdx].TrainJourney[0].powerToWeight, time, currentKm, interpolatedSpeed, loop, TSR, TSRspeed);
                     interpolatedTrainList.Add(item);
 
                     /* Create a copy of the current km marker and increment. */
                     previousKm = currentKm;
                     currentKm = currentKm + Settings.interval / 1000;
 
+                    /* Determine if we need to extract the time from the data or interpolate it. */
+                    if (index1 >= 0)
+                        if (currentKm >= journey[index1].geometryKm)
+                            timeChange = true;
+
                 }
 
                 /* Add the interpolated list to the list of new train objects. */
                 Train trainItem = new Train(interpolatedTrainList, journey[0].trainDirection);
                 newTrainList.Add(trainItem);
-
+                string T = trainItem.TrainJourney[0].TrainID;
+                d = trainItem.TrainJourney[0].LocoID;
+                
             }
 
             /* Return the completed interpolated train data. */
@@ -506,6 +560,8 @@ namespace IceDataForm2
         /// <returns>The time taken to traverse the distance in hours.</returns>
         private double calculateTimeInterval(double startPositon, double endPosition, double speed)
         {
+            if (speed == 0)
+                return 0;
             return Math.Abs(endPosition - startPositon) / speed;    // hours.
         }
 
@@ -1049,8 +1105,7 @@ namespace IceDataForm2
         }
 
 
-        
-        
+
     } // Class processing
 
 }

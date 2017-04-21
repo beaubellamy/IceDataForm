@@ -10,17 +10,17 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Globalsettings;
 
-namespace IceDataForm2
+namespace TrainPerformance
 {
 
-    public partial class Form1 : Form
+    public partial class TrainPerformanceAnalysis : Form
     {
         
         public static Tools tool = new Tools();
         public static Processing processing = new Processing();
         public static TrackGeometry track = new TrackGeometry();
 
-        public Form1()
+        public TrainPerformanceAnalysis()
         {
             InitializeComponent();
         }
@@ -33,8 +33,10 @@ namespace IceDataForm2
         private void selectDataFile_Click(object sender, EventArgs e)
         {
 
-            FileSettings.dataFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - sample.csv";
-                //tool.browseFile("Select the data file.");
+            FileSettings.dataFile = //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - sample.csv";
+                        @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - fulltest.csv";
+                        //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\Macarthur to Botany test data.csv";
+                        //tool.browseFile("Select the data file.");
             IceDataFile.Text = Path.GetFileName(FileSettings.dataFile);
             simIceDataFile.Text = Path.GetFileName(FileSettings.dataFile);
         }

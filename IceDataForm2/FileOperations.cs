@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Globalsettings;
 
-namespace IceDataForm2
+namespace TrainPerformance
 {
     class FileOperations
     {
@@ -94,6 +94,7 @@ namespace IceDataForm2
                     double.TryParse(fields[11], out latitude);
                     double.TryParse(fields[13], out longitude);
                     DateTime.TryParse(fields[14], out NotificationDateTime);
+                    double.TryParse(fields[25], out powerToWeight);
                     /* possible TSR information as well*/
 
                     /* Check if the train is in the exclude list */
@@ -562,6 +563,120 @@ namespace IceDataForm2
         
         
         }
+
+        public static void writeTrainDataForComparison(List<Train> trainRecords)
+        {
+
+            /* Create the microsfot excel references. */
+            Microsoft.Office.Interop.Excel.Application excel;
+            Microsoft.Office.Interop.Excel._Workbook workbook;
+            Microsoft.Office.Interop.Excel._Worksheet worksheet;
+
+            /* Start Excel and get Application object. */
+            excel = new Microsoft.Office.Interop.Excel.Application();
+
+            /* Get the reference to the new workbook. */
+            workbook = (Microsoft.Office.Interop.Excel._Workbook)(excel.Workbooks.Add(""));
+
+            /* Create the header details. */
+            string[] headerString1 = { "km", "", "Trains:" };
+            string[] headerString2 = { "","Train ID:" };
+            string[] headerString3 = { "", "Loco ID:" };
+            string[] headerString4 = { "", "Date:" };
+            string[] headerString5 = { "", "Power to Weight Ratio:" };
+            string[] headerString6 = { "", "Direction:" };
+
+
+            /* Pagenate the data for writing to excel. */
+            int excelPageSize = 1000000;        /* Page size of the excel worksheet. */
+            int excelPages = 1;                 /* Number of Excel pages to write. */
+            int headerOffset = 8;
+
+            /* Adjust the excel page size or the number of pages to write. */
+            if (trainRecords.Count() < excelPageSize)
+                excelPageSize = trainRecords.Count();
+            else
+                excelPages = (int)Math.Round((double)trainRecords.Count() / excelPageSize + 0.5);
+
+            int middle = (int)trainRecords[0].TrainJourney.Count() / 2;
+            /* Deconstruct the train details into excel columns. */
+            string[,] TrainID = new string[1, trainRecords.Count()];
+            string[,] LocoID = new string[1, trainRecords.Count()];
+            DateTime[,] NotificationTime = new DateTime[1, trainRecords.Count()];
+            double[,] powerToWeight = new double[1, trainRecords.Count()];
+            string[,] direction = new string[1, trainRecords.Count()];
+
+            double[,] kilometerage = new double[trainRecords[0].TrainJourney.Count(), 1];
+            double[,] speed = new double[trainRecords[0].TrainJourney.Count(), trainRecords.Count()];
+
+
+            /* Loop through the excel pages. */
+            for (int excelPage = 0; excelPage < excelPages; excelPage++)
+            {
+                /* Set the active worksheet. */
+                worksheet = (Microsoft.Office.Interop.Excel._Worksheet)workbook.Sheets[excelPage + 1];
+                workbook.Sheets[excelPage + 1].Activate();
+                worksheet.get_Range("A1", "C1").Value2 = headerString1;
+                worksheet.get_Range("B2", "C2").Value2 = headerString2;
+                worksheet.get_Range("B3", "C3").Value2 = headerString3;
+                worksheet.get_Range("B4", "C4").Value2 = headerString4;
+                worksheet.get_Range("B5", "C5").Value2 = headerString5;
+                worksheet.get_Range("B6", "C6").Value2 = headerString6;
+
+                /* Loop through the data for each excel page. */
+                for (int trainIdx = 0; trainIdx < trainRecords.Count(); trainIdx++)
+                {
+                    TrainID[0, trainIdx] = trainRecords[trainIdx].TrainJourney[0].TrainID;
+                    LocoID[0, trainIdx] = trainRecords[trainIdx].TrainJourney[0].LocoID;
+                    NotificationTime[0, trainIdx] = trainRecords[trainIdx].TrainJourney[middle].NotificationDateTime;
+                    powerToWeight[0, trainIdx] = trainRecords[trainIdx].TrainJourney[0].powerToWeight;
+
+                    if (trainRecords[trainIdx].TrainJourney[0].trainDirection == TrainPerformance.direction.increasing)
+                        direction[0, trainIdx] = "Increasing";
+                    else if (trainRecords[trainIdx].TrainJourney[0].trainDirection == TrainPerformance.direction.decreasing)
+                        direction[0, trainIdx] = "Decreasing";
+                    else
+                        direction[0, trainIdx] = "Not Defined";
+
+                    for (int journeyIdx = 0; journeyIdx < trainRecords[trainIdx].TrainJourney.Count(); journeyIdx++)
+                    {
+                        kilometerage[journeyIdx, 0] = Settings.startKm + Settings.interval / 1000 * journeyIdx;
+
+                        speed[journeyIdx, trainIdx] = trainRecords[trainIdx].TrainJourney[journeyIdx].speed;
+
+                    }
+                }
+
+                /* Write the data to the active excel workseet. */
+                worksheet.Range[worksheet.Cells[2, 3], worksheet.Cells[2, trainRecords.Count() + 2]].Value2 = TrainID;
+                worksheet.Range[worksheet.Cells[3, 3], worksheet.Cells[3, trainRecords.Count() + 2]].Value2 = LocoID;
+                worksheet.Range[worksheet.Cells[4, 3], worksheet.Cells[4, trainRecords.Count() + 2]].Value2 = NotificationTime;
+                worksheet.Range[worksheet.Cells[5, 3], worksheet.Cells[5, trainRecords.Count() + 2]].Value2 = powerToWeight;
+                worksheet.Range[worksheet.Cells[6, 3], worksheet.Cells[6, trainRecords.Count() + 2]].Value2 = direction;
+
+                worksheet.Range[worksheet.Cells[headerOffset, 1], worksheet.Cells[headerOffset + trainRecords[0].TrainJourney.Count() - 1, 1]].Value2 = kilometerage;
+                worksheet.Range[worksheet.Cells[headerOffset, 3], worksheet.Cells[headerOffset + trainRecords[0].TrainJourney.Count() - 1, 3 + trainRecords.Count() - 1]].Value2 = speed;
+
+            }
+
+            /* Generate the resulting file name and location to save to. */
+            string savePath = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis";
+            string saveFilename = savePath + @"\ICEData_InterpolatedCompare" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx";
+
+            /* Check the file does not exist yet. */
+            if (File.Exists(saveFilename))
+                File.Delete(saveFilename);
+
+            /* Save the excel file. */
+            excel.UserControl = false;
+            workbook.SaveAs(saveFilename, Microsoft.Office.Interop.Excel.XlFileFormat.xlWorkbookDefault, Type.Missing, Type.Missing,
+                false, false, Microsoft.Office.Interop.Excel.XlSaveAsAccessMode.xlNoChange,
+                Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
+
+            workbook.Close();
+
+            return;
+        } 
 
         /// <summary>
         /// Write all catagories of the averaged Ice data to a file.
