@@ -395,7 +395,10 @@ namespace TrainPerformance
                     }
 
                     
+<<<<<<< HEAD
 
+=======
+>>>>>>> dfe05a991504f14c2991e612a189adfb63ab1792
                     geometryIdx = trackGeometry[0].findClosestTrackGeometryPoint(trackGeometry, currentKm);
 
                     if (geometryIdx >= 0)
@@ -560,9 +563,16 @@ namespace TrainPerformance
         /// <returns>The time taken to traverse the distance in hours.</returns>
         private double calculateTimeInterval(double startPositon, double endPosition, double speed)
         {
+<<<<<<< HEAD
             if (speed == 0)
                 return 0;
             return Math.Abs(endPosition - startPositon) / speed;    // hours.
+=======
+            if (speed > 0)
+                return Math.Abs(endPosition - startPositon) / speed;    // hours.
+            else
+                return 0;
+>>>>>>> dfe05a991504f14c2991e612a189adfb63ab1792
         }
 
         /// <summary>
