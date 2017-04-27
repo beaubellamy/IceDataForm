@@ -538,9 +538,9 @@ namespace TrainPerformance
             /* Clean data - remove trains with insufficient data. */
             /******** Should only be required while we are waiting for the data in the prefered format ********/
             List<Train> CleanTrainRecords = new List<Train>();
-            CleanTrainRecords = CleanData(trackGeometry, OrderdTrainRecords);
+            //CleanTrainRecords = CleanData(trackGeometry, OrderdTrainRecords);
             /**************************************************************************************************/
-            //CleanTrainRecords = MakeTrains(trackGeometry, OrderdTrainRecords);
+            CleanTrainRecords = MakeTrains(trackGeometry, OrderdTrainRecords);
 
             /* interpolate data */
             /******** Should only be required while we are waiting for the data in the prefered format ********/

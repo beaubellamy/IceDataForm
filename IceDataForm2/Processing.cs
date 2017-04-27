@@ -86,9 +86,10 @@ namespace TrainPerformance
             double journeyDistance = train.TrainJourney[train.TrainJourney.Count - 1].kmPost - train.TrainJourney[0].kmPost;
             
             /* The invalid direction captures those train journeys that change in direction and return to a similar location. */
-            if (journeyDistance > -10 && journeyDistance < 10)
-                return direction.invalid;
-            else if (journeyDistance > 0)
+            //if (journeyDistance > -10 && journeyDistance < 10)
+            //    return direction.invalid;
+            //else 
+            if (journeyDistance > 0)
                 return direction.increasing;
             else
                 return direction.decreasing;
@@ -223,26 +224,37 @@ namespace TrainPerformance
         public void populateGeometryKm(Train train, List<TrackGeometry> trackGeometry)
         {
             /* Determine the direction of the km's the train is travelling. */
-            double point2PointDistance = 0;
-            
+            //double point2PointDistance = 0;
+
+            GeoLocation trainPoint = new GeoLocation();
+                
             /* Thie first km point is populated by the parent function ICEData.CleanData(). */
             for (int journeyIdx = 1; journeyIdx < train.TrainJourney.Count(); journeyIdx++)
             {
-            
-                /* Calculate the distance between successive points. */
-                GeoLocation point1 = new GeoLocation(train.TrainJourney[journeyIdx - 1]);
-                GeoLocation point2 = new GeoLocation(train.TrainJourney[journeyIdx]);
-                point2PointDistance = calculateDistance(point1, point2);
+                /* Find the kilometerage of the closest point on the track and associate it with the current train location.*/
+                trainPoint = new GeoLocation(train.TrainJourney[journeyIdx]);
+                train.TrainJourney[journeyIdx].geometryKm = TrainPerformanceAnalysis.track.findClosestTrackGeometryPoint(trackGeometry, trainPoint);
+                /* Note: This is not ideal, as the actual distances travelled will end up being out by a few km.
+                 * This approach reduces the effect of the train journies appearing to change direction several times.
+                 */
 
-                /* Determine the cumulative actual geometry km based on the direction. */
-                if (train.TrainJourney[0].trainDirection == direction.increasing)
-                    train.TrainJourney[journeyIdx].geometryKm = train.TrainJourney[journeyIdx - 1].geometryKm + point2PointDistance / 1000;
+
+                /* The following approach can be used when the date being read does not contain changing directions. */
+
+                /* Calculate the distance between successive points. */
+                //GeoLocation point1 = new GeoLocation(train.TrainJourney[journeyIdx - 1]);
+                //GeoLocation point2 = new GeoLocation(train.TrainJourney[journeyIdx]);
+                //point2PointDistance = calculateDistance(point1, point2);
+
+                ///* Determine the cumulative actual geometry km based on the direction. */
+                //if (train.TrainJourney[0].trainDirection == direction.increasing)
+                //    train.TrainJourney[journeyIdx].geometryKm = train.TrainJourney[journeyIdx - 1].geometryKm + point2PointDistance / 1000;
                 
-                else if (train.TrainJourney[0].trainDirection == direction.decreasing)
-                    train.TrainJourney[journeyIdx].geometryKm = train.TrainJourney[journeyIdx - 1].geometryKm - point2PointDistance / 1000;
+                //else if (train.TrainJourney[0].trainDirection == direction.decreasing)
+                //    train.TrainJourney[journeyIdx].geometryKm = train.TrainJourney[journeyIdx - 1].geometryKm - point2PointDistance / 1000;
                 
-                else
-                    train.TrainJourney[journeyIdx].geometryKm = train.TrainJourney[journeyIdx].kmPost;
+                //else
+                //    train.TrainJourney[journeyIdx].geometryKm = train.TrainJourney[journeyIdx].kmPost;
                 
             }
 

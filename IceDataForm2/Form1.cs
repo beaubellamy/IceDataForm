@@ -34,7 +34,8 @@ namespace TrainPerformance
         {
 
             FileSettings.dataFile = //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - sample.csv";
-                        @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - fulltest.csv";
+                        //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - fulltest.csv";
+                        @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - interpolation test.csv";
                         //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\Macarthur to Botany test data.csv";
                         //tool.browseFile("Select the data file.");
             IceDataFile.Text = Path.GetFileName(FileSettings.dataFile);
