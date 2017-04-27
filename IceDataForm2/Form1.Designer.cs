@@ -1010,14 +1010,14 @@
             this.selectIncreasingSimulation.UseVisualStyleBackColor = true;
             this.selectIncreasingSimulation.Click += new System.EventHandler(this.selectUnderpoweredIncreasingSimulationFile_Click);
             // 
-            // Form1
+            // TrainPerformanceAnalysis
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(904, 459);
             this.Controls.Add(this.SimualtionFileTab);
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.Name = "TrainPerformanceAnalysis";
+            this.Text = "Train Performance Analysis";
             this.SimualtionFileTab.ResumeLayout(false);
             this.fileSelectionTab.ResumeLayout(false);
             this.fileSelectionTab.PerformLayout();

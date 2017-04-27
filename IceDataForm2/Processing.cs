@@ -10,8 +10,7 @@ namespace TrainPerformance
     public class Processing
     {
         Tools tool = new Tools();
-        //TrackGeometry track = new TrackGeometry();
-
+        
         /* Mean radius of the Earth */
         private const double EarthRadius = 6371000.0;   // metres
         /* Constant time factors. */
@@ -78,42 +77,21 @@ namespace TrainPerformance
         /// <returns>Enumerated direction of the train km's.</returns>
         private direction determineTrainDirection(Train train)
         {
-            string T = train.TrainJourney[0].TrainID;
-            string L = train.TrainJourney[0].LocoID;
-            DateTime D = train.TrainJourney[0].NotificationDateTime;
-
+            /* NOTE: This function does not take into account any train joureny data that have 
+             * multiple changes of direction. This should not be seen when the 'Cleaned Data' 
+             * is deleviered by Enetrprise services.
+             */
+            
             /* Determine the distance and sign from the first point to the last point */
-            //double journeyDistance = train.TrainJourney[train.TrainJourney.Count - 1].trackKmPost - train.TrainJourney[0].trackKmPost; 
             double journeyDistance = train.TrainJourney[train.TrainJourney.Count - 1].kmPost - train.TrainJourney[0].kmPost;
-            double distance = 0;
-            int increasingcount = 0;
-            int decreasingCount = 0;
-            int zeroCount = 0;
-
-            if (journeyDistance > 0)
+            
+            /* The invalid direction captures those train journeys that change in direction and return to a similar location. */
+            if (journeyDistance > -10 && journeyDistance < 10)
+                return direction.invalid;
+            else if (journeyDistance > 0)
                 return direction.increasing;
             else
                 return direction.decreasing;
-
-
-            //for (int journeyIdx = 1; journeyIdx < train.TrainJourney.Count(); journeyIdx++)
-            //{
-            //    distance = train.TrainJourney[journeyIdx].kmPost - train.TrainJourney[journeyIdx - 1].kmPost;
-            //    if (distance > 0)
-            //        increasingcount++;
-            //    else if (distance < 0)
-            //        decreasingCount++;
-            //    else
-            //        zeroCount++;
-            //}
-
-            //if (increasingcount > 0 && decreasingCount < 0.4*increasingcount)
-            //    return direction.increasing;
-            //else if (decreasingCount > 0 && increasingcount < 0.4*decreasingCount)
-            //    return direction.decreasing;
-            //else
-            //    return direction.notSpecified;
-
         }
 
         /// <summary>
@@ -126,7 +104,7 @@ namespace TrainPerformance
             /* Extract the form parameters. */
             Settings.dateRange = form.getDateRange();
             Settings.topLeftLocation = form.getTopLeftLocation();
-            Settings.bottomRightlocation = form.getBottomRightLocation();
+            Settings.bottomRightLocation = form.getBottomRightLocation();
             Settings.includeAListOfTrainsToExclude = form.getTrainListExcludeFlag();
             Settings.startKm = form.getStartKm();
             Settings.endKm = form.getEndKm();
@@ -146,30 +124,73 @@ namespace TrainPerformance
         }
         
         /// <summary>
-        /// Validate the form parameters are not null
+        /// Validate the form parameters are within logical boundaries.
         /// </summary>
         /// <returns></returns>
         public bool areFormParametersValid()
         {
+
             if (Settings.dateRange == null ||
-            Settings.topLeftLocation == null ||
-            Settings.bottomRightlocation == null ||
-            //Settings.includeAListOfTrainsToExclude == null ||
-            Settings.startKm == null || 
-            Settings.endKm == null ||
-            Settings.interval == null ||
-            Settings.minimumJourneyDistance == null ||
-            Settings.loopSpeedThreshold == null ||
-            Settings.loopBoundaryThreshold == null ||
-            Settings.TSRwindowBounday == null ||
-            Settings.timeThreshold == null ||
-            Settings.distanceThreshold == null ||
-            Settings.underpoweredLowerBound == null ||
-            Settings.underpoweredUpperBound == null ||
-            Settings.overpoweredLowerBound == null ||
-            Settings.overpoweredUpperBound == null)
+                Settings.dateRange[0] > DateTime.Today || Settings.dateRange[1] > DateTime.Today ||
+                Settings.dateRange[0] > Settings.dateRange[1])
                 return false;
 
+            if (Settings.topLeftLocation == null ||
+                Settings.topLeftLocation.latitude > -10 ||      /* Australian top left bounday */
+                Settings.topLeftLocation.longitude < 110 ||
+                Settings.topLeftLocation.latitude > -10 ||      /* Australian top right bounday */
+                Settings.topLeftLocation.longitude > 155)
+                return false;
+
+            if (Settings.bottomRightLocation == null ||
+                Settings.bottomRightLocation.latitude < -40 ||      /* Australian bottom left bounday */
+                Settings.bottomRightLocation.longitude < 110 ||
+                Settings.bottomRightLocation.latitude < -40 ||      /* Australian bottom right bounday */
+                Settings.bottomRightLocation.longitude > 155)
+                return false;
+
+            if (Settings.includeAListOfTrainsToExclude == null)
+                return false;
+
+            if (Settings.startKm == null || Settings.startKm < 0)
+                return false;
+
+            if (Settings.endKm == null || Settings.endKm < 0)
+                return false;
+
+            if (Settings.interval == null || Settings.interval < 0)
+                return false;
+
+            if (Settings.minimumJourneyDistance == null || Settings.minimumJourneyDistance < 0)
+                return false;
+
+            if (Settings.loopSpeedThreshold == null || Settings.loopSpeedThreshold < 0 || Settings.loopSpeedThreshold > 100)
+                return false;
+
+            if (Settings.loopBoundaryThreshold == null || Settings.loopBoundaryThreshold < 0)
+                return false;
+
+            if (Settings.TSRwindowBounday == null || Settings.TSRwindowBounday < 0)
+                return false;
+
+            if (Settings.timeThreshold == null || Settings.timeThreshold < 0)
+                return false;
+
+            if (Settings.distanceThreshold == null || Settings.distanceThreshold < 0)
+                return false;
+
+            if (Settings.underpoweredLowerBound == null || Settings.underpoweredLowerBound < 0)
+                return false;
+            
+            if (Settings.underpoweredUpperBound == null || Settings.underpoweredUpperBound < 0)
+                return false;
+            
+            if (Settings.overpoweredLowerBound == null || Settings.overpoweredLowerBound < 0)
+                return false;
+            
+            if (Settings.overpoweredUpperBound == null || Settings.overpoweredUpperBound < 0)
+                return false;
+            
             return true;
 
 
@@ -182,7 +203,6 @@ namespace TrainPerformance
         public void populateDirection(Train train, List<TrackGeometry> trackGeometry)
         {
             /* Match the track km post with the track geoemtry */
-            //track.matchTrainLocationToTrackGeometry(train, trackGeometry);
             TrainPerformanceAnalysis.track.matchTrainLocationToTrackGeometry(train, trackGeometry);
 
             /* Determine the direction of the train */
@@ -203,36 +223,29 @@ namespace TrainPerformance
         public void populateGeometryKm(Train train, List<TrackGeometry> trackGeometry)
         {
             /* Determine the direction of the km's the train is travelling. */
-            direction direction = determineTrainDirection(train);
             double point2PointDistance = 0;
-            double x = 0, y = 0;
             
-
             /* Thie first km point is populated by the parent function ICEData.CleanData(). */
             for (int journeyIdx = 1; journeyIdx < train.TrainJourney.Count(); journeyIdx++)
             {
-                
-
+            
                 /* Calculate the distance between successive points. */
                 GeoLocation point1 = new GeoLocation(train.TrainJourney[journeyIdx - 1]);
                 GeoLocation point2 = new GeoLocation(train.TrainJourney[journeyIdx]);
                 point2PointDistance = calculateDistance(point1, point2);
 
-                //x = TrainPerformance.TrackGeometry.findClosestTrackGeometryPoint(trackGeometry, point1);
-                //y = track.findClosestTrackGeometryPoint(trackGeometry, point2);
-
                 /* Determine the cumulative actual geometry km based on the direction. */
-                if (direction.Equals(direction.increasing))
+                if (train.TrainJourney[0].trainDirection == direction.increasing)
                     train.TrainJourney[journeyIdx].geometryKm = train.TrainJourney[journeyIdx - 1].geometryKm + point2PointDistance / 1000;
-                    // if y < km-offest, then the direction has changed.
-
-                else if (direction.Equals(direction.decreasing))
+                
+                else if (train.TrainJourney[0].trainDirection == direction.decreasing)
                     train.TrainJourney[journeyIdx].geometryKm = train.TrainJourney[journeyIdx - 1].geometryKm - point2PointDistance / 1000;
-                    // if y > km+offest, then the direction has changed.
-
+                
                 else
                     train.TrainJourney[journeyIdx].geometryKm = train.TrainJourney[journeyIdx].kmPost;
+                
             }
+
 
         }
 
@@ -334,9 +347,7 @@ namespace TrainPerformance
             double interpolatedSpeed = 0;
             double X0, X1, Y0, Y1;
 
-            int a = 0;
-
-
+           
             /* Create a new list of trains for the journies interpolated values. */
             List<Train> newTrainList = new List<Train>();
             /* Create a journey list to store the existing journey details. */
@@ -350,8 +361,6 @@ namespace TrainPerformance
                 List<InterpolatedTrain> interpolatedTrainList = new List<InterpolatedTrain>();
 
                 journey = trains[trainIdx].TrainJourney;
-
-                string d = journey[0].trainDirection.ToString();
 
                 /* Set the start of the interpolation. */
                 currentKm = Settings.startKm;
@@ -381,10 +390,6 @@ namespace TrainPerformance
                         /* Interpolate the time. */
                         time = time.AddHours(calculateTimeInterval(previousKm, currentKm, interpolatedSpeed));
 
-
-                        if (X0 < 6)
-                            a = 0;
-
                     }
                     else
                     {
@@ -395,10 +400,6 @@ namespace TrainPerformance
                     }
 
                     
-<<<<<<< HEAD
-
-=======
->>>>>>> dfe05a991504f14c2991e612a189adfb63ab1792
                     geometryIdx = trackGeometry[0].findClosestTrackGeometryPoint(trackGeometry, currentKm);
 
                     if (geometryIdx >= 0)
@@ -430,9 +431,7 @@ namespace TrainPerformance
                 /* Add the interpolated list to the list of new train objects. */
                 Train trainItem = new Train(interpolatedTrainList, journey[0].trainDirection);
                 newTrainList.Add(trainItem);
-                string T = trainItem.TrainJourney[0].TrainID;
-                d = trainItem.TrainJourney[0].LocoID;
-                
+                               
             }
 
             /* Return the completed interpolated train data. */
@@ -563,16 +562,11 @@ namespace TrainPerformance
         /// <returns>The time taken to traverse the distance in hours.</returns>
         private double calculateTimeInterval(double startPositon, double endPosition, double speed)
         {
-<<<<<<< HEAD
-            if (speed == 0)
-                return 0;
-            return Math.Abs(endPosition - startPositon) / speed;    // hours.
-=======
+            
             if (speed > 0)
                 return Math.Abs(endPosition - startPositon) / speed;    // hours.
             else
                 return 0;
->>>>>>> dfe05a991504f14c2991e612a189adfb63ab1792
         }
 
         /// <summary>
@@ -584,7 +578,7 @@ namespace TrainPerformance
         /// Returns -1 if a point does not exist.</returns>
         private int findClosestLowerKm(double target, List<TrainDetails> journey)
         {
-            /* set the initial values. */
+            /* Set the initial values. */
             double minimum = double.MaxValue;
             double difference = double.MaxValue;
             int index = 0;
@@ -620,7 +614,7 @@ namespace TrainPerformance
         /// Returns -1 if a point does not exist.</returns>
         private int findClosestLowerKm(double target, List<simulatedTrain> journey)
         {
-            /* set the initial values. */
+            /* Set the initial values. */
             double minimum = double.MaxValue;
             double difference = double.MaxValue;
             int index = 0;
@@ -656,7 +650,7 @@ namespace TrainPerformance
         /// Returns -1 if a point does not exist.</returns>
         private int findClosestGreaterKm(double target, List<TrainDetails> journey)
         {
-            /* set the initial values. */
+            /* Set the initial values. */
             double minimum = double.MaxValue;
             double difference = double.MaxValue;
             int index = 0;
@@ -691,7 +685,7 @@ namespace TrainPerformance
         /// Returns -1 if a point does not exist.</returns>        
         private int findClosestGreaterKm(double target, List<simulatedTrain> journey)
         {
-            /* set the initial values. */
+            /* Set the initial values. */
             double minimum = double.MaxValue;
             double difference = double.MaxValue;
             int index = 0;
@@ -820,7 +814,7 @@ namespace TrainPerformance
 
             bool isInLoopBoundary = false;
             
-            /* Calcualte the number of elements in the arary/list. */
+            /* Calculate the number of elements in the array/list. */
             int size = (int)((Settings.endKm - Settings.startKm) / (Settings.interval / 1000));
             
             /* Place holders for the included speeds and the resulting average speed at each location. */

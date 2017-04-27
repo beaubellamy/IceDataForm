@@ -284,22 +284,21 @@ namespace TrainPerformance
         }
 
         /// <summary>
-        /// Mathc the train location with the closest point on the track for the real track kmPost.
+        /// Match the train location with the closest point on the track for the real track kmPost.
         /// </summary>
         /// <param name="train">A single train journey</param>
         /// <param name="track">The track geometry information.</param>
         public void matchTrainLocationToTrackGeometry(Train train, List<TrackGeometry> track)
         {
-
             foreach (TrainDetails journey in train.TrainJourney)
             {
-                // Consider having a seperate kmPost for the track points.
-                //journey.trackKmPost = findClosestTrackGeometryPoint(track, journey.location);
+                /* Find the closest km marker in the track geometry to the current train location. */
                 journey.kmPost = findClosestTrackGeometryPoint(track, journey.location);
 
             }
 
         }
 
-    }
+    } // Class TrackGeometry
+
 }

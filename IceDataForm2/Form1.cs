@@ -34,13 +34,9 @@ namespace TrainPerformance
         {
 
             FileSettings.dataFile = //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - sample.csv";
-<<<<<<< HEAD
                         @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - fulltest.csv";
                         //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\Macarthur to Botany test data.csv";
                         //tool.browseFile("Select the data file.");
-=======
-                tool.browseFile("Select the data file.");
->>>>>>> dfe05a991504f14c2991e612a189adfb63ab1792
             IceDataFile.Text = Path.GetFileName(FileSettings.dataFile);
             simIceDataFile.Text = Path.GetFileName(FileSettings.dataFile);
         }
@@ -177,8 +173,7 @@ namespace TrainPerformance
             }
             if (FileSettings.dataFile == null || FileSettings.geometryFile == null)
                 return;
-
-
+            
             /* Ensure there is a empty list of trains to exclude to start. */
             List<string> excludeTrainList = new List<string> { };
 
@@ -209,7 +204,8 @@ namespace TrainPerformance
             /******** Should only be required while we are waiting for the data in the prefered format ********/
             List<Train> CleanTrainRecords = new List<Train>();
             CleanTrainRecords = Algorithm.CleanData(trackGeometry, OrderdTrainRecords);
-            
+            /**************************************************************************************************/
+
             /* Calculate the avareage power to weight ratio for a given band and train direction. */
             underpoweredIncreasingP2W.Text = string.Format("{0:#.000}", averagePowerToWeightRatio(CleanTrainRecords, Settings.underpoweredLowerBound, Settings.underpoweredUpperBound, direction.increasing));
             underpoweredDecreasingP2W.Text = string.Format("{0:#.000}", averagePowerToWeightRatio(CleanTrainRecords, Settings.underpoweredLowerBound, Settings.underpoweredUpperBound, direction.decreasing));
@@ -466,11 +462,7 @@ namespace TrainPerformance
         }
 
       
-      
-        
-
-
-    }
+    } // Partial Cladd TrainPerformance
 
     
   
