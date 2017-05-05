@@ -10,7 +10,8 @@ namespace Globalsettings
     public static class FileSettings
     {
         /* Filenames for each required file. */
-        public static string dataFile = null;
+        //public static string dataFile = null;
+        public static List<string> batchFiles = new List<string>();
         public static string geometryFile = null;
         public static string trainList = null;                  /* File only required if includeAListOfTrainsToExclude is TRUE. */
         public static string underpoweredIncreasingSimulationFile = null;

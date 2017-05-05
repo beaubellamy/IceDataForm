@@ -32,14 +32,74 @@ namespace TrainPerformance
         /// <param name="e">The event arguments.</param>
         private void selectDataFile_Click(object sender, EventArgs e)
         {
+            string batchFileName = null;
 
-            FileSettings.dataFile = //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - sample.csv";
-                        @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - fulltest.csv";
-                        //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - interpolation test.csv";
-                        //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\Macarthur to Botany test data.csv";
-                        //tool.browseFile("Select the data file.");
-            IceDataFile.Text = Path.GetFileName(FileSettings.dataFile);
-            simIceDataFile.Text = Path.GetFileName(FileSettings.dataFile);
+            if (sender == selectDataFile)
+            {
+                //FileSettings.dataFile = //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - sample.csv";
+                //            @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - fulltest.csv";
+                //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - interpolation test.csv";
+                //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\Macarthur to Botany test data.csv";
+                //tool.browseFile("Select the data file.");
+                //IceDataFile.Text = Path.GetFileName(FileSettings.dataFile);
+                //simIceDataFile.Text = Path.GetFileName(FileSettings.dataFile);
+                batchFileName = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - fulltest.csv";
+                IceDataFile.Text = Path.GetFileName(batchFileName);
+                simIceDataFile.Text = Path.GetFileName(batchFileName);
+
+                if (batchFileName != null || batchFileName != "")
+                    FileSettings.batchFiles.Add(batchFileName);
+
+            }
+            else if (sender == selectDataFile1)
+            {
+                batchFileName = tool.browseFile("Select the data file.");
+                IceDataFile1.Text = Path.GetFileName(batchFileName);
+                simIceDataFile.Text = Path.GetFileName(batchFileName);
+
+                if (batchFileName != null && batchFileName != "")
+                    FileSettings.batchFiles.Add(batchFileName);
+            }
+            else if (sender == selectDataFile2)
+            {
+                batchFileName = tool.browseFile("Select the data file.");
+                IceDataFile2.Text = Path.GetFileName(batchFileName);
+                
+                if (batchFileName != null || batchFileName != "")
+                    FileSettings.batchFiles.Add(batchFileName);
+            }
+            else if (sender == selectDataFile3)
+            {
+                batchFileName = tool.browseFile("Select the data file.");
+                IceDataFile3.Text = Path.GetFileName(batchFileName);
+                
+                if (batchFileName != null || batchFileName != "")
+                    FileSettings.batchFiles.Add(batchFileName);
+            }
+            else if (sender == selectDataFile4)
+            {
+                batchFileName = tool.browseFile("Select the data file.");
+                IceDataFile4.Text = Path.GetFileName(batchFileName);
+                
+                if (batchFileName != null || batchFileName != "")
+                    FileSettings.batchFiles.Add(batchFileName);
+            }
+            else if (sender == selectDataFile5)
+            {
+                batchFileName = tool.browseFile("Select the data file.");
+                IceDataFile5.Text = Path.GetFileName(batchFileName);
+                
+                if (batchFileName != null || batchFileName != "")
+                    FileSettings.batchFiles.Add(batchFileName);
+            }
+            else
+            {
+                Console.WriteLine("unkown behaviour");
+            }
+
+
+            
+
         }
 
         /// <summary>
@@ -172,9 +232,12 @@ namespace TrainPerformance
                 tool.messageBox("One or more parameters are invalid.");
                 return;
             }
-            if (FileSettings.dataFile == null || FileSettings.geometryFile == null)
+            //if (FileSettings.dataFile == null || FileSettings.geometryFile == null)
+            //    return;
+            if (FileSettings.batchFiles.Count() == 0 || FileSettings.geometryFile == null)
                 return;
-            
+
+
             /* Ensure there is a empty list of trains to exclude to start. */
             List<string> excludeTrainList = new List<string> { };
 
@@ -189,7 +252,10 @@ namespace TrainPerformance
 
             /* Read the data. */
             List<TrainDetails> TrainRecords = new List<TrainDetails>();
-            TrainRecords = FileOperations.readICEData(FileSettings.dataFile, excludeTrainList);
+            foreach (string file in FileSettings.batchFiles)
+            {
+                TrainRecords.AddRange(FileOperations.readICEData(file, excludeTrainList));
+            }
             if (TrainRecords.Count() == 0)
             {
                 tool.messageBox("There is no data within the specified boundaries.\nCheck the processing parameters.");
@@ -460,6 +526,11 @@ namespace TrainPerformance
                 return p2W;
 
             return 0;
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+
         }
 
       

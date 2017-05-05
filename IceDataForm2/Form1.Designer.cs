@@ -119,6 +119,16 @@
             this.underpoweredIncreasingSimulationFile = new System.Windows.Forms.TextBox();
             this.selectDecreasingSimulation = new System.Windows.Forms.Button();
             this.selectIncreasingSimulation = new System.Windows.Forms.Button();
+            this.IceDataFile5 = new System.Windows.Forms.TextBox();
+            this.IceDataFile4 = new System.Windows.Forms.TextBox();
+            this.IceDataFile3 = new System.Windows.Forms.TextBox();
+            this.IceDataFile2 = new System.Windows.Forms.TextBox();
+            this.IceDataFile1 = new System.Windows.Forms.TextBox();
+            this.selectDataFile5 = new System.Windows.Forms.Button();
+            this.selectDataFile4 = new System.Windows.Forms.Button();
+            this.selectDataFile3 = new System.Windows.Forms.Button();
+            this.selectDataFile2 = new System.Windows.Forms.Button();
+            this.selectDataFile1 = new System.Windows.Forms.Button();
             this.SimualtionFileTab.SuspendLayout();
             this.fileSelectionTab.SuspendLayout();
             this.processingTab.SuspendLayout();
@@ -140,6 +150,16 @@
             // 
             // fileSelectionTab
             // 
+            this.fileSelectionTab.Controls.Add(this.IceDataFile5);
+            this.fileSelectionTab.Controls.Add(this.IceDataFile4);
+            this.fileSelectionTab.Controls.Add(this.IceDataFile3);
+            this.fileSelectionTab.Controls.Add(this.IceDataFile2);
+            this.fileSelectionTab.Controls.Add(this.IceDataFile1);
+            this.fileSelectionTab.Controls.Add(this.selectDataFile5);
+            this.fileSelectionTab.Controls.Add(this.selectDataFile4);
+            this.fileSelectionTab.Controls.Add(this.selectDataFile3);
+            this.fileSelectionTab.Controls.Add(this.selectDataFile2);
+            this.fileSelectionTab.Controls.Add(this.selectDataFile1);
             this.fileSelectionTab.Controls.Add(this.TrainFile);
             this.fileSelectionTab.Controls.Add(this.GeometryFile);
             this.fileSelectionTab.Controls.Add(this.IceDataFile);
@@ -157,14 +177,14 @@
             // 
             // TrainFile
             // 
-            this.TrainFile.Location = new System.Drawing.Point(250, 167);
+            this.TrainFile.Location = new System.Drawing.Point(249, 327);
             this.TrainFile.Name = "TrainFile";
             this.TrainFile.Size = new System.Drawing.Size(550, 20);
             this.TrainFile.TabIndex = 11;
             // 
             // GeometryFile
             // 
-            this.GeometryFile.Location = new System.Drawing.Point(250, 108);
+            this.GeometryFile.Location = new System.Drawing.Point(249, 278);
             this.GeometryFile.Name = "GeometryFile";
             this.GeometryFile.Size = new System.Drawing.Size(550, 20);
             this.GeometryFile.TabIndex = 8;
@@ -181,7 +201,7 @@
             // includeAListOfTrainsToExclude
             // 
             this.includeAListOfTrainsToExclude.AutoSize = true;
-            this.includeAListOfTrainsToExclude.Location = new System.Drawing.Point(28, 196);
+            this.includeAListOfTrainsToExclude.Location = new System.Drawing.Point(28, 358);
             this.includeAListOfTrainsToExclude.Name = "includeAListOfTrainsToExclude";
             this.includeAListOfTrainsToExclude.Size = new System.Drawing.Size(118, 17);
             this.includeAListOfTrainsToExclude.TabIndex = 5;
@@ -190,7 +210,7 @@
             // 
             // selectTrainList
             // 
-            this.selectTrainList.Location = new System.Drawing.Point(28, 162);
+            this.selectTrainList.Location = new System.Drawing.Point(28, 322);
             this.selectTrainList.Name = "selectTrainList";
             this.selectTrainList.Size = new System.Drawing.Size(163, 28);
             this.selectTrainList.TabIndex = 4;
@@ -200,7 +220,7 @@
             // 
             // selectGeomtryFile
             // 
-            this.selectGeomtryFile.Location = new System.Drawing.Point(28, 103);
+            this.selectGeomtryFile.Location = new System.Drawing.Point(28, 273);
             this.selectGeomtryFile.Name = "selectGeomtryFile";
             this.selectGeomtryFile.Size = new System.Drawing.Size(163, 28);
             this.selectGeomtryFile.TabIndex = 1;
@@ -1010,6 +1030,96 @@
             this.selectIncreasingSimulation.UseVisualStyleBackColor = true;
             this.selectIncreasingSimulation.Click += new System.EventHandler(this.selectUnderpoweredIncreasingSimulationFile_Click);
             // 
+            // IceDataFile5
+            // 
+            this.IceDataFile5.Location = new System.Drawing.Point(249, 223);
+            this.IceDataFile5.Name = "IceDataFile5";
+            this.IceDataFile5.Size = new System.Drawing.Size(550, 20);
+            this.IceDataFile5.TabIndex = 22;
+            this.IceDataFile5.Text = "<Optional>";
+            // 
+            // IceDataFile4
+            // 
+            this.IceDataFile4.Location = new System.Drawing.Point(249, 189);
+            this.IceDataFile4.Name = "IceDataFile4";
+            this.IceDataFile4.Size = new System.Drawing.Size(550, 20);
+            this.IceDataFile4.TabIndex = 21;
+            this.IceDataFile4.Text = "<Optional>";
+            // 
+            // IceDataFile3
+            // 
+            this.IceDataFile3.Location = new System.Drawing.Point(249, 155);
+            this.IceDataFile3.Name = "IceDataFile3";
+            this.IceDataFile3.Size = new System.Drawing.Size(550, 20);
+            this.IceDataFile3.TabIndex = 20;
+            this.IceDataFile3.Text = "<Optional>";
+            // 
+            // IceDataFile2
+            // 
+            this.IceDataFile2.Location = new System.Drawing.Point(249, 121);
+            this.IceDataFile2.Name = "IceDataFile2";
+            this.IceDataFile2.Size = new System.Drawing.Size(550, 20);
+            this.IceDataFile2.TabIndex = 19;
+            this.IceDataFile2.Text = "<Optional>";
+            // 
+            // IceDataFile1
+            // 
+            this.IceDataFile1.Location = new System.Drawing.Point(249, 87);
+            this.IceDataFile1.Name = "IceDataFile1";
+            this.IceDataFile1.Size = new System.Drawing.Size(550, 20);
+            this.IceDataFile1.TabIndex = 18;
+            this.IceDataFile1.Text = "<Optional>";
+            // 
+            // selectDataFile5
+            // 
+            this.selectDataFile5.Location = new System.Drawing.Point(28, 218);
+            this.selectDataFile5.Name = "selectDataFile5";
+            this.selectDataFile5.Size = new System.Drawing.Size(163, 28);
+            this.selectDataFile5.TabIndex = 17;
+            this.selectDataFile5.Text = "Select Ice Data File";
+            this.selectDataFile5.UseVisualStyleBackColor = true;
+            this.selectDataFile5.Click += new System.EventHandler(this.selectDataFile_Click);
+            // 
+            // selectDataFile4
+            // 
+            this.selectDataFile4.Location = new System.Drawing.Point(28, 184);
+            this.selectDataFile4.Name = "selectDataFile4";
+            this.selectDataFile4.Size = new System.Drawing.Size(163, 28);
+            this.selectDataFile4.TabIndex = 16;
+            this.selectDataFile4.Text = "Select Ice Data File";
+            this.selectDataFile4.UseVisualStyleBackColor = true;
+            this.selectDataFile4.Click += new System.EventHandler(this.selectDataFile_Click);
+            // 
+            // selectDataFile3
+            // 
+            this.selectDataFile3.Location = new System.Drawing.Point(28, 150);
+            this.selectDataFile3.Name = "selectDataFile3";
+            this.selectDataFile3.Size = new System.Drawing.Size(163, 28);
+            this.selectDataFile3.TabIndex = 15;
+            this.selectDataFile3.Text = "Select Ice Data File";
+            this.selectDataFile3.UseVisualStyleBackColor = true;
+            this.selectDataFile3.Click += new System.EventHandler(this.selectDataFile_Click);
+            // 
+            // selectDataFile2
+            // 
+            this.selectDataFile2.Location = new System.Drawing.Point(28, 116);
+            this.selectDataFile2.Name = "selectDataFile2";
+            this.selectDataFile2.Size = new System.Drawing.Size(163, 28);
+            this.selectDataFile2.TabIndex = 14;
+            this.selectDataFile2.Text = "Select Ice Data File";
+            this.selectDataFile2.UseVisualStyleBackColor = true;
+            this.selectDataFile2.Click += new System.EventHandler(this.selectDataFile_Click);
+            // 
+            // selectDataFile1
+            // 
+            this.selectDataFile1.Location = new System.Drawing.Point(28, 82);
+            this.selectDataFile1.Name = "selectDataFile1";
+            this.selectDataFile1.Size = new System.Drawing.Size(163, 28);
+            this.selectDataFile1.TabIndex = 13;
+            this.selectDataFile1.Text = "Select Ice Data File";
+            this.selectDataFile1.UseVisualStyleBackColor = true;
+            this.selectDataFile1.Click += new System.EventHandler(this.selectDataFile_Click);
+            // 
             // TrainPerformanceAnalysis
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1124,6 +1234,16 @@
         private System.Windows.Forms.Label PWCountLabel2;
         private System.Windows.Forms.Label PWRatioLabel2;
         private System.Windows.Forms.Label PWRatioLabel1;
+        private System.Windows.Forms.TextBox IceDataFile5;
+        private System.Windows.Forms.TextBox IceDataFile4;
+        private System.Windows.Forms.TextBox IceDataFile3;
+        private System.Windows.Forms.TextBox IceDataFile2;
+        private System.Windows.Forms.TextBox IceDataFile1;
+        private System.Windows.Forms.Button selectDataFile5;
+        private System.Windows.Forms.Button selectDataFile4;
+        private System.Windows.Forms.Button selectDataFile3;
+        private System.Windows.Forms.Button selectDataFile2;
+        private System.Windows.Forms.Button selectDataFile1;
     }
 }
 

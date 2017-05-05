@@ -116,6 +116,18 @@ namespace TrainPerformance
             return IceRecord;
         }
 
+
+
+        public static List<TrainDetails> batchReadICEData(string filename, List<string> excludeTrainList)
+        {
+            /* List of all valid train data. */
+            List<TrainDetails> IceRecord = new List<TrainDetails>();
+
+            /* Return the list of records. */
+            return IceRecord;
+        }
+
+
         /// <summary>
         /// This function reads the file with the list of trains to exclude from the 
         /// data and stores the list in a managable list object.

@@ -529,8 +529,9 @@ namespace TrainPerformance
 
             /* Read the data. */
             List<TrainDetails> TrainRecords = new List<TrainDetails>();
-            TrainRecords = FileOperations.readICEData(FileSettings.dataFile, excludeTrainList);
-
+            foreach (string batchFile in FileSettings.batchFiles)
+                TrainRecords.AddRange(FileOperations.readICEData(batchFile, excludeTrainList));
+            
             /* Sort the data by [trainID, locoID, Date & Time, kmPost]. */
             List<TrainDetails> OrderdTrainRecords = new List<TrainDetails>();
             OrderdTrainRecords = TrainRecords.OrderBy(t => t.TrainID).ThenBy(t => t.LocoID).ThenBy(t => t.NotificationDateTime).ThenBy(t => t.kmPost).ToList();
