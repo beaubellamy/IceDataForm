@@ -157,7 +157,7 @@ namespace TrainPerformance
         /// </summary>
         /// <param name="TrainJourney">List of train details objects containt the journey details of the train.</param>
         /// <param name="targetKm">The target location to find in the geomerty data.</param>
-        /// <returns>The index of the target kilometreage in teh geomerty data, -1 if the target is not found.</returns>
+        /// <returns>The index of the target kilometreage in the geomerty data, -1 if the target is not found.</returns>
         public int indexOfgeometryKm(List<TrainDetails> TrainJourney, double targetKm)
         {
             /* Loop through the train journey. */
@@ -538,9 +538,9 @@ namespace TrainPerformance
             /* Clean data - remove trains with insufficient data. */
             /******** Should only be required while we are waiting for the data in the prefered format ********/
             List<Train> CleanTrainRecords = new List<Train>();
-            //CleanTrainRecords = CleanData(trackGeometry, OrderdTrainRecords);
+            CleanTrainRecords = CleanData(trackGeometry, OrderdTrainRecords);
             /**************************************************************************************************/
-            CleanTrainRecords = MakeTrains(trackGeometry, OrderdTrainRecords);
+            //CleanTrainRecords = MakeTrains(trackGeometry, OrderdTrainRecords);
 
             /* interpolate data */
             /******** Should only be required while we are waiting for the data in the prefered format ********/
@@ -584,9 +584,8 @@ namespace TrainPerformance
         /// <returns>List of Train objects containign the journey details of each train.</returns>
         public static List<Train> CleanData(List<TrackGeometry> trackGeometry, List<TrainDetails> trainRecords)
         {
-            /* Note: This function allows those trains with multiple change in direction to be included.
-             * 
-             * When the Enterprise Services have produced the 'Cleaned data', this function should not be needed.
+            /* Note: this fucntion will not be needed when Enterprise Services delivers the interpolated 
+             * date directly to the database. We can access this data directly, then analyse.
              */
 
             bool removeTrain = false;
@@ -610,7 +609,7 @@ namespace TrainPerformance
 
             for (int trainIndex = 1; trainIndex < trainRecords.Count(); trainIndex++)
             {
-                
+                /* Compare next train details with current train details to establish if its a new train. */
                 if (trainRecords[trainIndex].TrainID.Equals(trainRecords[trainIndex - 1].TrainID) &&
                     trainRecords[trainIndex].LocoID.Equals(trainRecords[trainIndex - 1].LocoID) &&
                     (trainRecords[trainIndex].NotificationDateTime - trainRecords[trainIndex - 1].NotificationDateTime).TotalMinutes < Settings.timeThreshold)
@@ -621,8 +620,7 @@ namespace TrainPerformance
                     point1 = new GeoLocation(trainRecords[trainIndex - 1]);
                     point2 = new GeoLocation(trainRecords[trainIndex]);
 
-                    distance = processing.calculateDistance(point1, point2);
-                    journeyDistance = journeyDistance + distance;
+                    distance = processing.calculateGreatCircleDistance(point1, point2);
 
                     if (distance > Settings.distanceThreshold)
                     {
@@ -635,15 +633,21 @@ namespace TrainPerformance
                 }
                 else
                 {
+                    /* Check uni directionality of the train */
+                    newTrainList = processing.longestDistanceTravelledInOneDirection(newTrainList, trackGeometry);
+                    /* Calculate the total length of the journey */
+                    journeyDistance = processing.calculateTrainJourneyDistance(newTrainList);
+
                     /* Validate the direction of train */
                     Train item = new Train();
                     item.TrainJourney = newTrainList.ToList(); 
                     processing.populateDirection(item, trackGeometry);
+                    
+                    /* remove the train if the direction is not valid. */
                     if (item.TrainJourney[0].trainDirection == direction.invalid)
                         removeTrain = true;
 
-
-                    /* The end of the train journey had been reached. */
+                    /* The end of the train journey has been reached. */
                     if (!removeTrain && journeyDistance > Settings.minimumJourneyDistance)
                     {
                         /* If all points are acceptable and the train travels the minimum distance, 
@@ -671,7 +675,7 @@ namespace TrainPerformance
                     newTrainList.Add(trainRecords[trainIndex]);
                     trainPoint = new GeoLocation(trainRecords[trainIndex]);
 
-                    newTrainList[0].geometryKm = track.findClosestTrackGeometryPoint(trackGeometry, trainPoint);
+                    //newTrainList[0].geometryKm = track.findClosestTrackGeometryPoint(trackGeometry, trainPoint);
                     startIdx = trainIndex;
                 }
 
@@ -723,10 +727,11 @@ namespace TrainPerformance
             GeoLocation trainPoint = new GeoLocation(trainRecords[0]);
             /* Populate the first actual kilometreage point. */
             newTrainList[0].geometryKm = track.findClosestTrackGeometryPoint(trackGeometry, trainPoint);
-            
+
             for (int trainIndex = 1; trainIndex < trainRecords.Count(); trainIndex++)
             {
-                
+
+                /* Compare next train details with current train details to establish if its a new train. */
                 if (trainRecords[trainIndex].TrainID.Equals(trainRecords[trainIndex - 1].TrainID) &&
                     trainRecords[trainIndex].LocoID.Equals(trainRecords[trainIndex - 1].LocoID) &&
                     (trainRecords[trainIndex].NotificationDateTime - trainRecords[trainIndex - 1].NotificationDateTime).TotalMinutes < Settings.timeThreshold)
@@ -737,7 +742,7 @@ namespace TrainPerformance
                 }
                 else
                 {
-                    /* The end of the train journey had been reached. */
+                    /* The end of the train journey has been reached. */
 
                     Train item = new Train();
                     item.TrainJourney = newTrainList.ToList();
@@ -748,10 +753,8 @@ namespace TrainPerformance
                     processing.populateLoopLocations(item, trackGeometry);
                     processing.populateTemporarySpeedRestrictions(item, trackGeometry);
 
-                    double d = processing.calculateDistance(item.TrainJourney[item.TrainJourney.Count()-1].location, item.TrainJourney[0].location);
                     /* Sort the journey in ascending order. */
                     item.TrainJourney = item.TrainJourney.OrderBy(t => t.geometryKm).ToList();
-
                     TrainList.Add(item);
 
                     /* Reset the parameters for the next train. */
@@ -764,7 +767,7 @@ namespace TrainPerformance
                 }
 
                 /* The end of the records have been reached. */
-                if (trainIndex == trainRecords.Count() - 1) //&& !removeTrain)
+                if (trainIndex == trainRecords.Count() - 1)
                 {
                     /* If all points are aceptable, add the train journey to the cleaned list. */
                     Train item = new Train();
@@ -776,7 +779,6 @@ namespace TrainPerformance
 
                     /* Sort the journey in ascending order. */
                     item.TrainJourney = item.TrainJourney.OrderBy(t => t.geometryKm).ToList();
-
                     TrainList.Add(item);
 
                 }

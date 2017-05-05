@@ -32,14 +32,15 @@ namespace TrainPerformance
         }
 
         /// <summary>
-        /// Calculates the distance between two points using the haversine formula.
+        /// Calculates the great circle distance between two points on a sphere
+        /// given there latitudes and longitudes.
         /// </summary>
         /// <param name="latitude1">Latitude of location 1.</param>
         /// <param name="longitude1">Longitude of location 1.</param>
         /// <param name="latitude2">Latitude of location 2.</param>
         /// <param name="longitude2">Longitude of location 2.</param>
         /// <returns>The Distance between the two points in metres.</returns>
-        public double calculateDistance(double latitude1, double longitude1, double latitude2, double longitude2)
+        public double calculateGreatCircleDistance(double latitude1, double longitude1, double latitude2, double longitude2)
         {
 
             double arcsine = Math.Sin(degress2radians((latitude2 - latitude1) / 2)) * Math.Sin(degress2radians((latitude2 - latitude1) / 2)) +
@@ -58,7 +59,7 @@ namespace TrainPerformance
         /// <param name="point1">Geographic location containinig the latitude and longitude of the reference location.</param>
         /// <param name="point2">Geographic location containinig the latitude and longitude of the destination location.</param>
         /// <returns>The Distance between the two points in metres.</returns>
-        public double calculateDistance(GeoLocation point1, GeoLocation point2)
+        public double calculateGreatCircleDistance(GeoLocation point1, GeoLocation point2)
         {
 
             double arcsine = Math.Sin(degress2radians((point2.latitude - point1.latitude) / 2)) * Math.Sin(degress2radians((point2.latitude - point1.latitude) / 2)) +
@@ -77,7 +78,7 @@ namespace TrainPerformance
         /// <returns>Enumerated direction of the train km's.</returns>
         private direction determineTrainDirection(Train train)
         {
-            /* NOTE: This function does not take into account any train joureny data that have 
+            /* NOTE: This function does not take into account any train journey data that have 
              * multiple changes of direction. This should not be seen when the 'Cleaned Data' 
              * is deleviered by Enetrprise services.
              */
@@ -93,10 +94,164 @@ namespace TrainPerformance
                 return direction.increasing;
             else
                 return direction.decreasing;
+
+            
         }
 
         /// <summary>
-        /// Populate the Setting parameters from the form profived.
+        /// Calcualte the single train journey length.
+        /// </summary>
+        /// <param name="journey">The journey points for the train.</param>
+        /// <returns>The total distance travelled in metres.</returns>
+        public double calculateTrainJourneyDistance(List<TrainDetails> journey)
+        {
+            double distance = 0;
+
+            for (int pointIdx = 1; pointIdx < journey.Count; pointIdx++)
+            {
+                /* Create the conequtive points */
+                GeoLocation point1 = journey[pointIdx - 1].location;
+                GeoLocation point2 = journey[pointIdx].location;
+
+                /* Calcualte the great circle distance. */
+                distance = distance + calculateGreatCircleDistance(point1, point2);
+            }
+
+            return distance;
+
+        }
+
+        /// <summary>
+        /// Determine if the single train journey has a single direction. When the journey has 
+        /// multilpe directions, the part of the journey that has the largest total length in
+        /// a single direction is returned.
+        /// </summary>
+        /// <param name="journey">The complete train journey.</param>
+        /// <param name="trackGeometry">The geometry of the track.</param>
+        /// <returns>A list of train details objects describing the longest distance the train has 
+        /// travelled in a single direction.</returns>
+        public List<TrainDetails> longestDistanceTravelledInOneDirection(List<TrainDetails> journey, List<TrackGeometry> trackGeometry)
+        {
+            /* Set up intial conditions */
+            double movingAverage = 0;
+            double previousAverage = 0;
+            double distance = 0;
+            double increasingDistance = 0;
+            double decreasingDistance = 0;
+            
+            int start, end;
+            int newStart, count;
+            double maxValue = 0;
+
+            /* Create lists to add each journey for each change in direction. */
+            List<double> distances = new List<double>();
+            List<int> startIdx = new List<int>();
+            List<int> endIdx = new List<int>();
+
+            /* Set the number of points to average over. */
+            int numPoints = 10;
+
+            if (journey.Count <= numPoints)
+                return journey;
+
+            /* Set the kmPosts to the closest points on the geometry alignment. */
+            TrainPerformanceAnalysis.track.matchTrainLocationToTrackGeometry(journey, trackGeometry);
+            
+            start = 0;
+            
+            for (int journeyIdx = 0; journeyIdx < journey.Count() - numPoints; journeyIdx++)
+            {
+                /* Calculate the moving average of the kmposts ahead of current position. */
+                distance = journey[journeyIdx + numPoints].kmPost - journey[journeyIdx].kmPost;
+                movingAverage =  distance / numPoints;
+
+                /* Check the direction has not changed. */
+                if (Math.Sign(movingAverage) == Math.Sign(previousAverage) || Math.Sign(movingAverage) == 0 || Math.Sign(previousAverage) == 0)
+                {
+                    /* Increment the assumed distance travelled in current direction. */
+                    if (movingAverage > 0)
+                        increasingDistance = increasingDistance + movingAverage;
+                    
+                    else if (movingAverage < 0)
+                        decreasingDistance = decreasingDistance - movingAverage;
+                 
+                }
+                else 
+                {
+                    /* There has been a change in direction. */
+                    end = journeyIdx;
+
+                    /* Add the total distance achieved from the previous km posts to the list. */
+                    if (previousAverage > 0)
+                    {
+                        distances.Add(increasingDistance);
+                        startIdx.Add(start);
+                        endIdx.Add(end);
+                        increasingDistance = 0;
+                    }
+                    else if (previousAverage < 0)
+                    {
+                        distances.Add(decreasingDistance);
+                        startIdx.Add(start);
+                        endIdx.Add(end);
+                        decreasingDistance = 0;
+                    }
+
+                    /* Reset the new start postion. */
+                    start = journeyIdx++;
+                }
+
+                previousAverage = movingAverage;
+                
+            }
+
+            /* Add the last total distance achieved to the list. */
+            end = journey.Count()-1;
+            if (previousAverage > 0)
+            {
+                distances.Add(increasingDistance);
+                startIdx.Add(start);
+                endIdx.Add(end);
+            }
+            else if (previousAverage < 0)
+            {
+                distances.Add(decreasingDistance);
+                startIdx.Add(start);
+                endIdx.Add(end);
+            }
+            else 
+            {
+                /* Condition when last average is 0, determine which total to add to the list. */
+                if (increasingDistance > decreasingDistance)
+                {
+                    distances.Add(increasingDistance);
+                    startIdx.Add(start);
+                    endIdx.Add(end);
+                }
+                else 
+                {
+                    distances.Add(decreasingDistance);
+                    startIdx.Add(start);
+                    endIdx.Add(end);
+                }
+            }
+
+            if (distances.Count() == 1)
+                return journey;
+
+            /* Determine the largest distance to return that section of the journey */
+            maxValue = distances.Max();
+            int index = distances.ToList().IndexOf(maxValue);
+            newStart = startIdx[index];
+            count = endIdx[index] - newStart+1;
+
+            /* Return the part of the journey that has the largest total length in a single direction. */
+            return journey.GetRange(newStart, count);           
+                        
+        }
+        
+        /// <summary>
+        /// Populate the Setting parameters from the form provided.
         /// </summary>
         /// <param name="form">The Form object containg the form parameters.</param>
         public void populateFormParameters(TrainPerformanceAnalysis form)
@@ -224,12 +379,10 @@ namespace TrainPerformance
         public void populateGeometryKm(Train train, List<TrackGeometry> trackGeometry)
         {
             /* Determine the direction of the km's the train is travelling. */
-            //double point2PointDistance = 0;
-
             GeoLocation trainPoint = new GeoLocation();
-                
-            /* Thie first km point is populated by the parent function ICEData.CleanData(). */
-            for (int journeyIdx = 1; journeyIdx < train.TrainJourney.Count(); journeyIdx++)
+            
+            /* The first km point is populated by the parent function ICEData.CleanData(). */
+            for (int journeyIdx = 0; journeyIdx < train.TrainJourney.Count(); journeyIdx++)
             {
                 /* Find the kilometerage of the closest point on the track and associate it with the current train location.*/
                 trainPoint = new GeoLocation(train.TrainJourney[journeyIdx]);
@@ -289,8 +442,8 @@ namespace TrainPerformance
         /// <summary>
         /// populate the temporary speed rrestrcition information for each train journey.
         /// </summary>
-        /// <param name="train">A train object containing teh journey details.</param>
-        /// <param name="trackGeometry">teh track Geometry object indicating the TSR information at each location.</param>
+        /// <param name="train">A train object containing the journey details.</param>
+        /// <param name="trackGeometry">the track Geometry object indicating the TSR information at each location.</param>
         public void populateTemporarySpeedRestrictions(Train train, List<TrackGeometry> trackGeometry)
         {
             /* Create a track geometry object. */
@@ -340,7 +493,7 @@ namespace TrainPerformance
             /* Placeholders for the interpolated distance markers. */
             double previousKm = 0;
             double currentKm = 0;
-            /* Place holder to calaculte the time for each interpolated value. */
+            /* Place holder to calculate the time for each interpolated value. */
             DateTime time = new DateTime();
             /* Flag to indicate when to collect the next time value. */
             bool timeChange = true;
@@ -358,7 +511,6 @@ namespace TrainPerformance
             /* Interplation parameters. */
             double interpolatedSpeed = 0;
             double X0, X1, Y0, Y1;
-
            
             /* Create a new list of trains for the journies interpolated values. */
             List<Train> newTrainList = new List<Train>();
@@ -371,15 +523,16 @@ namespace TrainPerformance
                 
                 /* Create a new journey list of interpolated values. */
                 List<InterpolatedTrain> interpolatedTrainList = new List<InterpolatedTrain>();
-
+                
                 journey = trains[trainIdx].TrainJourney;
-
+                
                 /* Set the start of the interpolation. */
                 currentKm = Settings.startKm;
+                previousKm = currentKm;
 
                 while (currentKm < Settings.endKm)
                 {
-                    
+                   
                     /* Find the closest kilometerage markers either side of the current interpolation point. */
                     index0 = findClosestLowerKm(currentKm, journey);
                     index1 = findClosestGreaterKm(currentKm, journey);
@@ -401,17 +554,15 @@ namespace TrainPerformance
                         interpolatedSpeed = linear(currentKm, X0, X1, Y0, Y1);
                         /* Interpolate the time. */
                         time = time.AddHours(calculateTimeInterval(previousKm, currentKm, interpolatedSpeed));
-
+                        
                     }
                     else
                     {
                         /* Boundary conditions for interpolating the data prior to and beyond the existing journey points. */
-                        time = new DateTime(2000, 1, 1);    // journey[0].NotificationDateTime
+                        time = DateTime.MinValue;
                         interpolatedSpeed = 0;
-
                     }
-
-                    
+                                       
                     geometryIdx = trackGeometry[0].findClosestTrackGeometryPoint(trackGeometry, currentKm);
 
                     if (geometryIdx >= 0)
@@ -1042,7 +1193,7 @@ namespace TrainPerformance
         /// </summary>
         /// <param name="train">The train object containing the journey details.</param>
         /// <param name="targetLocation">The specific location being considered.</param>
-        /// <returns>True, if the train is within the boundaries of teh loop window.</returns>
+        /// <returns>True, if the train is within the boundaries of the loop window.</returns>
         public bool isTrainInLoopBoundary(Train train, double targetLocation)
         {
 

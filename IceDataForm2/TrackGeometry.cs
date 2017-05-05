@@ -71,7 +71,7 @@ namespace TrainPerformance
         /// <summary>
         /// Function reads in the track geometry data from file.
         /// </summary>
-        /// <param name="filename">Full filename of teh geometry file.</param>
+        /// <param name="filename">Full filename of the geometry file.</param>
         /// <returns>A list of track Geometry objects describing the track geometry.</returns>
         public List<TrackGeometry> readGeometryfile(string filename)
         {
@@ -151,7 +151,7 @@ namespace TrainPerformance
                         }
 
                         /* Calcualte the distance between succesive points and increment the virtual kilometreage. */
-                        distance = processing.calculateDistance(previousLat, previousLong, latitude, longitude);
+                        distance = processing.calculateGreatCircleDistance(previousLat, previousLong, latitude, longitude);
                         if (direction == direction.increasing)
                             virtualKilometreage = virtualKilometreage + distance / 1000;
 
@@ -197,7 +197,7 @@ namespace TrainPerformance
                 /* Set the current track geometry point. */
                 trackPoint = trackGeometry[trackIdx].point;
                 /* Calcualte the distance between the current track point and the location supplied. */
-                distance = processing.calculateDistance(trackPoint.latitude, trackPoint.longitude, Latitude, Longitude);
+                distance = processing.calculateGreatCircleDistance(trackPoint.latitude, trackPoint.longitude, Latitude, Longitude);
 
                 /* Determine when the minimum distance is reached. */
                 if (distance < minimumDistance)
@@ -226,13 +226,12 @@ namespace TrainPerformance
             double distance = 0;
             GeoLocation trackPoint = new GeoLocation();
 
-
             for (int trackIdx = 0; trackIdx < trackGeometry.Count(); trackIdx++)
             {
                 /* Set the current track geometry point. */
                 trackPoint = trackGeometry[trackIdx].point;
                 /* Calcualte the distance between the current track point and the location supplied. */
-                distance = processing.calculateDistance(trackPoint, Location);
+                distance = processing.calculateGreatCircleDistance(trackPoint, Location);
 
                 /* Determine when the minimum distance is reached. */
                 if (distance < minimumDistance)
@@ -286,7 +285,7 @@ namespace TrainPerformance
         /// <summary>
         /// Match the train location with the closest point on the track for the real track kmPost.
         /// </summary>
-        /// <param name="train">A single train journey</param>
+        /// <param name="train">A single train journey.</param>
         /// <param name="track">The track geometry information.</param>
         public void matchTrainLocationToTrackGeometry(Train train, List<TrackGeometry> track)
         {
@@ -298,6 +297,23 @@ namespace TrainPerformance
             }
 
         }
+
+        /// <summary>
+        /// Match the train location with the closest point on the track for the real track kmPost.
+        /// </summary>
+        /// <param name="TrainJourney">A list of a points describing a single train journey.</param>
+        /// <param name="track">The track geometry information.</param>
+        public void matchTrainLocationToTrackGeometry(List<TrainDetails> TrainJourney, List<TrackGeometry> track)
+        {
+            foreach (TrainDetails journey in TrainJourney)
+            {
+                /* Find the closest km marker in the track geometry to the current train location. */
+                journey.kmPost = findClosestTrackGeometryPoint(track, journey.location);
+
+            }
+
+        }
+
 
     } // Class TrackGeometry
 

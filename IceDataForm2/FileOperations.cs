@@ -68,7 +68,7 @@ namespace TrainPerformance
             double geometryKm = 0.0;
             double latitude = 0.0;
             double longitude = 0.0;
-            DateTime NotificationDateTime = new DateTime(2000, 1, 1);
+            DateTime NotificationDateTime = DateTime.MinValue;
 
             bool header = true;
             bool includeTrain = true;
@@ -563,7 +563,7 @@ namespace TrainPerformance
         /// <summary>
         /// Write the interpolated train data to file for comparison against prevoiuosly completed train performance analysis corridors.
         /// </summary>
-        /// <param name="trainRecords">List of trains containing teh interpolated data.</param>
+        /// <param name="trainRecords">List of trains containing the interpolated data.</param>
         public static void writeTrainDataForComparison(List<Train> trainRecords)
         {
 
@@ -628,7 +628,8 @@ namespace TrainPerformance
                 {
                     TrainID[0, trainIdx] = trainRecords[trainIdx].TrainJourney[0].TrainID;
                     LocoID[0, trainIdx] = trainRecords[trainIdx].TrainJourney[0].LocoID;
-                    NotificationTime[0, trainIdx] = trainRecords[trainIdx].TrainJourney[middle].NotificationDateTime;
+                    NotificationTime[0, trainIdx] = findMinDate(trainRecords[trainIdx].TrainJourney);
+                    
                     powerToWeight[0, trainIdx] = trainRecords[trainIdx].TrainJourney[0].powerToWeight;
 
                     if (trainRecords[trainIdx].TrainJourney[0].trainDirection == TrainPerformance.direction.increasing)
@@ -916,6 +917,26 @@ namespace TrainPerformance
                 Environment.Exit(0);
             }
 
+        }
+
+        /// <summary>
+        /// Find the minimum notification date in the train journey.
+        /// </summary>
+        /// <param name="journey">The train details for each point of the journey.</param>
+        /// <returns>The earliest date of teh train journey.</returns>
+        private static DateTime findMinDate(List<TrainDetails> journey)
+        {
+
+            /* Set the minimum value */
+            DateTime minDate = DateTime.MaxValue;
+
+            foreach (TrainDetails point in journey)
+            {
+                if (point.NotificationDateTime > DateTime.MinValue && point.NotificationDateTime < minDate)
+                    minDate = point.NotificationDateTime;
+            }
+
+            return minDate;
         }
 
     }   // Class FileOperations
