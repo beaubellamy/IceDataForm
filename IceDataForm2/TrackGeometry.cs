@@ -68,6 +68,7 @@ namespace TrainPerformance
             this.isTSRHere = false;
         }
 
+        /* This should be in the fileOpearions class */
         /// <summary>
         /// Function reads in the track geometry data from file.
         /// </summary>
@@ -114,7 +115,6 @@ namespace TrainPerformance
                     header = false;
                 else
                 {
-
                     /* Seperate each record into each field */
                     fields = line.Split(delimeters);
                     geometryName = fields[0];
@@ -167,7 +167,6 @@ namespace TrainPerformance
                     /* Add the geometry point to the list. */
                     TrackGeometry geometry = new TrackGeometry(0, geometryName, latitude, longitude, elevation, kilometreage, virtualKilometreage, isLoopHere);
                     trackGeometry.Add(geometry);
-
                     
                 }
             }

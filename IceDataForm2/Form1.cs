@@ -36,58 +36,68 @@ namespace TrainPerformance
 
             if (sender == selectDataFile)
             {
-                //FileSettings.dataFile = //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - sample.csv";
-                //            @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - fulltest.csv";
                 //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - interpolation test.csv";
                 //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\Macarthur to Botany test data.csv";
-                //tool.browseFile("Select the data file.");
-                //IceDataFile.Text = Path.GetFileName(FileSettings.dataFile);
-                //simIceDataFile.Text = Path.GetFileName(FileSettings.dataFile);
-                batchFileName = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - fulltest.csv";
+                
+                batchFileName = //tool.browseFile("Select the data file."); 
+                    //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - sample.csv"; 
+                    @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - fulltest.csv";
                 IceDataFile.Text = Path.GetFileName(batchFileName);
                 simIceDataFile.Text = Path.GetFileName(batchFileName);
+
+                IceDataFile.ForeColor = System.Drawing.Color.Black;
+                simIceDataFile.ForeColor = System.Drawing.Color.Black;
 
                 if (batchFileName != null || batchFileName != "")
                     FileSettings.batchFiles.Add(batchFileName);
 
-            }
+            }           
             else if (sender == selectDataFile1)
             {
+                /* Second additional file for batch reading. */
                 batchFileName = tool.browseFile("Select the data file.");
-                IceDataFile1.Text = Path.GetFileName(batchFileName);
-                simIceDataFile.Text = Path.GetFileName(batchFileName);
-
+                IceDataFile1.Text = Path.GetFileName(batchFileName);                
+                IceDataFile1.ForeColor = System.Drawing.Color.Black;
+                
                 if (batchFileName != null && batchFileName != "")
                     FileSettings.batchFiles.Add(batchFileName);
             }
             else if (sender == selectDataFile2)
             {
+                /* First additional file for batch reading. */
                 batchFileName = tool.browseFile("Select the data file.");
                 IceDataFile2.Text = Path.GetFileName(batchFileName);
+                IceDataFile2.ForeColor = System.Drawing.Color.Black;
                 
                 if (batchFileName != null || batchFileName != "")
                     FileSettings.batchFiles.Add(batchFileName);
             }
             else if (sender == selectDataFile3)
             {
+                /* Third additional file for batch reading. */
                 batchFileName = tool.browseFile("Select the data file.");
                 IceDataFile3.Text = Path.GetFileName(batchFileName);
+                IceDataFile3.ForeColor = System.Drawing.Color.Black;
                 
                 if (batchFileName != null || batchFileName != "")
                     FileSettings.batchFiles.Add(batchFileName);
             }
             else if (sender == selectDataFile4)
             {
+                /* Fourth additional file for batch reading. */
                 batchFileName = tool.browseFile("Select the data file.");
                 IceDataFile4.Text = Path.GetFileName(batchFileName);
+                IceDataFile4.ForeColor = System.Drawing.Color.Black;
                 
                 if (batchFileName != null || batchFileName != "")
                     FileSettings.batchFiles.Add(batchFileName);
             }
             else if (sender == selectDataFile5)
             {
+                /* Fifth additional file for batch reading. */
                 batchFileName = tool.browseFile("Select the data file.");
                 IceDataFile5.Text = Path.GetFileName(batchFileName);
+                IceDataFile5.ForeColor = System.Drawing.Color.Black;
                 
                 if (batchFileName != null || batchFileName != "")
                     FileSettings.batchFiles.Add(batchFileName);
@@ -112,8 +122,22 @@ namespace TrainPerformance
             FileSettings.geometryFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\Macarthur to Botany Geometry.csv";
             //tool.browseFile("Select the geometry file.");
             GeometryFile.Text = Path.GetFileName(FileSettings.geometryFile);
+            GeometryFile.ForeColor = System.Drawing.Color.Black;
         }
 
+        /// <summary>
+        /// Select the temporary speed restriction file.
+        /// </summary>
+        /// <param name="sender">The object container.</param>
+        /// <param name="e">The event arguments.</param>
+        
+        private void selectTSRFile_Click(object sender, EventArgs e)
+        {
+            FileSettings.temporarySpeedRestrictionFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\Macarthur to Botany TSR.csv";
+            //tool.browseFile("Select the geometry file.");
+            temporarySpeedRestrictionFile.Text = Path.GetFileName(FileSettings.temporarySpeedRestrictionFile);
+            temporarySpeedRestrictionFile.ForeColor = System.Drawing.Color.Black;
+        }
         /// <summary>
         /// Select the simulation file with increasing km.
         /// </summary>
@@ -124,6 +148,7 @@ namespace TrainPerformance
             FileSettings.underpoweredIncreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Traxim\2017\Projects\Macarthur to Botany\Botany to Macarthur - All - 3.33_ThuW1.csv";
                 //tool.browseFile("Select the increasing km simulation file.");
             underpoweredIncreasingSimulationFile.Text = Path.GetFileName(FileSettings.underpoweredIncreasingSimulationFile);
+            underpoweredIncreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
         }
 
         /// <summary>
@@ -136,6 +161,7 @@ namespace TrainPerformance
             FileSettings.underpoweredDecreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Traxim\2017\Projects\Macarthur to Botany\Macarthur to Botany - All - 3.20_SatW1.csv";
             //tool.browseFile("Select the decreasing km simulation file.");
             underpoweredDecreasingSimulationFile.Text = Path.GetFileName(FileSettings.underpoweredDecreasingSimulationFile);
+            underpoweredDecreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
         }
         /// <summary>
         /// Select the simulation file with increasing km.
@@ -147,6 +173,7 @@ namespace TrainPerformance
             FileSettings.overpoweredIncreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Traxim\2017\Projects\Macarthur to Botany\Botany to Macarthur - All - 7.87_ThuW1.csv";
             //tool.browseFile("Select the increasing km simulation file.");
             overpoweredIncreasingSimulationFile.Text = Path.GetFileName(FileSettings.overpoweredIncreasingSimulationFile);
+            overpoweredIncreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
         }
 
         /// <summary>
@@ -159,6 +186,7 @@ namespace TrainPerformance
             FileSettings.overpoweredDecreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Traxim\2017\Projects\Macarthur to Botany\Macarthur to Botany - All - 6.97_SatW1.csv";
             //tool.browseFile("Select the decreasing km simulation file.");
             overpoweredDecreasingSimulationFile.Text = Path.GetFileName(FileSettings.overpoweredDecreasingSimulationFile);
+            overpoweredDecreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
         }
 
         /// <summary>
@@ -170,6 +198,7 @@ namespace TrainPerformance
         {
             FileSettings.trainList = tool.browseFile("Select the train list file.");
             TrainFile.Text = Path.GetFileName(FileSettings.trainList);
+            TrainFile.ForeColor = System.Drawing.Color.Black;
         }
 
         /// <summary>
@@ -249,6 +278,9 @@ namespace TrainPerformance
             List<TrackGeometry> trackGeometry = new List<TrackGeometry>();
             trackGeometry = track.readGeometryfile(FileSettings.geometryFile);
 
+            /* Read in the TSR information */
+            List<TSRObject> TSRs = new List<TSRObject>();
+            TSRs = FileOperations.readTSRFile(FileSettings.temporarySpeedRestrictionFile);
 
             /* Read the data. */
             List<TrainDetails> TrainRecords = new List<TrainDetails>();
@@ -270,7 +302,7 @@ namespace TrainPerformance
             /* Clean data - remove trains with insufficient data. */
             /******** Should only be required while we are waiting for the data in the prefered format ********/
             List<Train> CleanTrainRecords = new List<Train>();
-            CleanTrainRecords = Algorithm.CleanData(trackGeometry, OrderdTrainRecords);
+            CleanTrainRecords = Algorithm.CleanData(trackGeometry, OrderdTrainRecords, TSRs);
             /**************************************************************************************************/
 
             /* Calculate the avareage power to weight ratio for a given band and train direction. */
@@ -419,7 +451,7 @@ namespace TrainPerformance
         {
             double loopFactor;
             if (double.TryParse(loopSpeedFactor.Text, out loopFactor))
-                return loopFactor;
+                return loopFactor/100.0;
 
             return 0;
         }
@@ -528,10 +560,8 @@ namespace TrainPerformance
             return 0;
         }
 
-        private void button3_Click(object sender, EventArgs e)
-        {
 
-        }
+        
 
       
     } // Partial Class TrainPerformance

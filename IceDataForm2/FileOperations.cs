@@ -8,6 +8,9 @@ using Globalsettings;
 
 namespace TrainPerformance
 {
+    /* A class to control all file operations, such as read and 
+     * write to file for the required objects. 
+     */
     class FileOperations
     {
 
@@ -17,7 +20,7 @@ namespace TrainPerformance
 
 
         /// <summary>
-        /// Read the ICE data file.
+        /// Read the ICE data file in to a list of Train records taht will be analysed
         /// The file is assumed to be in a specific format.
         /// 
         /// 1       Alarms
@@ -105,7 +108,8 @@ namespace TrainPerformance
                         NotificationDateTime >= Settings.dateRange[0] && NotificationDateTime < Settings.dateRange[1] &&
                         !includeTrain)
                     {
-                        TrainDetails record = new TrainDetails(TrainID, locoID, powerToWeight, NotificationDateTime, latitude, longitude, speed, kmPost, geometryKm, direction.notSpecified, false, false, 0);
+                        TrainDetails record = new TrainDetails(TrainID, locoID, powerToWeight, NotificationDateTime, latitude, longitude, 
+                            speed, kmPost, geometryKm, direction.notSpecified, false, false, 0);
                         IceRecord.Add(record);
                     }
 
@@ -116,18 +120,73 @@ namespace TrainPerformance
             return IceRecord;
         }
 
-
-
-        public static List<TrainDetails> batchReadICEData(string filename, List<string> excludeTrainList)
+        /// <summary>
+        /// Read the file containing the temporary speed restriction information and 
+        /// store in a manalgable list of TSR objects, which contain all neccessary 
+        /// information for each TSR.
+        /// </summary>
+        /// <param name="filename">TSR file</param>
+        /// <returns>List of TSR objects contianting the parameters for each TSR.</returns>
+        public static List<TSRObject> readTSRFile(string filename)
         {
-            /* List of all valid train data. */
-            List<TrainDetails> IceRecord = new List<TrainDetails>();
+            /* Read all the lines of the data file. */
+            isFileOpen(filename);
 
-            /* Return the list of records. */
-            return IceRecord;
+            string[] lines = System.IO.File.ReadAllLines(filename);
+            char[] delimeters = { ',', '\t' };
+
+            /* Seperate the fields. */
+            string[] fields = lines[0].Split(delimeters);
+
+            /* Initialise the fields of interest. */
+            string region = "none";
+            DateTime issueDate = DateTime.MinValue;
+            DateTime liftedDate = DateTime.MinValue;
+            double startKm = 0.0;
+            double endKm = 0.0;
+            double speed = 0.0;
+
+            bool header = true;
+
+            /* List of all TSR details. */
+            List<TSRObject> TSRList = new List<TSRObject>();
+
+            foreach (string line in lines)
+            {
+                if (header)
+                    /* Ignore the header line. */
+                    header = false;
+                else
+                {
+                    /* Seperate each record into each field */
+                    fields = line.Split(delimeters);
+
+                    region = fields[0];
+                    /* needs to perform tests */
+                    DateTime.TryParse(fields[1], out issueDate);
+                    DateTime.TryParse(fields[2], out liftedDate);
+                    double.TryParse(fields[10], out startKm);
+                    double.TryParse(fields[11], out endKm);
+                    double.TryParse(fields[5], out speed);
+
+                    /* Set the lift date if the TSR applies the full time period. */
+                    if (liftedDate == DateTime.MinValue)
+                        liftedDate = Settings.dateRange[1];
+
+                    /* Add the TSR properties that are within the period of analysis. */
+                    if (issueDate < Settings.dateRange[1] && liftedDate >= Settings.dateRange[0])                        
+                    {
+                        TSRObject record = new TSRObject(region, issueDate, liftedDate, startKm, endKm, speed);
+                        TSRList.Add(record);
+                    }
+                    
+                }
+            }
+
+            /* Return the list of TSR records. */
+            return TSRList;
         }
-
-
+        
         /// <summary>
         /// This function reads the file with the list of trains to exclude from the 
         /// data and stores the list in a managable list object.
@@ -153,12 +212,12 @@ namespace TrainPerformance
             foreach (string line in lines)
                 excludeTrainList.Add(line);
 
-
             return excludeTrainList;
         }
 
         /// <summary>
-        /// Read the Traxim simulation files for the simulated data.
+        /// This function reads the Traxim simulation files and populates the simualtedTrain 
+        /// data for comparison to the averaged ICE data.
         /// </summary>
         /// <param name="filename">The simulation filename.</param>
         /// <returns>The list of data for the simualted train.</returns>
@@ -224,7 +283,7 @@ namespace TrainPerformance
         }
 
         /// <summary>
-        /// Write the train records to an excel file for inspection.
+        /// This function writes the train records to an excel file for inspection.
         /// </summary>
         /// <param name="trainRecords">The list of trainDetails object containing all the train records.</param>
         public static void writeTrainData(List<TrainDetails> trainRecords)
@@ -287,8 +346,7 @@ namespace TrainPerformance
                     loopLocation[j, 0] = "";
                     TSRLocation[j, 0] = "";
                     TSRspeed[j, 0] = 0;
-
-
+                    
                     /* Check we dont try to read more data than there really is. */
                     int checkIdx = j + excelPage * excelPageSize;
                     if (checkIdx < trainRecords.Count())
@@ -302,8 +360,10 @@ namespace TrainPerformance
                         kmPost[j, 0] = trainRecords[checkIdx].kmPost;
                         geometryKm[j, 0] = trainRecords[checkIdx].geometryKm;
                         trainDirection[j, 0] = trainRecords[checkIdx].trainDirection.ToString();
+
                         if (trainRecords[checkIdx].isLoopHere)
                             loopLocation[j, 0] = "Loop";
+
                         if (trainRecords[checkIdx].isTSRHere)
                         {
                             TSRLocation[j, 0] = "TSR";
@@ -348,8 +408,11 @@ namespace TrainPerformance
             string saveFilename = savePath + @"\ICEData_" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx";
 
             /* Check the file does not exist yet. */
-            if (File.Exists(saveFilename))
+            if (File.Exists(saveFilename))             
+            {
+                isFileOpen(saveFilename);
                 File.Delete(saveFilename);
+            }
 
             /* Save the excel file. */
             excel.UserControl = false;
@@ -363,7 +426,7 @@ namespace TrainPerformance
         }
 
         /// <summary>
-        /// Write the train records to an excel file for inspection.
+        ///This function writes the interpolated train records to an excel file for inspection.
         /// </summary>
         /// <param name="trainRecords">The list of interpolatedTrain object containing all the train records.</param>
         public static void writeTrainData(List<InterpolatedTrain> trainRecords)
@@ -430,8 +493,10 @@ namespace TrainPerformance
                         NotificationTime[j, 0] = trainRecords[checkIdx].NotificationDateTime;
                         speed[j, 0] = trainRecords[checkIdx].speed;
                         geometryKm[j, 0] = trainRecords[checkIdx].geometryKm;
+
                         if (trainRecords[checkIdx].isLoopeHere)
                             loopLocation[j, 0] = "Loop";
+
                         if (trainRecords[checkIdx].isTSRHere)
                         {
                             TSRLocation[j, 0] = "TSR";
@@ -468,7 +533,10 @@ namespace TrainPerformance
 
             /* Check the file does not exist yet. */
             if (File.Exists(saveFilename))
+            {
+                isFileOpen(saveFilename);
                 File.Delete(saveFilename);
+            }
 
             /* Save the excel file. */
             excel.UserControl = false;
@@ -481,97 +549,6 @@ namespace TrainPerformance
             return;
         }
         
-        /// <summary>
-        /// Write the averaged Ice data to file.
-        /// </summary>
-        /// <param name="averageData">The average speed data for a train category in a single direction</param>
-        /// <param name="averagecategory">A string describing the category for the average speed data; Suggested values: 
-        /// underpoweredIncreasing
-        /// underpoweredDecreasing
-        /// overpoweredIncreasing
-        /// overpoweredDecreasing
-        /// </param>
-        public static void writeAverageData(List<double> averageData, string averagecategory)
-        {
-            /* Create the microsfot excel references. */
-            Microsoft.Office.Interop.Excel.Application excel;
-            Microsoft.Office.Interop.Excel._Workbook workbook;
-            Microsoft.Office.Interop.Excel._Worksheet worksheet;
-
-            /* Start Excel and get Application object. */
-            excel = new Microsoft.Office.Interop.Excel.Application();
-
-            /* Get the reference to the new workbook. */
-            workbook = (Microsoft.Office.Interop.Excel._Workbook)(excel.Workbooks.Add(""));
-
-            /* Create the header details. */
-            string[] headerString = { "Kilometreage", "Average Speed" };
-
-            /* Pagenate the data for writing to excel. */
-            int excelPageSize = 1000000;        /* Page size of the excel worksheet. */
-            int excelPages = 1;                 /* Number of Excel pages to write. */
-            int headerOffset = 2;
-
-            /* Adjust the excel page size or the number of pages to write. */
-            if (averageData.Count() < excelPageSize)
-                excelPageSize = averageData.Count();
-            else
-                excelPages = (int)Math.Round((double)averageData.Count() / excelPageSize + 0.5);
-            
-            /* Deconstruct the train details into excel columns. */
-            double[,] kilometerage = new double[excelPageSize, 1];
-            double[,] speed = new double[excelPageSize, 1];
-            
-            /* Loop through the excel pages. */
-            for (int excelPage = 0; excelPage < excelPages; excelPage++)
-            {
-                /* Set the active worksheet. */
-                worksheet = (Microsoft.Office.Interop.Excel._Worksheet)workbook.Sheets[excelPage + 1];
-                workbook.Sheets[excelPage + 1].Activate();
-                worksheet.get_Range("A1", "B1").Value2 = headerString;
-
-                /* Loop through the data for each excel page. */
-                for (int j = 0; j < excelPageSize; j++)
-                {
-                    /* Check we dont try to read more data than there really is. */
-                    int checkIdx = j + excelPage * excelPageSize;
-                    
-                    kilometerage[j, 0] = Settings.startKm + Settings.interval/1000 * checkIdx;
-
-                    /* Populate the average speed data. */                        
-                    if (checkIdx < averageData.Count())
-                        speed[j, 0] = averageData[checkIdx];
-                    else
-                        speed[j, 0] = 0.0;
-                                            
-                }
-
-                /* Write the data to the active excel workseet. */
-                worksheet.get_Range("A" + headerOffset, "A" + (headerOffset + excelPageSize - 1)).Value2 = kilometerage;
-                worksheet.get_Range("B" + headerOffset, "B" + (headerOffset + excelPageSize - 1)).Value2 = speed;
-                
-            }
-
-            /* Generate the resulting file name and location to save to. */
-            string savePath = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis";
-            string saveFilename = savePath + @"\"+averagecategory+"AverageSpeed_" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx";
-
-            /* Check the file does not exist yet. */
-            if (File.Exists(saveFilename))
-                File.Delete(saveFilename);
-
-            /* Save the excel file. */
-            excel.UserControl = false;
-            workbook.SaveAs(saveFilename, Microsoft.Office.Interop.Excel.XlFileFormat.xlWorkbookDefault, Type.Missing, Type.Missing,
-                false, false, Microsoft.Office.Interop.Excel.XlSaveAsAccessMode.xlNoChange,
-                Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
-
-            workbook.Close();
-
-            return;       
-        
-        }
-
         /// <summary>
         /// Write the interpolated train data to file for comparison against prevoiuosly completed train performance analysis corridors.
         /// </summary>
@@ -680,7 +657,10 @@ namespace TrainPerformance
 
             /* Check the file does not exist yet. */
             if (File.Exists(saveFilename))
+            {
+                isFileOpen(saveFilename);
                 File.Delete(saveFilename);
+            }
 
             /* Save the excel file. */
             excel.UserControl = false;
@@ -691,118 +671,6 @@ namespace TrainPerformance
             workbook.Close();
 
             return;
-        } 
-
-        /// <summary>
-        /// Write all catagories of the averaged Ice data to a file.
-        /// </summary>
-        /// <param name="underpoweredIncreasing">The underpwoered increasing average data.</param>
-        /// <param name="underpoweredDecreasing">The underpwoered decreasing average data.</param>
-        /// <param name="overpoweredIncreasing">The overpwoered increasing average data.</param>
-        /// <param name="overpoweredDecreasing">The overpwoered decreasing average data.</param>
-        public static void writeAverageData(List<double> underpoweredIncreasing, List<double> underpoweredDecreasing,List<double> overpoweredIncreasing, List<double> overpoweredDecreasing)
-        {
-            /* Create the microsfot excel references. */
-            Microsoft.Office.Interop.Excel.Application excel;
-            Microsoft.Office.Interop.Excel._Workbook workbook;
-            Microsoft.Office.Interop.Excel._Worksheet worksheet;
-
-            /* Start Excel and get Application object. */
-            excel = new Microsoft.Office.Interop.Excel.Application();
-
-            /* Get the reference to the new workbook. */
-            workbook = (Microsoft.Office.Interop.Excel._Workbook)(excel.Workbooks.Add(""));
-
-            /* Create the header details. */
-            string[] headerString = { "Kilometreage", "Underpowered Increasing Speed", "Underpowered Decreasing Speed", "Overpowered Increasing Speed", "Overpowered Decreasing Speed" };
-
-            /* Pagenate the data for writing to excel. */
-            int excelPageSize = 1000000;        /* Page size of the excel worksheet. */
-            int excelPages = 1;                 /* Number of Excel pages to write. */
-            int headerOffset = 2;
-
-            /* Adjust the excel page size or the number of pages to write. */
-            if (underpoweredIncreasing.Count() == underpoweredDecreasing.Count() &&
-                underpoweredDecreasing.Count() == overpoweredIncreasing.Count() &&
-                overpoweredIncreasing.Count() == overpoweredDecreasing.Count())
-            {
-                if (underpoweredIncreasing.Count() < excelPageSize)
-                    excelPageSize = underpoweredIncreasing.Count();
-                else
-                    excelPages = (int)Math.Round((double)underpoweredIncreasing.Count() / excelPageSize + 0.5);
-            }
-            else
-            {
-                tool.messageBox("The averaged data is not the same size.","Average data error.");
-                return;
-            }
-
-            /* Deconstruct the train details into excel columns. */
-            double[,] kilometerage = new double[excelPageSize, 1];
-            double[,] underpoweredIncreasingSpeed = new double[excelPageSize, 1];
-            double[,] underpoweredDecreasingSpeed = new double[excelPageSize, 1];
-            double[,] overpoweredIncreasingSpeed = new double[excelPageSize, 1];
-            double[,] overpoweredDecreasingSpeed = new double[excelPageSize, 1];
-
-            /* Loop through the excel pages. */
-            for (int excelPage = 0; excelPage < excelPages; excelPage++)
-            {
-                /* Set the active worksheet. */
-                worksheet = (Microsoft.Office.Interop.Excel._Worksheet)workbook.Sheets[excelPage + 1];
-                workbook.Sheets[excelPage + 1].Activate();
-                worksheet.get_Range("A1", "E1").Value2 = headerString;
-
-                /* Loop through the data for each excel page. */
-                for (int j = 0; j < excelPageSize; j++)
-                {
-                    /* Check we dont try to read more data than there really is. */
-                    int checkIdx = j + excelPage * excelPageSize;
-
-                    kilometerage[j, 0] = Settings.startKm + Settings.interval/1000 * checkIdx;
-                    underpoweredIncreasingSpeed[j, 0] = 0;
-                    underpoweredDecreasingSpeed[j, 0] = 0;
-                    overpoweredIncreasingSpeed[j, 0] = 0;
-                    overpoweredDecreasingSpeed[j, 0] = 0;
-
-                    /* Populate the average speed data. */
-                    if (checkIdx < underpoweredIncreasing.Count())
-                    {
-                        underpoweredIncreasingSpeed[j, 0] = underpoweredIncreasing[checkIdx];
-                        underpoweredDecreasingSpeed[j, 0] = underpoweredDecreasing[checkIdx];
-                        overpoweredIncreasingSpeed[j, 0] = overpoweredIncreasing[checkIdx];
-                        overpoweredDecreasingSpeed[j, 0] = overpoweredDecreasing[checkIdx];
-                    }
-                    
-                }
-
-                /* Write the data to the active excel workseet. */
-                worksheet.get_Range("A" + headerOffset, "A" + (headerOffset + excelPageSize - 1)).Value2 = kilometerage;
-                worksheet.get_Range("B" + headerOffset, "B" + (headerOffset + excelPageSize - 1)).Value2 = underpoweredIncreasingSpeed;
-                worksheet.get_Range("C" + headerOffset, "C" + (headerOffset + excelPageSize - 1)).Value2 = underpoweredDecreasingSpeed;
-                worksheet.get_Range("D" + headerOffset, "D" + (headerOffset + excelPageSize - 1)).Value2 = overpoweredIncreasingSpeed;
-                worksheet.get_Range("E" + headerOffset, "E" + (headerOffset + excelPageSize - 1)).Value2 = overpoweredDecreasingSpeed;
-
-            }
-
-            /* Generate the resulting file name and location to save to. */
-            string savePath = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis";
-            string saveFilename = savePath + @"\AverageSpeed_" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx";
-
-            /* Check the file does not exist yet. */
-            if (File.Exists(saveFilename))
-                File.Delete(saveFilename);
-
-            /* Save the excel file. */
-            excel.UserControl = false;
-            workbook.SaveAs(saveFilename, Microsoft.Office.Interop.Excel.XlFileFormat.xlWorkbookDefault, Type.Missing, Type.Missing,
-                false, false, Microsoft.Office.Interop.Excel.XlSaveAsAccessMode.xlNoChange,
-                Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
-
-            workbook.Close();
-
-            return;
-
-
         }
 
         /// <summary>
@@ -823,7 +691,8 @@ namespace TrainPerformance
             workbook = (Microsoft.Office.Interop.Excel._Workbook)(excel.Workbooks.Add(""));
 
             /* Create the header details. */
-            string[] headerString = { "Kilometreage", "Underpowered Increasing Speed", "Underpowered Decreasing Speed", "Overpowered Increasing Speed", "Overpowered Decreasing Speed" , "Loop"};
+            string[] headerString = { "Kilometreage", "Underpowered Increasing Speed", "Underpowered Decreasing Speed", "Overpowered Increasing Speed", 
+                                        "Overpowered Decreasing Speed", "Total Increasing Speed", "Total Decreasing Speed", "Loop", "TSRs" };
             /* Pagenate the data for writing to excel. */
             int excelPageSize = 1000000;        /* Page size of the excel worksheet. */
             int excelPages = 1;                 /* Number of Excel pages to write. */
@@ -842,15 +711,25 @@ namespace TrainPerformance
             double[,] underpoweredDecreasingSpeed = new double[excelPageSize, 1];
             double[,] overpoweredIncreasingSpeed = new double[excelPageSize, 1];
             double[,] overpoweredDecreasingSpeed = new double[excelPageSize, 1];
+            double[,] totalIncreasingSpeed = new double[excelPageSize, 1];
+            double[,] totalDecreasingSpeed = new double[excelPageSize, 1];
             string[,] isLoophere = new string[excelPageSize, 1];
+            string[,] isTSRhere = new string[excelPageSize, 1];
 
+            /* Extract the statistics */
+            // How to defind an empy 2D array that we dont have a size for
+            // if Statistics is available populate header and values, else leave empty
+            
+            string[,] statisticsHeader = {{"Statistics:"}, {"Number Of Trains"}, {"Average Distance Travelled"}, {"Average Speed"}, {"Average P/W Ratio"}, {"P/W standard Deviation" }};
+            string[,] totalStatistics = { { "Total" }, { Statistics.numberOfTrains.ToString() }, { Statistics.averageDistanceTravelled.ToString() }, { Statistics.averageSpeed.ToString() }, { Statistics.averagePowerToWeightRatio.ToString() }, { Statistics.standardDeviationP2W.ToString() } };
+            
             /* Loop through the excel pages. */
             for (int excelPage = 0; excelPage < excelPages; excelPage++)
             {
                 /* Set the active worksheet. */
                 worksheet = (Microsoft.Office.Interop.Excel._Worksheet)workbook.Sheets[excelPage + 1];
                 workbook.Sheets[excelPage + 1].Activate();
-                worksheet.get_Range("A1", "F1").Value2 = headerString;
+                worksheet.get_Range("A1", "I1").Value2 = headerString;
 
                 /* Loop through the data for each excel page. */
                 for (int j = 0; j < excelPageSize; j++)
@@ -863,7 +742,10 @@ namespace TrainPerformance
                     underpoweredDecreasingSpeed[j, 0] = 0;
                     overpoweredIncreasingSpeed[j, 0] = 0;
                     overpoweredDecreasingSpeed[j, 0] = 0;
-                    isLoophere[j,0] = "";
+                    totalIncreasingSpeed[j, 0] = 0;
+                    totalDecreasingSpeed[j, 0] = 0;
+                    isLoophere[j, 0] = "";
+                    isTSRhere[j, 0] = "";
 
                     /* Populate the average speed data. */
                     if (checkIdx < averageData.Count())
@@ -872,8 +754,14 @@ namespace TrainPerformance
                         underpoweredDecreasingSpeed[j, 0] = averageData[checkIdx].underpoweredDecreaseingAverage;
                         overpoweredIncreasingSpeed[j, 0] = averageData[checkIdx].overpoweredIncreaseingAverage;
                         overpoweredDecreasingSpeed[j, 0] = averageData[checkIdx].overpoweredDecreaseingAverage;
+                        totalIncreasingSpeed[j, 0] = averageData[checkIdx].totalIncreasingAverage;
+                        totalDecreasingSpeed[j, 0] = averageData[checkIdx].totalDecreasingAverage;
+
                         if (averageData[checkIdx].isInLoopBoundary)
                             isLoophere[j, 0] = "Loop Boundary";
+
+                        if (averageData[checkIdx].isTSRboundary)
+                            isTSRhere[j, 0] = "TSR Boundary";
 
                     }
 
@@ -885,17 +773,29 @@ namespace TrainPerformance
                 worksheet.get_Range("C" + headerOffset, "C" + (headerOffset + excelPageSize - 1)).Value2 = underpoweredDecreasingSpeed;
                 worksheet.get_Range("D" + headerOffset, "D" + (headerOffset + excelPageSize - 1)).Value2 = overpoweredIncreasingSpeed;
                 worksheet.get_Range("E" + headerOffset, "E" + (headerOffset + excelPageSize - 1)).Value2 = overpoweredDecreasingSpeed;
-                worksheet.get_Range("F" + headerOffset, "F" + (headerOffset + excelPageSize - 1)).Value2 = isLoophere;
+                worksheet.get_Range("F" + headerOffset, "F" + (headerOffset + excelPageSize - 1)).Value2 = totalIncreasingSpeed;
+                worksheet.get_Range("G" + headerOffset, "G" + (headerOffset + excelPageSize - 1)).Value2 = totalDecreasingSpeed;
+                worksheet.get_Range("H" + headerOffset, "H" + (headerOffset + excelPageSize - 1)).Value2 = isLoophere;
+                worksheet.get_Range("I" + headerOffset, "I" + (headerOffset + excelPageSize - 1)).Value2 = isTSRhere;
+
+                //stats.numberOfTrains
+                worksheet.get_Range("K1", "K6").Value2 = statisticsHeader;
+                worksheet.get_Range("L1", "L6").Value2 = totalStatistics;
+
 
             }
 
+            
             /* Generate the resulting file name and location to save to. */
             string savePath = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis";
             string saveFilename = savePath + @"\AverageSpeed_" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx";
 
             /* Check the file does not exist yet. */
             if (File.Exists(saveFilename))
+            {
+                isFileOpen(saveFilename);
                 File.Delete(saveFilename);
+            }
 
             /* Save the excel file. */
             excel.UserControl = false;
@@ -925,7 +825,7 @@ namespace TrainPerformance
             catch (IOException e)
             {
                 /* File is already opended and locked for reading. */
-                tool.messageBox(e.Message + ":\n\nClose the file and start again");
+                tool.messageBox(e.Message + ":\n\nClose the file and Start again.");
                 Environment.Exit(0);
             }
 

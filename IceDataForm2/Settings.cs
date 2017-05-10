@@ -10,9 +10,9 @@ namespace Globalsettings
     public static class FileSettings
     {
         /* Filenames for each required file. */
-        //public static string dataFile = null;
         public static List<string> batchFiles = new List<string>();
         public static string geometryFile = null;
+        public static string temporarySpeedRestrictionFile = null;
         public static string trainList = null;                  /* File only required if includeAListOfTrainsToExclude is TRUE. */
         public static string underpoweredIncreasingSimulationFile = null;
         public static string underpoweredDecreasingSimulationFile = null;
@@ -50,9 +50,30 @@ namespace Globalsettings
         public static double overpoweredUpperBound;         /* The upper bound cuttoff for the overpowered trains. */
         public static double combinedLowerBound;            /* The lower bound cuttoff for the combined trains. */
         public static double combinedUpperBound;            /* The upper bound cuttoff for the combined trains. */
-        
 
+        /// <summary>
+        /// This function resets the power to weight upper and lower boundaries to 
+        /// default values when there are no power to weight ratio values available 
+        /// for the trains.
+        /// This means that all trains included will be classified as underpowered
+        /// </summary>
+        public static void resetPowerToWeightBoundariesToZero()
+        {
+            /* When the data has no opower to weight ratio for the train, the power to weight ratio will default to 0. 
+             * The lower bound needs to allow this value to be include in the analysis.
+             */
+            underpoweredLowerBound = -1;
+            underpoweredUpperBound = double.MaxValue / 2;
+
+            overpoweredLowerBound = double.MaxValue / 2;
+            overpoweredUpperBound = double.MaxValue;
+
+            combinedLowerBound = -1;
+            combinedUpperBound = double.MaxValue;
+        }
         
     }
+
+
 
 }

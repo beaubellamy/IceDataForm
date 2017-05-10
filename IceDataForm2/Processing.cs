@@ -275,6 +275,8 @@ namespace TrainPerformance
             Settings.underpoweredUpperBound = form.getUnderpoweredUpperBound();
             Settings.overpoweredLowerBound = form.getOvderpoweredLowerBound();
             Settings.overpoweredUpperBound = form.getOvderpoweredUpperBound();
+            Settings.combinedLowerBound = form.getUnderpoweredLowerBound();
+            Settings.combinedUpperBound = form.getOvderpoweredUpperBound();
 
 
         }
@@ -305,46 +307,43 @@ namespace TrainPerformance
                 Settings.bottomRightLocation.longitude > 155)
                 return false;
 
-            if (Settings.includeAListOfTrainsToExclude == null)
+            if (Settings.startKm < 0)
                 return false;
 
-            if (Settings.startKm == null || Settings.startKm < 0)
+            if (Settings.endKm < 0)
                 return false;
 
-            if (Settings.endKm == null || Settings.endKm < 0)
+            if ( Settings.interval < 0)
                 return false;
 
-            if (Settings.interval == null || Settings.interval < 0)
+            if (Settings.minimumJourneyDistance < 0)
                 return false;
 
-            if (Settings.minimumJourneyDistance == null || Settings.minimumJourneyDistance < 0)
+            if (Settings.loopSpeedThreshold < 0 || Settings.loopSpeedThreshold > 100)
                 return false;
 
-            if (Settings.loopSpeedThreshold == null || Settings.loopSpeedThreshold < 0 || Settings.loopSpeedThreshold > 100)
+            if (Settings.loopBoundaryThreshold < 0)
                 return false;
 
-            if (Settings.loopBoundaryThreshold == null || Settings.loopBoundaryThreshold < 0)
+            if (Settings.TSRwindowBounday < 0)
                 return false;
 
-            if (Settings.TSRwindowBounday == null || Settings.TSRwindowBounday < 0)
+            if (Settings.timeThreshold < 0)
                 return false;
 
-            if (Settings.timeThreshold == null || Settings.timeThreshold < 0)
+            if (Settings.distanceThreshold < 0)
                 return false;
 
-            if (Settings.distanceThreshold == null || Settings.distanceThreshold < 0)
-                return false;
-
-            if (Settings.underpoweredLowerBound == null || Settings.underpoweredLowerBound < 0)
+            if (Settings.underpoweredLowerBound < 0)
                 return false;
             
-            if (Settings.underpoweredUpperBound == null || Settings.underpoweredUpperBound < 0)
+            if (Settings.underpoweredUpperBound < 0)
                 return false;
             
-            if (Settings.overpoweredLowerBound == null || Settings.overpoweredLowerBound < 0)
+            if (Settings.overpoweredLowerBound < 0)
                 return false;
             
-            if (Settings.overpoweredUpperBound == null || Settings.overpoweredUpperBound < 0)
+            if (Settings.overpoweredUpperBound < 0)
                 return false;
             
             return true;
@@ -388,11 +387,11 @@ namespace TrainPerformance
                 trainPoint = new GeoLocation(train.TrainJourney[journeyIdx]);
                 train.TrainJourney[journeyIdx].geometryKm = TrainPerformanceAnalysis.track.findClosestTrackGeometryPoint(trackGeometry, trainPoint);
                 /* Note: This is not ideal, as the actual distances travelled will end up being out by a few km.
-                 * This approach reduces the effect of the train journies appearing to change direction several times.
+                 * This approach reduces the effect of the train journey's appearing to change direction several times.
                  */
 
 
-                /* The following approach can be used when the date being read does not contain changing directions. */
+                /* The following approach can be used when the data being read does not contain changing directions. */
 
                 /* Calculate the distance between successive points. */
                 //GeoLocation point1 = new GeoLocation(train.TrainJourney[journeyIdx - 1]);
@@ -440,26 +439,69 @@ namespace TrainPerformance
         }
 
         /// <summary>
-        /// populate the temporary speed rrestrcition information for each train journey.
+        /// populate the temporary speed restriction information for each train journey.
         /// </summary>
         /// <param name="train">A train object containing the journey details.</param>
         /// <param name="trackGeometry">the track Geometry object indicating the TSR information at each location.</param>
-        public void populateTemporarySpeedRestrictions(Train train, List<TrackGeometry> trackGeometry)
+        public void populateTemporarySpeedRestrictions(Train train, List<TrackGeometry> trackGeometry, List<TSRObject> TSRs)
         {
             /* Create a track geometry object. */
             TrackGeometry track = new TrackGeometry();
-            int index = 0;
+            //int index = 0;
             double trainPoint = 0;
 
             /* Cycle through the train journey. */
             foreach (TrainDetails journey in train.TrainJourney)
             {
+                /* Extract the current point in the journey */
                 trainPoint = journey.geometryKm;
-                /* Find the index of the closest point on the track to the train. */
-                index = track.findClosestTrackGeometryPoint(trackGeometry, trainPoint);
-                /* Populate the loop */
-                journey.isTSRHere = trackGeometry[index].isTSRHere;
-                journey.TSRspeed = trackGeometry[index].temporarySpeedRestriction;
+
+                /* Cycle through each TSR. */
+                foreach (TSRObject TSR in TSRs)
+                {
+                    if (trainPoint >= TSR.startKm && trainPoint <= TSR.endKm)
+                    {
+                        if (journey.NotificationDateTime >= TSR.IssueDate && journey.NotificationDateTime <= TSR.LiftedDate)
+                        {
+                            /* When the train is within the applicable TSR, add it to the journey. */
+                            journey.isTSRHere = true;
+                            journey.TSRspeed = TSR.TSRSpeed;
+                        }
+                    }
+                    
+                    /* When a TSR is applicable, break out of the current loop and continue with the rest of the journey. */
+                    if (journey.isTSRHere)
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// This function cycles through each train and determines if a TSR had applied to any part of the journey.
+        /// </summary>
+        /// <param name="trains">A list of trains containing the journey for each.</param>
+        /// <param name="TSRs">A list of TSR objects.</param>
+        public void populateAllTrainsTemporarySpeedRestrictions(List<Train> trains, List<TSRObject> TSRs)
+        {
+            
+            foreach (Train train in trains)
+            {
+                int tsrIndex = 0;
+                
+                foreach (TrainDetails journey in train.TrainJourney)
+                {
+                    /* Establish the TSR that applies to the train position. */
+                    if (journey.geometryKm > TSRs[tsrIndex].endKm && tsrIndex < TSRs.Count()-1)
+                        tsrIndex++;
+
+                    /* Determine if the TSR is applicable to the train by location and date. */
+                    if (journey.geometryKm >= TSRs[tsrIndex].startKm && journey.geometryKm <= TSRs[tsrIndex].endKm &&
+                        journey.NotificationDateTime >= TSRs[tsrIndex].IssueDate && journey.NotificationDateTime <= TSRs[tsrIndex].LiftedDate)
+                    {
+                        journey.isTSRHere = true;
+                        journey.TSRspeed = TSRs[tsrIndex].TSRSpeed;
+                    }
+                }
             }
         }
 
@@ -559,7 +601,7 @@ namespace TrainPerformance
                     else
                     {
                         /* Boundary conditions for interpolating the data prior to and beyond the existing journey points. */
-                        time = DateTime.MinValue;
+                        time = journey.Where(t => t.NotificationDateTime > DateTime.MinValue).Min(t => t.NotificationDateTime); // DateTime.MinValue;
                         interpolatedSpeed = 0;
                     }
                                        
@@ -910,7 +952,7 @@ namespace TrainPerformance
                     {
 
                         /* Is there a TSR that applies */
-                        if (!temporarySpeedRestrictionParameters(train, journey.geometryKm).isTSRHere)
+                        if (!withinTemporarySpeedRestrictionBoundaries(train, journey.geometryKm))
                         {
                             /* Check train is not within the loop boundaries */
                             if (!isTrainInLoopBoundary(train, journey.geometryKm))
@@ -962,29 +1004,36 @@ namespace TrainPerformance
         /// Determine the average speed of all trains in a each direction and each power to weight category.
         /// </summary>
         /// <param name="trains">List of trains, each with a trainJourney object.</param>
-        /// <param name="underpoweredIncreasing">The simulated train journey for the underpowered category in the increasing direction.</param>
-        /// <param name="underpoweredDecreasing">The simulated train journey for the underpowered category in the decreasing direction.</param>
-        /// <param name="overpoweredIncreasing">The simulated train journey for the overpowered category in the increasing direction.</param>
-        /// <param name="overpoweredDecreasing">The simulated train journey for the overpowered category in the decreasing direction.</param>
+        /// <param name="underpoweredIncreasingSimulation">The simulated train journey for the underpowered category in the increasing direction.</param>
+        /// <param name="underpoweredDecreasingSimulation">The simulated train journey for the underpowered category in the decreasing direction.</param>
+        /// <param name="overpoweredIncreasingSimulation">The simulated train journey for the overpowered category in the increasing direction.</param>
+        /// <param name="overpoweredDecreasingSimulation">The simulated train journey for the overpowered category in the decreasing direction.</param>
         /// <returns>A list of averaged train objects containing the average speed at each location for all four power to weight catagories.</returns>
         public List<averagedTrainData> powerToWeightAverageSpeed(List<Train> trains, 
-                                                                List<InterpolatedTrain> underpoweredIncreasing, List<InterpolatedTrain> underpoweredDecreasing, 
-                                                                List<InterpolatedTrain> overpoweredIncreasing, List<InterpolatedTrain> overpoweredDecreasing)
+                                                                List<InterpolatedTrain> underpoweredIncreasingSimulation, List<InterpolatedTrain> underpoweredDecreasingSimulation, 
+                                                                List<InterpolatedTrain> overpoweredIncreasingSimulation, List<InterpolatedTrain> overpoweredDecreasingSimulation)
         {
             /* Declare the local variables to store the sum and averages. */
-            double underpoweredIncreasingSum, underpoweredDecreasingSum, overpoweredIncreasingSum, overpoweredDecreasingSum;
-            double underIncreasingAverage, underDecreasingAverage, overIncreasingAverage, overDecreasingAverage;
+            double underpoweredIncreasingSum, underpoweredDecreasingSum, overpoweredIncreasingSum, overpoweredDecreasingSum, totalIncreasingSum, totalDecreasingSum;
+            double underIncreasingAverage, underDecreasingAverage, overIncreasingAverage, overDecreasingAverage, totalIncreasingAverage, totalDecreasingAverage;
+            double underpoweredIncreasingWeight, underpoweredDecreasingWeight, overpoweredIncreasingWeight, overpoweredDecreasingWeight;
 
             bool isInLoopBoundary = false;
+            bool isInTSRBoundary = false;
+            List<bool> TSRList = new List<bool>();
             
             /* Calculate the number of elements in the array/list. */
             int size = (int)((Settings.endKm - Settings.startKm) / (Settings.interval / 1000));
+            //int underpoweredIncreasingTrainCount, underpoweredDecerasingTrainCount, overpoweredIncreasingTrainCount, overpoweredDecerasingTrainCount;
             
             /* Place holders for the included speeds and the resulting average speed at each location. */
             List<double> underIncreasingSpeed = new List<double>();
             List<double> underDecreasingSpeed = new List<double>();
             List<double> overIncreasingSpeed = new List<double>();
             List<double> overDecreasingSpeed = new List<double>();
+            List<double> totalIncreasingSpeed = new List<double>();
+            List<double> totalDecreasingSpeed = new List<double>();
+
             List<averagedTrainData> averageSpeed = new List<averagedTrainData>();
 
             TrainDetails journey = new TrainDetails();
@@ -997,40 +1046,65 @@ namespace TrainPerformance
                 underpoweredDecreasingSum = 0;
                 overpoweredIncreasingSum = 0;
                 overpoweredDecreasingSum = 0;
+                totalIncreasingSum = 0;
+                totalDecreasingSum = 0;
+
+                underpoweredIncreasingWeight = 0;
+                underpoweredDecreasingWeight = 0;
+                overpoweredIncreasingWeight = 0;
+                overpoweredDecreasingWeight = 0;
 
                 underIncreasingSpeed.Clear();
                 underDecreasingSpeed.Clear();
                 overIncreasingSpeed.Clear();
                 overDecreasingSpeed.Clear();
+                totalDecreasingSpeed.Clear();
+                totalIncreasingSpeed.Clear();
 
+                TSRList.Clear();
                 
                 /* Loop through each train. */
                 foreach (Train train in trains)
                 {
+                    
                     journey = train.TrainJourney[journeyIdx];
-
+                    
                     /* Seperate the averages for each direction. */
                     if (journey.trainDirection == direction.increasing)
                     {                        
-                        /* Is there a TSR that applies */
-                        if (!temporarySpeedRestrictionParameters(train, journey.geometryKm).isTSRHere)
+
+                        /* Is there a TSR that applies */                       
+                        if (!withinTemporarySpeedRestrictionBoundaries(train, journey.geometryKm))
                         {
+                            TSRList.Add(false);
+
                             /* Check train is not within the loop boundaries */
                             if (!isTrainInLoopBoundary(train, journey.geometryKm))
                             {
-                                isInLoopBoundary = false;
+                                //isInLoopBoundary = false;
 
                                 if (journey.powerToWeight > Settings.underpoweredLowerBound && journey.powerToWeight <= Settings.underpoweredUpperBound)
                                 {
                                     /* Underpowered increasing trains. */
                                     underIncreasingSpeed.Add(journey.speed);
                                     underpoweredIncreasingSum = underpoweredIncreasingSum + journey.speed;
+
+                                    totalIncreasingSpeed.Add(journey.speed);
+                                    totalIncreasingSum = totalIncreasingSum + journey.speed;
+
+                                    underpoweredIncreasingWeight++;
                                 }
+
                                 if (journey.powerToWeight > Settings.overpoweredLowerBound && journey.powerToWeight <= Settings.overpoweredUpperBound)
                                 {
                                     /* Overpowered incerasing trains. */
                                     overIncreasingSpeed.Add(journey.speed);
                                     overpoweredIncreasingSum = overpoweredIncreasingSum + journey.speed;
+
+                                    totalIncreasingSpeed.Add(journey.speed);
+                                    totalIncreasingSum = totalIncreasingSum + journey.speed;
+
+                                    overpoweredIncreasingWeight++;
                                 }
 
                             }
@@ -1042,36 +1116,61 @@ namespace TrainPerformance
                                 if (journey.powerToWeight > Settings.underpoweredLowerBound && journey.powerToWeight <= Settings.underpoweredUpperBound)
                                 {
                                     /* Underpowered increasing trains. */
-                                    if (journey.speed > (underpoweredIncreasing[journeyIdx].speed * Settings.loopSpeedThreshold))
+                                    if (journey.speed > (underpoweredIncreasingSimulation[journeyIdx].speed * Settings.loopSpeedThreshold))
                                     {
                                         underIncreasingSpeed.Add(journey.speed);
                                         underpoweredIncreasingSum = underpoweredIncreasingSum + journey.speed;
+
+                                        totalIncreasingSpeed.Add(journey.speed);
+                                        totalIncreasingSum = totalIncreasingSum + journey.speed;
+
+                                        underpoweredIncreasingWeight++;
                                     }
                                 }
 
                                 if (journey.powerToWeight > Settings.overpoweredLowerBound && journey.powerToWeight <= Settings.overpoweredUpperBound)
                                 {
                                     /* Overpowered incerasing trains. */
-                                    if (journey.speed > (overpoweredIncreasing[journeyIdx].speed * Settings.loopSpeedThreshold))
+                                    if (journey.speed > (overpoweredIncreasingSimulation[journeyIdx].speed * Settings.loopSpeedThreshold))
                                     {
                                         overIncreasingSpeed.Add(journey.speed);
                                         overpoweredIncreasingSum = overpoweredIncreasingSum + journey.speed;
+
+                                        totalIncreasingSpeed.Add(journey.speed);
+                                        totalIncreasingSum = totalIncreasingSum + journey.speed;
+
+                                        overpoweredIncreasingWeight++;
                                     }
                                 }
-
 
                             }
                         }
                         else
                         {
                             /* A TSR applies to the current position of the train. */
+                            TSRList.Add(true);
+
+                            /* We dont want to include the speed in the aggregation if the train is within the
+                             * bundaries of a TSR and is forced to slow down.  
+                             */
+                            if (journey.powerToWeight > Settings.underpoweredLowerBound && journey.powerToWeight <= Settings.underpoweredUpperBound)
+                                underpoweredIncreasingWeight++;
+                            
+                            if (journey.powerToWeight > Settings.overpoweredLowerBound && journey.powerToWeight <= Settings.overpoweredUpperBound)
+                                overpoweredIncreasingWeight++;
+                            
+
+
                         }
                     }
                     else if (journey.trainDirection == direction.decreasing)
                     {
-                        /* Is there a TSR that applies */
-                        if (!temporarySpeedRestrictionParameters(train, journey.geometryKm).isTSRHere)
+
+                         /* Is there a TSR that applies */
+                        if (!withinTemporarySpeedRestrictionBoundaries(train, journey.geometryKm))
                         {
+                            TSRList.Add(false);
+
                             /* Check train is not within the loop boundaries */
                             if (!isTrainInLoopBoundary(train, journey.geometryKm))
                             {
@@ -1082,12 +1181,24 @@ namespace TrainPerformance
                                     /* Underpowered decreasing trains. */
                                     underDecreasingSpeed.Add(journey.speed);
                                     underpoweredDecreasingSum = underpoweredDecreasingSum + journey.speed;
+
+                                    totalDecreasingSpeed.Add(journey.speed);
+                                    totalDecreasingSum = totalDecreasingSum + journey.speed;
+
+                                    underpoweredDecreasingWeight++;
+
                                 }
                                 if (journey.powerToWeight > Settings.overpoweredLowerBound && journey.powerToWeight <= Settings.overpoweredUpperBound)
                                 {
                                     /* Overpowered decerasing trains. */
                                     overDecreasingSpeed.Add(journey.speed);
                                     overpoweredDecreasingSum = overpoweredDecreasingSum + journey.speed;
+
+                                    totalDecreasingSpeed.Add(journey.speed);
+                                    totalDecreasingSum = totalDecreasingSum + journey.speed;
+
+                                    overpoweredDecreasingWeight++;
+
                                 }
 
                             }
@@ -1098,25 +1209,50 @@ namespace TrainPerformance
                                 if (journey.powerToWeight > Settings.underpoweredLowerBound && journey.powerToWeight <= Settings.underpoweredUpperBound)
                                 {
                                     /* Underpowered decreasing trains. */
-                                    if (journey.speed > (underpoweredIncreasing[journeyIdx].speed * Settings.loopSpeedThreshold))
+                                    if (journey.speed > (underpoweredDecreasingSimulation[journeyIdx].speed * Settings.loopSpeedThreshold))
                                     {
-                                        underIncreasingSpeed.Add(journey.speed);
+                                        underDecreasingSpeed.Add(journey.speed);
                                         underpoweredDecreasingSum = underpoweredDecreasingSum + journey.speed;
+
+                                        totalDecreasingSpeed.Add(journey.speed);
+                                        totalDecreasingSum = totalDecreasingSum + journey.speed;
+
+                                        underpoweredDecreasingWeight++;
                                     }
                                 }
 
                                 if (journey.powerToWeight > Settings.overpoweredLowerBound && journey.powerToWeight <= Settings.overpoweredUpperBound)
                                 {
                                     /* overpowered decreasing trains. */
-                                    if (journey.speed > (overpoweredIncreasing[journeyIdx].speed * Settings.loopSpeedThreshold))
+                                    if (journey.speed > (overpoweredDecreasingSimulation[journeyIdx].speed * Settings.loopSpeedThreshold))
                                     {
-                                        overIncreasingSpeed.Add(journey.speed);
+                                        overDecreasingSpeed.Add(journey.speed);
                                         overpoweredDecreasingSum = overpoweredDecreasingSum + journey.speed;
+
+                                        totalDecreasingSpeed.Add(journey.speed);
+                                        totalDecreasingSum = totalDecreasingSum + journey.speed;
+
+                                        overpoweredDecreasingWeight++;
                                     }
                                 }
 
 
                             }
+                        }
+                        else
+                        {
+                            /* A TSR applies to the current position of the train. */
+                            TSRList.Add(true);
+
+                            /* We dont want to include the speed in the aggregation if the train is within the
+                             * bundaries of a TSR and is forced to slow down.  
+                             */
+                            if (journey.powerToWeight > Settings.underpoweredLowerBound && journey.powerToWeight <= Settings.underpoweredUpperBound)
+                                underpoweredDecreasingWeight++;
+
+                            if (journey.powerToWeight > Settings.overpoweredLowerBound && journey.powerToWeight <= Settings.overpoweredUpperBound)
+                                overpoweredDecreasingWeight++;
+                            
                         }
                     }
                     else
@@ -1126,33 +1262,74 @@ namespace TrainPerformance
 
                 }
 
-                /* Calcualte the average speed for each category at each location. */
-                if (underIncreasingSpeed.Count() == 0 || underpoweredIncreasingSum == 0)
-                    underIncreasingAverage = underpoweredIncreasing[journeyIdx].speed;
-                else
-                    underIncreasingAverage = underIncreasingSpeed.Where(x => x > 0.0).Average(x => x);
+                int TSRTrueCount = TSRList.Where(t => t == true).Count();
 
-                if (underDecreasingSpeed.Count() == 0 || underpoweredDecreasingSum == 0)
-                    underDecreasingAverage = underpoweredDecreasing[journeyIdx].speed;
+                if (TSRTrueCount > 0)
+                    isInTSRBoundary = true;
                 else
-                    underDecreasingAverage = underDecreasingSpeed.Where(x => x > 0.0).Average(x => x);
+                    isInTSRBoundary = false;
 
-                if (overIncreasingSpeed.Count() == 0 || overpoweredIncreasingSum == 0)
-                    overIncreasingAverage = overpoweredIncreasing[journeyIdx].speed;
+                /* If the TSR applied the whole analysis period, the simualtion speed is used. */
+                if (TSRTrueCount == TSRList.Count())
+                {
+                    underIncreasingAverage = underpoweredIncreasingSimulation[journeyIdx].speed;
+                    underDecreasingAverage = underpoweredDecreasingSimulation[journeyIdx].speed;
+                    overIncreasingAverage = overpoweredIncreasingSimulation[journeyIdx].speed;
+                    overDecreasingAverage = overpoweredDecreasingSimulation[journeyIdx].speed;
+
+                    /* Calcualte the weighted average of the simualtions for the total power catagory. */
+                    double totalIncreasing = (underIncreasingAverage * underpoweredIncreasingWeight + overIncreasingAverage * overpoweredIncreasingWeight) / 
+                        (underpoweredIncreasingWeight + overpoweredIncreasingWeight);
+                    double totalDecreasing = (underDecreasingAverage * underpoweredDecreasingWeight + overDecreasingAverage * overpoweredDecreasingWeight) /
+                        (underpoweredDecreasingWeight + overpoweredDecreasingWeight);
+
+                    totalIncreasingAverage = totalIncreasing;
+                    totalDecreasingAverage = totalDecreasing;
+                }
                 else
-                    overIncreasingAverage = overIncreasingSpeed.Where(x => x > 0.0).Average(x => x);                
-                
-                if (overDecreasingSpeed.Count() == 0 || overpoweredDecreasingSum == 0)
-                    overDecreasingAverage = overpoweredDecreasing[journeyIdx].speed;
-                else
-                    overDecreasingAverage = overDecreasingSpeed.Where(x => x > 0.0).Average(x => x);
+                {
+                    /* Calcualte the average speed for each category at each location. */
+                    if (underIncreasingSpeed.Count() == 0 || underpoweredIncreasingSum == 0)
+                        underIncreasingAverage = 0.0; //underpoweredIncreasingSimulation[journeyIdx].speed;
+                    else
+                        underIncreasingAverage = underIncreasingSpeed.Where(x => x > 0.0).Average(x => x);
+
+                    if (underDecreasingSpeed.Count() == 0 || underpoweredDecreasingSum == 0)
+                        underDecreasingAverage = 0.0; //underpoweredDecreasingSimulation[journeyIdx].speed;
+                    else
+                        underDecreasingAverage = underDecreasingSpeed.Where(x => x > 0.0).Average(x => x);
+
+                    if (overIncreasingSpeed.Count() == 0 || overpoweredIncreasingSum == 0)
+                        overIncreasingAverage = 0.0; //overpoweredIncreasingSimulation[journeyIdx].speed;
+                    else
+                        overIncreasingAverage = overIncreasingSpeed.Where(x => x > 0.0).Average(x => x);
+
+                    if (overDecreasingSpeed.Count() == 0 || overpoweredDecreasingSum == 0)
+                        overDecreasingAverage = 0.0; //overpoweredDecreasingSimulation[journeyIdx].speed;
+                    else
+                        overDecreasingAverage = overDecreasingSpeed.Where(x => x > 0.0).Average(x => x);
+
+
+                    if (totalIncreasingSpeed.Count() == 0 || totalIncreasingSum == 0)
+                        totalIncreasingAverage = 0.0; //journey.speed;
+                    else
+                        totalIncreasingAverage = totalIncreasingSpeed.Where(x => x > 0.0).Average(x => x);
+
+                    if (totalDecreasingSpeed.Count() == 0 || totalDecreasingSum == 0)
+                        totalDecreasingAverage = 0.0; //journey.speed;
+                    else
+                        totalDecreasingAverage = totalDecreasingSpeed.Where(x => x > 0.0).Average(x => x);
+                }
 
                 double kilometerage = Settings.startKm + Settings.interval/1000 * journeyIdx;
 
                 /* Add the averages to the list. */
-                averagedTrainData item = new averagedTrainData(kilometerage, underIncreasingAverage, underDecreasingAverage, overIncreasingAverage, overDecreasingAverage, isInLoopBoundary);
+                averagedTrainData item = new averagedTrainData(kilometerage, underIncreasingAverage, underDecreasingAverage,
+                    overIncreasingAverage, overDecreasingAverage, totalIncreasingAverage, totalDecreasingAverage, isInLoopBoundary, isInTSRBoundary);
                 averageSpeed.Add(item);
                 
+               
+
             }
 
             return averageSpeed;
@@ -1237,10 +1414,11 @@ namespace TrainPerformance
         /// <param name="train">The train object containing the journey details.</param>
         /// <param name="targetLocation">The specific location being considered.</param>
         /// <returns>TSR object containting the TSR flag and the associated speed. </returns>
-        public TSRObject temporarySpeedRestrictionParameters(Train train, double targetLocation)
+        public bool withinTemporarySpeedRestrictionBoundaries(Train train, double targetLocation)
         {
-            TSRObject TSR = new TSRObject();
-
+            
+            bool isTSRHere = false;
+            
             /* Find the indecies of the boundaries of the loop. */
             double lookBack = targetLocation - Settings.TSRwindowBounday;
             double lookForward = targetLocation + Settings.TSRwindowBounday;
@@ -1261,17 +1439,16 @@ namespace TrainPerformance
                     TrainDetails journey = train.TrainJourney[journeyIdx];
 
                     if (journey.isTSRHere)
-                    {
-                        TSR.isTSRHere = true;
-                        TSR.TSRSpeed = journey.TSRspeed;
-                    }
-
+                        isTSRHere = true;
                 }
             }
-            return TSR;
+            return isTSRHere;
         }
 
 
+
+
+        
 
     } // Class processing
 
