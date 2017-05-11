@@ -40,6 +40,25 @@ namespace TrainPerformance
         }
 
         /// <summary>
+        /// Function allows for the selection of the destination folder where the 
+        /// aggregate file will be saved to.
+        /// </summary>
+        /// <returns>The destination path.</returns>
+        public string selectFolder()
+        {
+            /* Create the folder browser and set the intial starting location. */
+            FolderBrowserDialog folder = new FolderBrowserDialog();
+            folder.SelectedPath = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis";
+
+            DialogResult result = folder.ShowDialog();
+
+            if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(folder.SelectedPath))
+                return folder.SelectedPath;
+            else
+                return "";
+        }
+
+        /// <summary>
         /// Function opens a dialog box to browse and select the data file.
         /// </summary>
         /// <returns>The full filename of the data file.</returns>

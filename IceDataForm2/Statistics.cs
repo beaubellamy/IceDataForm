@@ -17,6 +17,9 @@ namespace TrainPerformance
         public static double averagePowerToWeightRatio;
         public static double standardDeviationP2W;
 
+        /// <summary>
+        /// Default Statisitcs Constructor
+        /// </summary>
         public Statistics()
         { 
         }
@@ -28,8 +31,7 @@ namespace TrainPerformance
         public void generateStats(List<Train> trains)
         {
             /* Extract the number of trains in the list */
-            numberOfTrains = trains.Where(t => t.TrainJourney[0].powerToWeight > Settings.combinedLowerBound).
-                                    Where(t => t.TrainJourney[0].powerToWeight <= Settings.combinedUpperBound).Count();
+            numberOfTrains = trains.Count();
             // This should be generic, should pass in only the lists that conforms to desired boundaries.
 
             List<double> distance = new List<double>();

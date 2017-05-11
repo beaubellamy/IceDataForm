@@ -121,6 +121,115 @@ namespace TrainPerformance
         }
 
         /// <summary>
+        /// Function reads in the track geometry data from file.
+        /// </summary>
+        /// <param name="filename">Full filename of the geometry file.</param>
+        /// <returns>A list of track Geometry objects describing the track geometry.</returns>
+        public static List<TrackGeometry> readGeometryfile(string filename)
+        {
+            Processing processing = new Processing();
+
+            /* Create the list of track geometry objects. */
+            List<TrackGeometry> trackGeometry = new List<TrackGeometry>();
+
+            bool header = true;
+
+            /* Read all the lines of the file. */
+            string[] lines = System.IO.File.ReadAllLines(filename);
+            char[] delimeters = { ',', '\'', '"', '\t', '\n' };     // not sure of the delimter ??
+
+            /* Seperate the fields. */
+            string[] fields = lines[0].Split(delimeters);
+
+            bool firstPoint = true;
+
+            /* Define the track geomerty parameters. */
+            string geometryName = null;
+            double latitude = 0.0;
+            double longitude = 0.0;
+            double elevation = 0.0;
+            double kilometreage = 0.0;
+            double virtualKilometreage = 0.0;
+            bool isLoopHere = false;
+
+            /* Define some additional helper parameters. */
+            double distance = 0;
+            direction direction = direction.notSpecified;
+            double previousLat = 0;
+            double previousLong = 0;
+            double previouskm = 0;
+            string loop;
+
+            /* Add the trains to the list. */
+            foreach (string line in lines)
+            {
+                if (header)
+                    /* Ignore the header line. */
+                    header = false;
+                else
+                {
+                    /* Seperate each record into each field */
+                    fields = line.Split(delimeters);
+                    geometryName = fields[0];
+                    double.TryParse(fields[1], out latitude);
+                    double.TryParse(fields[2], out longitude);
+                    double.TryParse(fields[3], out elevation);
+                    double.TryParse(fields[4], out kilometreage);
+                    loop = fields[6];
+
+                    if (loop.Equals("loop", StringComparison.OrdinalIgnoreCase) || loop.Equals("true", StringComparison.OrdinalIgnoreCase))
+                        isLoopHere = true;
+                    else
+                        isLoopHere = false;
+
+                    /* The virtual kilometreage starts at the first kilometreage of the track. */
+                    if (firstPoint)
+                    {
+                        virtualKilometreage = kilometreage;
+                        /* Set the 'pervious' parameters. */
+                        previousLat = latitude;
+                        previousLong = longitude;
+                        previouskm = kilometreage;
+                        firstPoint = false;
+                    }
+                    else
+                    {
+                        /* Determine the direction the track kilometreage. */
+                        if (direction == direction.notSpecified)
+                        {
+                            if (kilometreage - previouskm > 0)
+                                direction = direction.increasing;
+                            else
+                                direction = direction.decreasing;
+                        }
+
+                        /* Calcualte the distance between succesive points and increment the virtual kilometreage. */
+                        distance = processing.calculateGreatCircleDistance(previousLat, previousLong, latitude, longitude);
+                        
+                        if (direction == direction.increasing)
+                            virtualKilometreage = virtualKilometreage + distance / 1000;
+
+                        else
+                            virtualKilometreage = virtualKilometreage - distance / 1000;
+
+                        /* Set the 'previous' parameters. */
+                        previousLat = latitude;
+                        previousLong = longitude;
+
+                    }
+
+                    /* Add the geometry point to the list. */
+                    TrackGeometry geometry = new TrackGeometry(0, geometryName, latitude, longitude, elevation, kilometreage, virtualKilometreage, isLoopHere);
+                    trackGeometry.Add(geometry);
+
+                }
+            }
+
+
+            return trackGeometry;
+        }
+
+        /// <summary>
         /// Read the file containing the temporary speed restriction information and 
         /// store in a manalgable list of TSR objects, which contain all neccessary 
         /// information for each TSR.
@@ -404,7 +513,7 @@ namespace TrainPerformance
             }
 
             /* Generate the resulting file name and location to save to. */
-            string savePath = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis";
+            string savePath = FileSettings.aggregatedDestination;
             string saveFilename = savePath + @"\ICEData_" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx";
 
             /* Check the file does not exist yet. */
@@ -528,7 +637,7 @@ namespace TrainPerformance
             }
 
             /* Generate the resulting file name and location to save to. */
-            string savePath = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis";
+            string savePath = FileSettings.aggregatedDestination;
             string saveFilename = savePath + @"\ICEData_Interpolated" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx";
 
             /* Check the file does not exist yet. */
@@ -652,7 +761,7 @@ namespace TrainPerformance
             }
 
             /* Generate the resulting file name and location to save to. */
-            string savePath = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis";
+            string savePath = FileSettings.aggregatedDestination;
             string saveFilename = savePath + @"\ICEData_InterpolatedCompare" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx";
 
             /* Check the file does not exist yet. */
@@ -787,7 +896,7 @@ namespace TrainPerformance
 
             
             /* Generate the resulting file name and location to save to. */
-            string savePath = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis";
+            string savePath = FileSettings.aggregatedDestination;
             string saveFilename = savePath + @"\AverageSpeed_" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx";
 
             /* Check the file does not exist yet. */
@@ -835,7 +944,7 @@ namespace TrainPerformance
         /// Find the minimum notification date in the train journey.
         /// </summary>
         /// <param name="journey">The train details for each point of the journey.</param>
-        /// <returns>The earliest date of teh train journey.</returns>
+        /// <returns>The earliest date of the train journey.</returns>
         private static DateTime findMinDate(List<TrainDetails> journey)
         {
 

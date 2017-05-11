@@ -129,8 +129,7 @@ namespace TrainPerformance
         /// Select the temporary speed restriction file.
         /// </summary>
         /// <param name="sender">The object container.</param>
-        /// <param name="e">The event arguments.</param>
-        
+        /// <param name="e">The event arguments.</param>        
         private void selectTSRFile_Click(object sender, EventArgs e)
         {
             FileSettings.temporarySpeedRestrictionFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\Macarthur to Botany TSR.csv";
@@ -138,6 +137,7 @@ namespace TrainPerformance
             temporarySpeedRestrictionFile.Text = Path.GetFileName(FileSettings.temporarySpeedRestrictionFile);
             temporarySpeedRestrictionFile.ForeColor = System.Drawing.Color.Black;
         }
+
         /// <summary>
         /// Select the simulation file with increasing km.
         /// </summary>
@@ -202,6 +202,19 @@ namespace TrainPerformance
         }
 
         /// <summary>
+        /// Select the destination folder.
+        /// </summary>
+        /// <param name="sender">The object container.</param>
+        /// <param name="e">The event arguments.</param>
+        private void DestinationFolder_Click(object sender, EventArgs e)
+        {
+            FileSettings.aggregatedDestination = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis";
+            //tool.selectFolder();
+            ResultsDestination.Text = FileSettings.aggregatedDestination;
+            ResultsDestination.ForeColor = System.Drawing.Color.Black;
+        }
+
+        /// <summary>
         /// Execute the analysis.
         /// </summary>
         /// <param name="sender">The object container.</param>
@@ -261,12 +274,10 @@ namespace TrainPerformance
                 tool.messageBox("One or more parameters are invalid.");
                 return;
             }
-            //if (FileSettings.dataFile == null || FileSettings.geometryFile == null)
-            //    return;
+            
             if (FileSettings.batchFiles.Count() == 0 || FileSettings.geometryFile == null)
                 return;
-
-
+            
             /* Ensure there is a empty list of trains to exclude to start. */
             List<string> excludeTrainList = new List<string> { };
 
@@ -276,7 +287,8 @@ namespace TrainPerformance
 
             /* Read in the track gemoetry data. */
             List<TrackGeometry> trackGeometry = new List<TrackGeometry>();
-            trackGeometry = track.readGeometryfile(FileSettings.geometryFile);
+            trackGeometry = FileOperations.readGeometryfile(FileSettings.geometryFile);
+            
 
             /* Read in the TSR information */
             List<TSRObject> TSRs = new List<TSRObject>();
@@ -559,6 +571,9 @@ namespace TrainPerformance
 
             return 0;
         }
+
+        
+        
 
 
         

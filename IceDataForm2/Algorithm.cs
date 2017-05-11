@@ -377,7 +377,7 @@ namespace TrainPerformance
         /// <param name="overIncreasing">Average Speed at kilometreage for the overpowered category in the increasing direction.</param>
         /// <param name="overDecreasing">Average Speed at kilometreage for the overpowered category in the decreasing direction.</param>
         /// <param name="loop">Flag indicating if the location is within the boudanry of a loop.</param>
-        public averagedTrainData(double km, double underIncreasing, double underDecreasing, double overIncreasing, double overDecreasing, double totalIncreasing, double totalDecreasing , bool loop, bool TSR)
+        public averagedTrainData(double km, double underIncreasing, double underDecreasing, double overIncreasing, double overDecreasing, double totalIncreasing, double totalDecreasing, bool loop, bool TSR)
         {
             this.kilometerage = km;
             this.underpoweredIncreaseingAverage = underIncreasing;
@@ -391,7 +391,7 @@ namespace TrainPerformance
         }
 
     }
-    
+
     /// <summary>
     /// A class describing a geographic location with latitude and longitude.
     /// </summary>
@@ -534,7 +534,7 @@ namespace TrainPerformance
 
             /* Read in the track geometry data. */
             List<TrackGeometry> trackGeometry = new List<TrackGeometry>();
-            trackGeometry = track.readGeometryfile(FileSettings.geometryFile);
+            trackGeometry = FileOperations.readGeometryfile(FileSettings.geometryFile);
 
             /* Read in the TSR information */
             List<TSRObject> TSRs = new List<TSRObject>();
@@ -552,7 +552,7 @@ namespace TrainPerformance
             underpoweredDecreasingSimulation = underpoweredDecreasingSimulation.OrderBy(t => t.singleLineKm).ToList();
             List<InterpolatedTrain> simulationUnderpoweredDecreasing = new List<InterpolatedTrain>();
             simulationUnderpoweredDecreasing = processing.interpolateSimulationData(underpoweredDecreasingSimulation, trackGeometry);
-            
+
             /* Ovderpowered Simualtions. */
             List<simulatedTrain> overpoweredIncreasingSimulation = new List<simulatedTrain>();
             overpoweredIncreasingSimulation = FileOperations.readSimulationData(FileSettings.overpoweredIncreasingSimulationFile);
@@ -579,9 +579,12 @@ namespace TrainPerformance
             OrderdTrainRecords = TrainRecords.OrderBy(t => t.TrainID).ThenBy(t => t.LocoID).ThenBy(t => t.NotificationDateTime).ThenBy(t => t.kmPost).ToList();
 
 
+
+
             /**************************************************************************************************/
             /* Clean data - remove trains with insufficient data. */
             /******** Should only be required while we are waiting for the data in the prefered format ********/
+
             List<Train> CleanTrainRecords = new List<Train>();
             CleanTrainRecords = CleanData(trackGeometry, OrderdTrainRecords, TSRs);
             //CleanTrainRecords = MakeTrains(trackGeometry, OrderdTrainRecords);
@@ -591,29 +594,30 @@ namespace TrainPerformance
             List<Train> interpolatedRecords = new List<Train>();
             interpolatedRecords = processing.interpolateTrainData(CleanTrainRecords, trackGeometry);
 
-            /* Populate the trains TSR values after interpolation to gain more granularity with TSR boundary. */
-            processing.populateAllTrainsTemporarySpeedRestrictions(interpolatedRecords, TSRs);
-
-
             /**************************************************************************************************/
 
 
 
 
 
+            /* Populate the trains TSR values after interpolation to gain more granularity with TSR boundary. */
+            processing.populateAllTrainsTemporarySpeedRestrictions(interpolatedRecords, TSRs);
+
             List<InterpolatedTrain> unpackedInterpolation = new List<InterpolatedTrain>();
             unpackedInterpolation = unpackInterpolatedData(interpolatedRecords);
             FileOperations.writeTrainData(unpackedInterpolation);
             FileOperations.writeTrainDataForComparison(interpolatedRecords);
-            
+
             /* Generate some statistical information for the aggregated data. */
+            interpolatedRecords = interpolatedRecords.Where(t => t.TrainJourney[0].powerToWeight > Settings.combinedLowerBound).
+                                    Where(t => t.TrainJourney[0].powerToWeight <= Settings.combinedUpperBound).ToList();
             stats.generateStats(interpolatedRecords);
 
             /* Average the train data for each direction with regard for TSR's and loop locations. */
             List<averagedTrainData> averageData = new List<averagedTrainData>();
-            averageData = processing.powerToWeightAverageSpeed(interpolatedRecords, simulationUnderpoweredIncreasing, simulationUnderpoweredDecreasing, 
+            averageData = processing.powerToWeightAverageSpeed(interpolatedRecords, simulationUnderpoweredIncreasing, simulationUnderpoweredDecreasing,
                 simulationOverpoweredIncreasing, simulationOverpoweredDecreasing);
-            
+
             /* Seperate averages for P/W ratio groups, commodity, Operator */
             /* AverageByPower2Weight    -> powerToWeightAverageSpeed
              * AverageByCommodity       -> not written
@@ -624,7 +628,7 @@ namespace TrainPerformance
 
             /* Write the averaged Data to file for inspection. */
             FileOperations.writeAverageData(averageData);
-                        
+
             /* Unpack the records into a single trainDetails object list. */
             List<TrainDetails> unpackedData = new List<TrainDetails>();
             unpackedData = unpackCleanData(CleanTrainRecords);
@@ -636,8 +640,8 @@ namespace TrainPerformance
         }
 
         /// <summary>
-        /// Remove the whole train journey that does not contain successive points that conform to 
-        /// the minimum distance threshold.
+        /// This function cleans the data from large gaps in the data and ensures the trains 
+        /// are all travelling in a single direction with a minimum total distance.
         /// </summary>
         /// <param name="trackGeometry">A list of track Geometry objects</param>
         /// <param name="trainRecords">List of TrainDetail objects</param>
@@ -651,7 +655,7 @@ namespace TrainPerformance
             bool removeTrain = false;
             double distance = 0;
             double journeyDistance = 0;
-            
+
             GeoLocation point1 = null;
             GeoLocation point2 = null;
 
@@ -699,9 +703,9 @@ namespace TrainPerformance
 
                     /* Validate the direction of train */
                     Train item = new Train();
-                    item.TrainJourney = newTrainList.ToList(); 
+                    item.TrainJourney = newTrainList.ToList();
                     processing.populateDirection(item, trackGeometry);
-                    
+
                     /* remove the train if the direction is not valid. */
                     if (item.TrainJourney[0].trainDirection == direction.invalid)
                         removeTrain = true;
@@ -712,11 +716,10 @@ namespace TrainPerformance
                         /* If all points are acceptable and the train travels the minimum distance, 
                          * add the train journey to the cleaned list. 
                          */
-                        
+
                         /* Determine the actual km, and populate the loops and TSR information. */
                         processing.populateGeometryKm(item, trackGeometry);
                         processing.populateLoopLocations(item, trackGeometry);
-                        processing.populateTemporarySpeedRestrictions(item, trackGeometry, TSRs);
 
                         /* Sort the journey in ascending order. */
                         item.TrainJourney = item.TrainJourney.OrderBy(t => t.geometryKm).ToList();
@@ -733,24 +736,31 @@ namespace TrainPerformance
                     /* Add the first record of the new train journey. */
                     newTrainList.Add(trainRecords[trainIndex]);
                     trainPoint = new GeoLocation(trainRecords[trainIndex]);
-                                        
+
                 }
 
                 /* The end of the records have been reached. */
                 if (trainIndex == trainRecords.Count() - 1 && !removeTrain)
                 {
+                    /* Check uni directionality of the last train */
+                    newTrainList = processing.longestDistanceTravelledInOneDirection(newTrainList, trackGeometry);
+                    /* Calculate the total length of the journey */
+                    journeyDistance = processing.calculateTrainJourneyDistance(newTrainList);
+
+                    /* Validate the direction of train */
                     Train lastItem = new Train();
                     lastItem.TrainJourney = newTrainList.ToList();
                     processing.populateDirection(lastItem, trackGeometry);
+
+                    /* remove the train if the direction is not valid. */
                     if (lastItem.TrainJourney[0].trainDirection == direction.invalid)
                         removeTrain = true;
 
-                    if (!removeTrain)
+                    if (!removeTrain && journeyDistance > Settings.minimumJourneyDistance)
                     {
                         /* If all points are aceptable, add the train journey to the cleaned list. */
                         processing.populateGeometryKm(lastItem, trackGeometry);
                         processing.populateLoopLocations(lastItem, trackGeometry);
-                        processing.populateTemporarySpeedRestrictions(lastItem, trackGeometry, TSRs);
 
                         /* Sort the journey in ascending order. */
                         lastItem.TrainJourney = lastItem.TrainJourney.OrderBy(t => t.geometryKm).ToList();
@@ -766,8 +776,6 @@ namespace TrainPerformance
 
         }
 
-        /* Update to conform with recent modifications to the cleanData function() */
-        /***************************************************************************/
         /// <summary>
         /// Contruct a list of Trains with individual train journey and details
         /// </summary>
@@ -776,10 +784,11 @@ namespace TrainPerformance
         /// <returns>List of Train objects containign the journey details of each train.</returns>
         public static List<Train> MakeTrains(List<TrackGeometry> trackGeometry, List<TrainDetails> trainRecords, List<TSRObject> TSRs)
         {
+
             /* Place holder for the train records that are acceptable. */
             List<TrainDetails> newTrainList = new List<TrainDetails>();
             /* List of each Train with its journey details that is acceptable. */
-            List<Train> TrainList = new List<Train>();
+            List<Train> cleanTrainList = new List<Train>();
 
             /* Add the first record to the list. */
             newTrainList.Add(trainRecords[0]);
@@ -789,7 +798,6 @@ namespace TrainPerformance
 
             for (int trainIndex = 1; trainIndex < trainRecords.Count(); trainIndex++)
             {
-
                 /* Compare next train details with current train details to establish if its a new train. */
                 if (trainRecords[trainIndex].TrainID.Equals(trainRecords[trainIndex - 1].TrainID) &&
                     trainRecords[trainIndex].LocoID.Equals(trainRecords[trainIndex - 1].LocoID) &&
@@ -801,50 +809,59 @@ namespace TrainPerformance
                 }
                 else
                 {
-                    /* The end of the train journey has been reached. */
+                    /* Check uni directionality of the train */
+                    newTrainList = processing.longestDistanceTravelledInOneDirection(newTrainList, trackGeometry);
 
+                    /* Validate the direction of train */
                     Train item = new Train();
                     item.TrainJourney = newTrainList.ToList();
-
-                    /* Determine direction and actual km. */
                     processing.populateDirection(item, trackGeometry);
+
+                    /* Determine the actual km, and populate the loops and TSR information. */
                     processing.populateGeometryKm(item, trackGeometry);
                     processing.populateLoopLocations(item, trackGeometry);
-                    processing.populateTemporarySpeedRestrictions(item, trackGeometry, TSRs);
 
                     /* Sort the journey in ascending order. */
                     item.TrainJourney = item.TrainJourney.OrderBy(t => t.geometryKm).ToList();
-                    TrainList.Add(item);
+
+                    cleanTrainList.Add(item);
+
+
 
                     /* Reset the parameters for the next train. */
                     newTrainList.Clear();
 
                     /* Add the first record of the new train journey. */
                     newTrainList.Add(trainRecords[trainIndex]);
-                    trainPoint = new GeoLocation(trainRecords[trainIndex]);
-                    newTrainList[0].geometryKm = track.findClosestTrackGeometryPoint(trackGeometry, trainPoint);
+
                 }
 
                 /* The end of the records have been reached. */
                 if (trainIndex == trainRecords.Count() - 1)
                 {
+                    /* Check uni directionality of the last train */
+                    newTrainList = processing.longestDistanceTravelledInOneDirection(newTrainList, trackGeometry);
+
+                    /* Validate the direction of train */
+                    Train lastItem = new Train();
+                    lastItem.TrainJourney = newTrainList.ToList();
+                    processing.populateDirection(lastItem, trackGeometry);
+
                     /* If all points are aceptable, add the train journey to the cleaned list. */
-                    Train item = new Train();
-                    item.TrainJourney = newTrainList.ToList();
-                    processing.populateDirection(item, trackGeometry);
-                    processing.populateGeometryKm(item, trackGeometry);
-                    processing.populateLoopLocations(item, trackGeometry);
-                    processing.populateTemporarySpeedRestrictions(item, trackGeometry, TSRs);
+                    processing.populateGeometryKm(lastItem, trackGeometry);
+                    processing.populateLoopLocations(lastItem, trackGeometry);
 
                     /* Sort the journey in ascending order. */
-                    item.TrainJourney = item.TrainJourney.OrderBy(t => t.geometryKm).ToList();
-                    TrainList.Add(item);
+                    lastItem.TrainJourney = lastItem.TrainJourney.OrderBy(t => t.geometryKm).ToList();
+
+                    cleanTrainList.Add(lastItem);
+
 
                 }
 
             }
 
-            return TrainList;
+            return cleanTrainList;
 
         }
 
@@ -893,7 +910,7 @@ namespace TrainPerformance
             }
             return unpackedData;
         }
-    
+
 
     } // Class Algorithm
 

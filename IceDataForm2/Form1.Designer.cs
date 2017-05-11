@@ -30,6 +30,8 @@
         {
             this.SimualtionFileTab = new System.Windows.Forms.TabControl();
             this.fileSelectionTab = new System.Windows.Forms.TabPage();
+            this.temporarySpeedRestrictionFile = new System.Windows.Forms.TextBox();
+            this.selectTSRFile = new System.Windows.Forms.Button();
             this.IceDataFile5 = new System.Windows.Forms.TextBox();
             this.IceDataFile4 = new System.Windows.Forms.TextBox();
             this.IceDataFile3 = new System.Windows.Forms.TextBox();
@@ -118,6 +120,8 @@
             this.DataFileLabel = new System.Windows.Forms.Label();
             this.simIceDataFile = new System.Windows.Forms.TextBox();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.ResultsDestination = new System.Windows.Forms.TextBox();
+            this.DestinationFolder = new System.Windows.Forms.Button();
             this.Execute = new System.Windows.Forms.Button();
             this.overpoweredFileLabel = new System.Windows.Forms.Label();
             this.underpoweredFileLabel = new System.Windows.Forms.Label();
@@ -129,8 +133,7 @@
             this.underpoweredIncreasingSimulationFile = new System.Windows.Forms.TextBox();
             this.selectDecreasingSimulation = new System.Windows.Forms.Button();
             this.selectIncreasingSimulation = new System.Windows.Forms.Button();
-            this.temporarySpeedRestrictionFile = new System.Windows.Forms.TextBox();
-            this.selectTSRFile = new System.Windows.Forms.Button();
+            this.ResultLabel = new System.Windows.Forms.Label();
             this.SimualtionFileTab.SuspendLayout();
             this.fileSelectionTab.SuspendLayout();
             this.processingTab.SuspendLayout();
@@ -178,6 +181,25 @@
             this.fileSelectionTab.TabIndex = 0;
             this.fileSelectionTab.Text = "File Selection";
             this.fileSelectionTab.UseVisualStyleBackColor = true;
+            // 
+            // temporarySpeedRestrictionFile
+            // 
+            this.temporarySpeedRestrictionFile.ForeColor = System.Drawing.SystemColors.InactiveCaptionText;
+            this.temporarySpeedRestrictionFile.Location = new System.Drawing.Point(250, 369);
+            this.temporarySpeedRestrictionFile.Name = "temporarySpeedRestrictionFile";
+            this.temporarySpeedRestrictionFile.Size = new System.Drawing.Size(550, 20);
+            this.temporarySpeedRestrictionFile.TabIndex = 24;
+            this.temporarySpeedRestrictionFile.Text = "<Required>";
+            // 
+            // selectTSRFile
+            // 
+            this.selectTSRFile.Location = new System.Drawing.Point(29, 364);
+            this.selectTSRFile.Name = "selectTSRFile";
+            this.selectTSRFile.Size = new System.Drawing.Size(163, 28);
+            this.selectTSRFile.TabIndex = 23;
+            this.selectTSRFile.Text = "Select TSR File";
+            this.selectTSRFile.UseVisualStyleBackColor = true;
+            this.selectTSRFile.Click += new System.EventHandler(this.selectTSRFile_Click);
             // 
             // IceDataFile5
             // 
@@ -1021,6 +1043,9 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.ResultLabel);
+            this.tabPage1.Controls.Add(this.ResultsDestination);
+            this.tabPage1.Controls.Add(this.DestinationFolder);
             this.tabPage1.Controls.Add(this.Execute);
             this.tabPage1.Controls.Add(this.overpoweredFileLabel);
             this.tabPage1.Controls.Add(this.underpoweredFileLabel);
@@ -1039,9 +1064,28 @@
             this.tabPage1.Text = "Simulation File Selection";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
+            // ResultsDestination
+            // 
+            this.ResultsDestination.ForeColor = System.Drawing.SystemColors.InactiveCaptionText;
+            this.ResultsDestination.Location = new System.Drawing.Point(260, 366);
+            this.ResultsDestination.Name = "ResultsDestination";
+            this.ResultsDestination.Size = new System.Drawing.Size(550, 20);
+            this.ResultsDestination.TabIndex = 37;
+            this.ResultsDestination.Text = "<Required>";
+            // 
+            // DestinationFolder
+            // 
+            this.DestinationFolder.Location = new System.Drawing.Point(38, 356);
+            this.DestinationFolder.Name = "DestinationFolder";
+            this.DestinationFolder.Size = new System.Drawing.Size(163, 39);
+            this.DestinationFolder.TabIndex = 36;
+            this.DestinationFolder.Text = "Select Aggreated Destination Directory";
+            this.DestinationFolder.UseVisualStyleBackColor = true;
+            this.DestinationFolder.Click += new System.EventHandler(this.DestinationFolder_Click);
+            // 
             // Execute
             // 
-            this.Execute.Location = new System.Drawing.Point(347, 335);
+            this.Execute.Location = new System.Drawing.Point(354, 406);
             this.Execute.Name = "Execute";
             this.Execute.Size = new System.Drawing.Size(126, 29);
             this.Execute.TabIndex = 35;
@@ -1143,24 +1187,14 @@
             this.selectIncreasingSimulation.UseVisualStyleBackColor = true;
             this.selectIncreasingSimulation.Click += new System.EventHandler(this.selectUnderpoweredIncreasingSimulationFile_Click);
             // 
-            // temporarySpeedRestrictionFile
+            // ResultLabel
             // 
-            this.temporarySpeedRestrictionFile.ForeColor = System.Drawing.SystemColors.InactiveCaptionText;
-            this.temporarySpeedRestrictionFile.Location = new System.Drawing.Point(250, 369);
-            this.temporarySpeedRestrictionFile.Name = "temporarySpeedRestrictionFile";
-            this.temporarySpeedRestrictionFile.Size = new System.Drawing.Size(550, 20);
-            this.temporarySpeedRestrictionFile.TabIndex = 24;
-            this.temporarySpeedRestrictionFile.Text = "<Required>";
-            // 
-            // selectTSRFile
-            // 
-            this.selectTSRFile.Location = new System.Drawing.Point(29, 364);
-            this.selectTSRFile.Name = "selectTSRFile";
-            this.selectTSRFile.Size = new System.Drawing.Size(163, 28);
-            this.selectTSRFile.TabIndex = 23;
-            this.selectTSRFile.Text = "Select TSR File";
-            this.selectTSRFile.UseVisualStyleBackColor = true;
-            this.selectTSRFile.Click += new System.EventHandler(this.selectTSRFile_Click);
+            this.ResultLabel.AutoSize = true;
+            this.ResultLabel.Location = new System.Drawing.Point(38, 337);
+            this.ResultLabel.Name = "ResultLabel";
+            this.ResultLabel.Size = new System.Drawing.Size(87, 13);
+            this.ResultLabel.TabIndex = 38;
+            this.ResultLabel.Text = "Results Directory";
             // 
             // TrainPerformanceAnalysis
             // 
@@ -1288,6 +1322,9 @@
         private System.Windows.Forms.Button selectDataFile1;
         private System.Windows.Forms.TextBox temporarySpeedRestrictionFile;
         private System.Windows.Forms.Button selectTSRFile;
+        private System.Windows.Forms.TextBox ResultsDestination;
+        private System.Windows.Forms.Button DestinationFolder;
+        private System.Windows.Forms.Label ResultLabel;
     }
 }
 

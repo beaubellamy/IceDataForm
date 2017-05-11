@@ -19,6 +19,8 @@ namespace Globalsettings
         public static string overpoweredIncreasingSimulationFile = null;
         public static string overpoweredDecreasingSimulationFile = null;
 
+        public static string aggregatedDestination = null;
+
     }
 
     public static class Settings
