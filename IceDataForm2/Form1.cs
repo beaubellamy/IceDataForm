@@ -39,9 +39,9 @@ namespace TrainPerformance
                 //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - interpolation test.csv";
                 //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\Macarthur to Botany test data.csv";
                 
-                batchFileName = //tool.browseFile("Select the data file."); 
+                batchFileName = tool.browseFile("Select the data file."); 
                     //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - sample.csv"; 
-                    @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - fulltest.csv";
+                    //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - fulltest.csv";
                 IceDataFile.Text = Path.GetFileName(batchFileName);
                 simIceDataFile.Text = Path.GetFileName(batchFileName);
 
@@ -119,8 +119,8 @@ namespace TrainPerformance
         /// <param name="e">The event arguments.</param>
         private void selectGeometryFile_Click(object sender, EventArgs e)
         {
-            FileSettings.geometryFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\Macarthur to Botany Geometry.csv";
-            //tool.browseFile("Select the geometry file.");
+            FileSettings.geometryFile = //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\Macarthur to Botany Geometry.csv";
+            tool.browseFile("Select the geometry file.");
             GeometryFile.Text = Path.GetFileName(FileSettings.geometryFile);
             GeometryFile.ForeColor = System.Drawing.Color.Black;
         }
@@ -132,8 +132,8 @@ namespace TrainPerformance
         /// <param name="e">The event arguments.</param>        
         private void selectTSRFile_Click(object sender, EventArgs e)
         {
-            FileSettings.temporarySpeedRestrictionFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\Macarthur to Botany TSR.csv";
-            //tool.browseFile("Select the geometry file.");
+            FileSettings.temporarySpeedRestrictionFile = //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\Macarthur to Botany TSR.csv";
+            tool.browseFile("Select the TSR file.");
             temporarySpeedRestrictionFile.Text = Path.GetFileName(FileSettings.temporarySpeedRestrictionFile);
             temporarySpeedRestrictionFile.ForeColor = System.Drawing.Color.Black;
         }
@@ -145,8 +145,8 @@ namespace TrainPerformance
         /// <param name="e">The event arguments.</param>
         private void selectUnderpoweredIncreasingSimulationFile_Click(object sender, EventArgs e)
         {
-            FileSettings.underpoweredIncreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Traxim\2017\Projects\Macarthur to Botany\Botany to Macarthur - All - 3.33_ThuW1.csv";
-                //tool.browseFile("Select the increasing km simulation file.");
+            FileSettings.underpoweredIncreasingSimulationFile = //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Traxim\2017\Projects\Macarthur to Botany\Botany to Macarthur - All - 3.33_ThuW1.csv";
+                tool.browseFile("Select the underpowered increasing km simulation file.");
             underpoweredIncreasingSimulationFile.Text = Path.GetFileName(FileSettings.underpoweredIncreasingSimulationFile);
             underpoweredIncreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
         }
@@ -158,8 +158,8 @@ namespace TrainPerformance
         /// <param name="e">The event arguments.</param>
         private void selectUnderpoweredDecreasingSimulationFile_Click(object sender, EventArgs e)
         {
-            FileSettings.underpoweredDecreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Traxim\2017\Projects\Macarthur to Botany\Macarthur to Botany - All - 3.20_SatW1.csv";
-            //tool.browseFile("Select the decreasing km simulation file.");
+            FileSettings.underpoweredDecreasingSimulationFile = //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Traxim\2017\Projects\Macarthur to Botany\Macarthur to Botany - All - 3.20_SatW1.csv";
+            tool.browseFile("Select the underpowered decreasing km simulation file.");
             underpoweredDecreasingSimulationFile.Text = Path.GetFileName(FileSettings.underpoweredDecreasingSimulationFile);
             underpoweredDecreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
         }
@@ -170,8 +170,8 @@ namespace TrainPerformance
         /// <param name="e">The event arguments.</param>
         private void selectOverpoweredIncreasingSimulationFile_Click(object sender, EventArgs e)
         {
-            FileSettings.overpoweredIncreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Traxim\2017\Projects\Macarthur to Botany\Botany to Macarthur - All - 7.87_ThuW1.csv";
-            //tool.browseFile("Select the increasing km simulation file.");
+            FileSettings.overpoweredIncreasingSimulationFile = //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Traxim\2017\Projects\Macarthur to Botany\Botany to Macarthur - All - 7.87_ThuW1.csv";
+            tool.browseFile("Select the overpowered increasing km simulation file.");
             overpoweredIncreasingSimulationFile.Text = Path.GetFileName(FileSettings.overpoweredIncreasingSimulationFile);
             overpoweredIncreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
         }
@@ -183,8 +183,8 @@ namespace TrainPerformance
         /// <param name="e">The event arguments.</param>
         private void selectOverpoweredDecreasingSimulationFile_Click(object sender, EventArgs e)
         {
-            FileSettings.overpoweredDecreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Traxim\2017\Projects\Macarthur to Botany\Macarthur to Botany - All - 6.97_SatW1.csv";
-            //tool.browseFile("Select the decreasing km simulation file.");
+            FileSettings.overpoweredDecreasingSimulationFile = //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Traxim\2017\Projects\Macarthur to Botany\Macarthur to Botany - All - 6.97_SatW1.csv";
+            tool.browseFile("Select the overpowered decreasing km simulation file.");
             overpoweredDecreasingSimulationFile.Text = Path.GetFileName(FileSettings.overpoweredDecreasingSimulationFile);
             overpoweredDecreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
         }
@@ -208,8 +208,8 @@ namespace TrainPerformance
         /// <param name="e">The event arguments.</param>
         private void DestinationFolder_Click(object sender, EventArgs e)
         {
-            FileSettings.aggregatedDestination = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis";
-            //tool.selectFolder();
+            FileSettings.aggregatedDestination = //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis";
+            tool.selectFolder();
             ResultsDestination.Text = FileSettings.aggregatedDestination;
             ResultsDestination.ForeColor = System.Drawing.Color.Black;
         }
@@ -297,9 +297,8 @@ namespace TrainPerformance
             /* Read the data. */
             List<TrainDetails> TrainRecords = new List<TrainDetails>();
             foreach (string file in FileSettings.batchFiles)
-            {
                 TrainRecords.AddRange(FileOperations.readICEData(file, excludeTrainList));
-            }
+            
             if (TrainRecords.Count() == 0)
             {
                 tool.messageBox("There is no data within the specified boundaries.\nCheck the processing parameters.");
@@ -572,8 +571,412 @@ namespace TrainPerformance
             return 0;
         }
 
+        /// <summary>
+        /// This function sets all the testing parameters for the Cullerin Ranges data
+        /// </summary>
+        /// <param name="sender">The object container.</param>
+        /// <param name="e">The event arguments.</param>
+        private void CulleranRanges_Click(object sender, EventArgs e)
+        {
+            /* Data File */
+            string batchFileName = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Cullerin Ranges\Cullerin Ranges test data.csv";
+
+            IceDataFile.Text = Path.GetFileName(batchFileName);
+            simIceDataFile.Text = Path.GetFileName(batchFileName);
+
+            IceDataFile.ForeColor = System.Drawing.Color.Black;
+            simIceDataFile.ForeColor = System.Drawing.Color.Black;
+
+            if (batchFileName != null || batchFileName != "")
+                FileSettings.batchFiles.Add(batchFileName);
+
+            /* Geometry File */
+            FileSettings.geometryFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Cullerin Ranges\Cullerin Ranges Geometry.csv";
+            GeometryFile.Text = Path.GetFileName(FileSettings.geometryFile);
+            GeometryFile.ForeColor = System.Drawing.Color.Black;
+
+            /* TSR File */
+            FileSettings.temporarySpeedRestrictionFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Cullerin Ranges\Cullerin Ranges TSR.csv";
+            temporarySpeedRestrictionFile.Text = Path.GetFileName(FileSettings.temporarySpeedRestrictionFile);
+            temporarySpeedRestrictionFile.ForeColor = System.Drawing.Color.Black;
+
+            /* Simulation files */
+            FileSettings.underpoweredIncreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Cullerin Ranges\Increasing 3.31_ThuW1.csv";
+            underpoweredIncreasingSimulationFile.Text = Path.GetFileName(FileSettings.underpoweredIncreasingSimulationFile);
+            underpoweredIncreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
+
+            FileSettings.underpoweredDecreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Cullerin Ranges\Decreasing 3.33_TueW1.csv";
+            underpoweredDecreasingSimulationFile.Text = Path.GetFileName(FileSettings.underpoweredDecreasingSimulationFile);
+            underpoweredDecreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
+
+            FileSettings.overpoweredIncreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Cullerin Ranges\Increasing 4.8_FriW1.csv";
+            overpoweredIncreasingSimulationFile.Text = Path.GetFileName(FileSettings.overpoweredIncreasingSimulationFile);
+            overpoweredIncreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
+
+            FileSettings.overpoweredDecreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Cullerin Ranges\Decreasing 4.68_WedW1.csv";
+            overpoweredDecreasingSimulationFile.Text = Path.GetFileName(FileSettings.overpoweredDecreasingSimulationFile);
+            overpoweredDecreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
+
+            /* Destination Folder */
+            FileSettings.aggregatedDestination = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Cullerin Ranges";
+            ResultsDestination.Text = FileSettings.aggregatedDestination;
+            ResultsDestination.ForeColor = System.Drawing.Color.Black;
         
+            /* Settings */
+           
+            fromDate.Value = new DateTime(2016,1,1);
+            toDate.Value = new DateTime(2016,4,1);
+
+            fromLatitude.Text = "-10";
+            toLatitude.Text = "-40";
+            fromLongitude.Text = "110";
+            toLongitude.Text = "152";
+
+            includeAListOfTrainsToExclude.Checked = false;
+
+            startInterpolationKm.Text = "220";
+            endInterpolationKm.Text = "320";
+            interpolationInterval.Text = "50";
+            minimumJourneyDistance.Text = "80";
+            distanceThreshold.Text = "4";
+            timeSeparation.Text = "10";
+
+            loopBoundary.Text = "1";
+            loopSpeedFactor.Text = "50";
+            TSRWindowBoundary.Text = "1";
+
+            underpoweredLowerBound.Text = "2";
+            underpoweredUpperBound.Text = "4";
+            overpoweredLowerBound.Text = "4";
+            overpoweredUpperBound.Text = "6";
+
+           
+        }
+
+        /// <summary>
+        /// This function sets all the testing parameters for the Gunnedah Basin data
+        /// </summary>
+        /// <param name="sender">The object container.</param>
+        /// <param name="e">The event arguments.</param>
+        private void GunnedahBasin_Click(object sender, EventArgs e)
+        {
+            /* Data File */
+            string batchFileName = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin\Gunnedah Basin test data.csv";
+
+            IceDataFile.Text = Path.GetFileName(batchFileName);
+            simIceDataFile.Text = Path.GetFileName(batchFileName);
+
+            IceDataFile.ForeColor = System.Drawing.Color.Black;
+            simIceDataFile.ForeColor = System.Drawing.Color.Black;
+
+            if (batchFileName != null || batchFileName != "")
+                FileSettings.batchFiles.Add(batchFileName);
+
+            /* Geometry File */
+            FileSettings.geometryFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin\Gunnedah Basin Geometry.csv";
+            GeometryFile.Text = Path.GetFileName(FileSettings.geometryFile);
+            GeometryFile.ForeColor = System.Drawing.Color.Black;
+
+            /* TSR File */
+            FileSettings.temporarySpeedRestrictionFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin\Gunnedah Basin TSR.csv";
+            temporarySpeedRestrictionFile.Text = Path.GetFileName(FileSettings.temporarySpeedRestrictionFile);
+            temporarySpeedRestrictionFile.ForeColor = System.Drawing.Color.Black;
+
+            /* Simulation files */
+            FileSettings.underpoweredIncreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin\PN - Increasing.csv";
+            underpoweredIncreasingSimulationFile.Text = Path.GetFileName(FileSettings.underpoweredIncreasingSimulationFile);
+            underpoweredIncreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
+
+            FileSettings.underpoweredDecreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin\PN - Decreasing.csv";
+            underpoweredDecreasingSimulationFile.Text = Path.GetFileName(FileSettings.underpoweredDecreasingSimulationFile);
+            underpoweredDecreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
+
+            FileSettings.overpoweredIncreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin\QR - Increasing.csv";
+            overpoweredIncreasingSimulationFile.Text = Path.GetFileName(FileSettings.overpoweredIncreasingSimulationFile);
+            overpoweredIncreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
+
+            FileSettings.overpoweredDecreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin\QR - Decreasing.csv";
+            overpoweredDecreasingSimulationFile.Text = Path.GetFileName(FileSettings.overpoweredDecreasingSimulationFile);
+            overpoweredDecreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
+
+            /* Destination Folder */
+            FileSettings.aggregatedDestination = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin";
+            ResultsDestination.Text = FileSettings.aggregatedDestination;
+            ResultsDestination.ForeColor = System.Drawing.Color.Black;
+
+            /* Settings */
+
+            fromDate.Value = new DateTime(2015,1,4);
+            toDate.Value = new DateTime(2016,4,4);
+
+            fromLatitude.Text = "-10";
+            toLatitude.Text = "-40";
+            fromLongitude.Text = "110";
+            toLongitude.Text = "152";
+
+            includeAListOfTrainsToExclude.Checked = false;
+
+            startInterpolationKm.Text = "264" ;
+            endInterpolationKm.Text = "541";
+            interpolationInterval.Text = "50";
+            minimumJourneyDistance.Text = "250";
+            distanceThreshold.Text = "4";
+            timeSeparation.Text = "10";
+
+            loopBoundary.Text = "1";
+            loopSpeedFactor.Text = "50";
+            TSRWindowBoundary.Text = "1";
+
+            /* Power to weight ratios done make sense for Gunnedah basin analysis, as this is between operators. */
+            underpoweredLowerBound.Text = "-1";
+            underpoweredUpperBound.Text = "100";
+            overpoweredLowerBound.Text = "100";
+            overpoweredUpperBound.Text = "200";
+
+
+        }
+
+        /// <summary>
+        /// This function sets all the testing parameters for the Macarthur to Botany data
+        /// </summary>
+        /// <param name="sender">The object container.</param>
+        /// <param name="e">The event arguments.</param>
+        private void Macarthur2Botany_Click(object sender, EventArgs e)
+        { 
         
+            /* Data File */
+            string batchFileName = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\Macarthur to Botany test data.csv";
+
+            IceDataFile.Text = Path.GetFileName(batchFileName);
+            simIceDataFile.Text = Path.GetFileName(batchFileName);
+
+            IceDataFile.ForeColor = System.Drawing.Color.Black;
+            simIceDataFile.ForeColor = System.Drawing.Color.Black;
+
+            if (batchFileName != null || batchFileName != "")
+                FileSettings.batchFiles.Add(batchFileName);
+
+            /* Geometry File */
+            FileSettings.geometryFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\Macarthur to Botany Geometry.csv";
+            GeometryFile.Text = Path.GetFileName(FileSettings.geometryFile);
+            GeometryFile.ForeColor = System.Drawing.Color.Black;
+
+            /* TSR File */
+            FileSettings.temporarySpeedRestrictionFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin\Gunnedah Basin TSR.csv";
+            temporarySpeedRestrictionFile.Text = Path.GetFileName(FileSettings.temporarySpeedRestrictionFile);
+            temporarySpeedRestrictionFile.ForeColor = System.Drawing.Color.Black;
+
+            /* Simulation files */
+            FileSettings.underpoweredIncreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\Botany to Macarthur - increasing - 3.33_ThuW1.csv";
+            underpoweredIncreasingSimulationFile.Text = Path.GetFileName(FileSettings.underpoweredIncreasingSimulationFile);
+            underpoweredIncreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
+
+            FileSettings.underpoweredDecreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\Macarthur to Botany - decreasing - 3.20_SatW1.csv";
+            underpoweredDecreasingSimulationFile.Text = Path.GetFileName(FileSettings.underpoweredDecreasingSimulationFile);
+            underpoweredDecreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
+
+            FileSettings.overpoweredIncreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\Botany to Macarthur - increasing - 7.87_ThuW1.csv";
+            overpoweredIncreasingSimulationFile.Text = Path.GetFileName(FileSettings.overpoweredIncreasingSimulationFile);
+            overpoweredIncreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
+
+            FileSettings.overpoweredDecreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\Macarthur to Botany - decreasing - 6.97_SatW1.csv";
+            overpoweredDecreasingSimulationFile.Text = Path.GetFileName(FileSettings.overpoweredDecreasingSimulationFile);
+            overpoweredDecreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
+
+            /* Destination Folder */
+            FileSettings.aggregatedDestination = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany";
+            ResultsDestination.Text = FileSettings.aggregatedDestination;
+            ResultsDestination.ForeColor = System.Drawing.Color.Black;
+
+            /* Settings */
+
+            fromDate.Value = new DateTime(2016,1,1);
+            toDate.Value = new DateTime(2016,2,1);
+
+            fromLatitude.Text = "-10";
+            toLatitude.Text = "-40";
+            fromLongitude.Text = "110";
+            toLongitude.Text = "152";
+
+            includeAListOfTrainsToExclude.Checked = false;
+
+            startInterpolationKm.Text = "5";
+            endInterpolationKm.Text = "70";
+            interpolationInterval.Text = "50";
+            minimumJourneyDistance.Text = "40";
+            distanceThreshold.Text = "4";
+            timeSeparation.Text = "10";
+
+            loopBoundary.Text = "1";
+            loopSpeedFactor.Text = "50";
+            TSRWindowBoundary.Text = "1";
+
+            underpoweredLowerBound.Text = "1.5";
+            underpoweredUpperBound.Text = "4.5";
+            overpoweredLowerBound.Text = "4.5";
+            overpoweredUpperBound.Text = "11.5";
+        }
+
+        /// <summary>
+        /// This function sets all the testing parameters for the Melbourne to Cootamundra data
+        /// </summary>
+        /// <param name="sender">The object container.</param>
+        /// <param name="e">The event arguments.</param>
+        private void Melbourne2Cootamundra_Click(object sender, EventArgs e)
+        { 
+        
+            /* Data File */
+            string batchFileName = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Melbourne to Cootamundra\Melbourne to Cootamundra test data.csv";
+
+            IceDataFile.Text = Path.GetFileName(batchFileName);
+            simIceDataFile.Text = Path.GetFileName(batchFileName);
+
+            IceDataFile.ForeColor = System.Drawing.Color.Black;
+            simIceDataFile.ForeColor = System.Drawing.Color.Black;
+
+            if (batchFileName != null || batchFileName != "")
+                FileSettings.batchFiles.Add(batchFileName);
+
+            /* Geometry File */
+            FileSettings.geometryFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Melbourne to Cootamundra\Melbourne to Cootamundra Geometry.csv";
+            GeometryFile.Text = Path.GetFileName(FileSettings.geometryFile);
+            GeometryFile.ForeColor = System.Drawing.Color.Black;
+
+            /* TSR File */
+            FileSettings.temporarySpeedRestrictionFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Melbourne to Cootamundra\Melbourne to Cootamundra TSR.csv";
+            temporarySpeedRestrictionFile.Text = Path.GetFileName(FileSettings.temporarySpeedRestrictionFile);
+            temporarySpeedRestrictionFile.ForeColor = System.Drawing.Color.Black;
+
+            /* Simulation files */
+            FileSettings.underpoweredIncreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Melbourne to Cootamundra\Increasing sim 3.5.csv";
+            underpoweredIncreasingSimulationFile.Text = Path.GetFileName(FileSettings.underpoweredIncreasingSimulationFile);
+            underpoweredIncreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
+
+            FileSettings.underpoweredDecreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Melbourne to Cootamundra\decreasing sim 3.5.csv";
+            underpoweredDecreasingSimulationFile.Text = Path.GetFileName(FileSettings.underpoweredDecreasingSimulationFile);
+            underpoweredDecreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
+
+            FileSettings.overpoweredIncreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Melbourne to Cootamundra\Increasing sim 4.6.csv";
+            overpoweredIncreasingSimulationFile.Text = Path.GetFileName(FileSettings.overpoweredIncreasingSimulationFile);
+            overpoweredIncreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
+
+            FileSettings.overpoweredDecreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Melbourne to Cootamundra\decreasing sim 4.6.csv";
+            overpoweredDecreasingSimulationFile.Text = Path.GetFileName(FileSettings.overpoweredDecreasingSimulationFile);
+            overpoweredDecreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
+
+            /* Destination Folder */
+            FileSettings.aggregatedDestination = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Melbourne to Cootamundra";
+            ResultsDestination.Text = FileSettings.aggregatedDestination;
+            ResultsDestination.ForeColor = System.Drawing.Color.Black;
+
+            /* Settings */
+
+            fromDate.Value = new DateTime(2016,1,1);
+            toDate.Value = new DateTime(2016,4,1);
+
+            fromLatitude.Text = "-10";
+            toLatitude.Text = "-40";
+            fromLongitude.Text = "110";
+            toLongitude.Text = "152";
+
+            includeAListOfTrainsToExclude.Checked = false;
+
+            startInterpolationKm.Text = "5";
+            endInterpolationKm.Text = "505";
+            interpolationInterval.Text = "50";
+            minimumJourneyDistance.Text = "400";
+            distanceThreshold.Text = "5";
+            timeSeparation.Text = "10";
+
+            loopBoundary.Text = "1";
+            loopSpeedFactor.Text = "50";
+            TSRWindowBoundary.Text = "1";
+            
+            underpoweredLowerBound.Text = "2.5";
+            underpoweredUpperBound.Text = "4";
+            overpoweredLowerBound.Text = "4";
+            overpoweredUpperBound.Text = "5.5";
+        }
+
+        /// <summary>
+        /// This function sets all the testing parameters for the Tarcoola To Kalgoorlie data
+        /// </summary>
+        /// <param name="sender">The object container.</param>
+        /// <param name="e">The event arguments.</param>
+        private void Tarcoola2Kalgoorlie_Click(object sender, EventArgs e)
+        { 
+        
+            /* Data File */
+            string batchFileName = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Tarcoola to Kalgoorlie\Tarcoola to Kalgoorlie test data.csv";
+
+            IceDataFile.Text = Path.GetFileName(batchFileName);
+            simIceDataFile.Text = Path.GetFileName(batchFileName);
+
+            IceDataFile.ForeColor = System.Drawing.Color.Black;
+            simIceDataFile.ForeColor = System.Drawing.Color.Black;
+
+            if (batchFileName != null || batchFileName != "")
+                FileSettings.batchFiles.Add(batchFileName);
+
+            /* Geometry File */
+            FileSettings.geometryFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Tarcoola to Kalgoorlie\Tarcoola to Kalgoorlie Geometry.csv";
+            GeometryFile.Text = Path.GetFileName(FileSettings.geometryFile);
+            GeometryFile.ForeColor = System.Drawing.Color.Black;
+
+            /* TSR File */
+            FileSettings.temporarySpeedRestrictionFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Tarcoola to Kalgoorlie\Tarcoola to Kalgoorlie TSR.csv";
+            temporarySpeedRestrictionFile.Text = Path.GetFileName(FileSettings.temporarySpeedRestrictionFile);
+            temporarySpeedRestrictionFile.ForeColor = System.Drawing.Color.Black;
+
+            /* Simulation files */
+            FileSettings.underpoweredIncreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Tarcoola to Kalgoorlie\increasing 2.2_ThuW1.csv";
+            underpoweredIncreasingSimulationFile.Text = Path.GetFileName(FileSettings.underpoweredIncreasingSimulationFile);
+            underpoweredIncreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
+
+            FileSettings.underpoweredDecreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Tarcoola to Kalgoorlie\decreasing 2.6_SunW1.csv";
+            underpoweredDecreasingSimulationFile.Text = Path.GetFileName(FileSettings.underpoweredDecreasingSimulationFile);
+            underpoweredDecreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
+
+            FileSettings.overpoweredIncreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Tarcoola to Kalgoorlie\increasing 3.4_FriW1.csv";
+            overpoweredIncreasingSimulationFile.Text = Path.GetFileName(FileSettings.overpoweredIncreasingSimulationFile);
+            overpoweredIncreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
+
+            FileSettings.overpoweredDecreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Tarcoola to Kalgoorlie\decreasing 3.5_MonW1.csv";
+            overpoweredDecreasingSimulationFile.Text = Path.GetFileName(FileSettings.overpoweredDecreasingSimulationFile);
+            overpoweredDecreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
+
+            /* Destination Folder */
+            FileSettings.aggregatedDestination = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Tarcoola to Kalgoorlie";
+            ResultsDestination.Text = FileSettings.aggregatedDestination;
+            ResultsDestination.ForeColor = System.Drawing.Color.Black;
+
+            /* Settings */
+            fromDate.Value = new DateTime(2016,1,1);
+            toDate.Value = new DateTime(2016,2,1);
+
+            fromLatitude.Text = "-10";
+            toLatitude.Text = "-40";
+            fromLongitude.Text = "110";
+            toLongitude.Text = "152";
+
+            includeAListOfTrainsToExclude.Checked = false;
+
+            startInterpolationKm.Text = "950";
+            endInterpolationKm.Text = "1400";
+            interpolationInterval.Text = "50";
+            minimumJourneyDistance.Text = "350";
+            distanceThreshold.Text = "4";
+            timeSeparation.Text = "10";
+
+            loopBoundary.Text = "1";
+            loopSpeedFactor.Text = "50";
+            TSRWindowBoundary.Text = "1";
+
+            underpoweredLowerBound.Text = "1.5";
+            underpoweredUpperBound.Text = "3";
+            overpoweredLowerBound.Text = "3";
+            overpoweredUpperBound.Text = "4";
+        }
 
 
         

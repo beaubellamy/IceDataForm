@@ -570,6 +570,12 @@ namespace TrainPerformance
             foreach (string batchFile in FileSettings.batchFiles)
                 TrainRecords.AddRange(FileOperations.readICEData(batchFile, excludeTrainList));
 
+            if (TrainRecords.Count() == 0)
+            {
+                tool.messageBox("There are no records in the list to analyse.", "No trains available.");
+                return new List<Train>();
+            }
+
             //int a = TrainRecords.Where(t => t.powerToWeight == 0).Count();
             if (TrainRecords.Where(t => t.powerToWeight == 0).Count() == TrainRecords.Count())
                 Settings.resetPowerToWeightBoundariesToZero();
@@ -599,13 +605,12 @@ namespace TrainPerformance
 
 
 
-
             /* Populate the trains TSR values after interpolation to gain more granularity with TSR boundary. */
             processing.populateAllTrainsTemporarySpeedRestrictions(interpolatedRecords, TSRs);
 
             List<InterpolatedTrain> unpackedInterpolation = new List<InterpolatedTrain>();
             unpackedInterpolation = unpackInterpolatedData(interpolatedRecords);
-            FileOperations.writeTrainData(unpackedInterpolation);
+            //FileOperations.writeTrainData(unpackedInterpolation);
             FileOperations.writeTrainDataForComparison(interpolatedRecords);
 
             /* Generate some statistical information for the aggregated data. */
@@ -629,12 +634,12 @@ namespace TrainPerformance
             /* Write the averaged Data to file for inspection. */
             FileOperations.writeAverageData(averageData);
 
-            /* Unpack the records into a single trainDetails object list. */
-            List<TrainDetails> unpackedData = new List<TrainDetails>();
-            unpackedData = unpackCleanData(CleanTrainRecords);
+            ///* Unpack the records into a single trainDetails object list. */
+            //List<TrainDetails> unpackedData = new List<TrainDetails>();
+            //unpackedData = unpackCleanData(CleanTrainRecords);
 
-            /* Write data to an excel file. */
-            FileOperations.writeTrainData(unpackedData);
+            ///* Write data to an excel file. */
+            //FileOperations.writeTrainData(unpackedData);
 
             return interpolatedRecords;
         }

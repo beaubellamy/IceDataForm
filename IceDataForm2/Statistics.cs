@@ -38,9 +38,14 @@ namespace TrainPerformance
             List<double> speed = new List<double>();
             List<double> power2Weight = new List<double>();
 
+            double a1, a2;
+
             /* Cycle through all the trains. */
             foreach (Train train in trains)
             {
+                a1 = train.TrainJourney.Where(t => t.speed > 0).Max(t => t.geometryKm);
+                a2 = train.TrainJourney.Where(t => t.speed > 0).Min(t => t.geometryKm);
+
                 /* Calculate the distance travelled for each train */
                 double distanceTravelled = (train.TrainJourney.Where(t => t.speed > 0).Max(t => t.geometryKm) - train.TrainJourney.Where(t => t.speed > 0).Min(t => t.geometryKm));
                 distance.Add(distanceTravelled);

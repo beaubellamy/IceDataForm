@@ -574,7 +574,7 @@ namespace TrainPerformance
 
                 while (currentKm < Settings.endKm)
                 {
-                   
+                    
                     /* Find the closest kilometerage markers either side of the current interpolation point. */
                     index0 = findClosestLowerKm(currentKm, journey);
                     index1 = findClosestGreaterKm(currentKm, journey);
@@ -1039,7 +1039,7 @@ namespace TrainPerformance
             TrainDetails journey = new TrainDetails();
 
             /* Loop through each interpolated location. */
-            for (int journeyIdx = 0; journeyIdx <= size; journeyIdx++)
+            for (int journeyIdx = 0; journeyIdx < size; journeyIdx++)
             {
                 /* Initialise the sums and the speed lists. */
                 underpoweredIncreasingSum = 0;
@@ -1264,10 +1264,14 @@ namespace TrainPerformance
 
                 int TSRTrueCount = TSRList.Where(t => t == true).Count();
 
+
                 if (TSRTrueCount > 0)
                     isInTSRBoundary = true;
                 else
                     isInTSRBoundary = false;
+
+
+
 
                 /* If the TSR applied the whole analysis period, the simualtion speed is used. */
                 if (TSRTrueCount == TSRList.Count())
