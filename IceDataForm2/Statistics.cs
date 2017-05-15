@@ -77,16 +77,10 @@ namespace TrainPerformance
             
         }
 
-        ///* Stats for each direction. */
-        //public void generateStats(List<Train> trains, direction direction)
-        //{
-        //}
-
-        ///* Stats for each power band */
-        //public void generateStats(List<Train> trains, double lower, double upper)
-        //{
-        //}
-
+        /// <summary>
+        /// Determine if the statistics have been calculated
+        /// </summary>
+        /// <returns>True if the generateStats function has been called at least once.</returns>
         public bool isStatisticsAvailable()
         {
             if (numberOfTrains > 0 &&
@@ -98,6 +92,8 @@ namespace TrainPerformance
             
             return false;
         }
-    }
+
+
+    } // Statistics Class
 }
 
