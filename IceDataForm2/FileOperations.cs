@@ -99,7 +99,7 @@ namespace TrainPerformance
                     DateTime.TryParse(fields[14], out NotificationDateTime);
                     double.TryParse(fields[25], out powerToWeight);
                     /* possible TSR information as well*/
-
+                                        
                     /* Check if the train is in the exclude list */
                     includeTrain = excludeTrainList.Contains(TrainID);
 
@@ -108,7 +108,7 @@ namespace TrainPerformance
                         NotificationDateTime >= Settings.dateRange[0] && NotificationDateTime < Settings.dateRange[1] &&
                         !includeTrain)
                     {
-                        TrainDetails record = new TrainDetails(TrainID, locoID, powerToWeight, NotificationDateTime, latitude, longitude, 
+                        TrainDetails record = new TrainDetails(TrainID, locoID, null, powerToWeight, NotificationDateTime, latitude, longitude, 
                             speed, kmPost, geometryKm, direction.notSpecified, false, false, 0);
                         IceRecord.Add(record);
                     }
@@ -726,8 +726,8 @@ namespace TrainPerformance
                 {
                     TrainID[0, trainIdx] = trainRecords[trainIdx].TrainJourney[0].TrainID;
                     LocoID[0, trainIdx] = trainRecords[trainIdx].TrainJourney[0].LocoID;
-                    NotificationTime[0, trainIdx] = findMinDate(trainRecords[trainIdx].TrainJourney);
-                    
+                    NotificationTime[0, trainIdx] = findMinDate(trainRecords[trainIdx].TrainJourney);                    
+
                     powerToWeight[0, trainIdx] = trainRecords[trainIdx].TrainJourney[0].powerToWeight;
 
                     if (trainRecords[trainIdx].TrainJourney[0].trainDirection == TrainPerformance.direction.increasing)
@@ -800,8 +800,14 @@ namespace TrainPerformance
             workbook = (Microsoft.Office.Interop.Excel._Workbook)(excel.Workbooks.Add(""));
 
             /* Create the header details. */
-            string[] headerString = { "Kilometreage", "Underpowered Increasing Speed", "Underpowered Decreasing Speed", "Overpowered Increasing Speed", 
+            string[] headerString = new string[] {};
+            if (Settings.HunterValleyRegion)
+                headerString = new string[] { "Kilometreage", "Elevation", "Pacific National Increasing Speed", "Pacific National Decreasing Speed", "Aurizon Increasing Speed", 
+                                        "Aurizon Decreasing Speed", "Total Increasing Speed", "Total Decreasing Speed", "Loop", "TSRs" };
+            else
+                headerString = new string[] { "Kilometreage", "Elevation", "Underpowered Increasing Speed", "Underpowered Decreasing Speed", "Overpowered Increasing Speed", 
                                         "Overpowered Decreasing Speed", "Total Increasing Speed", "Total Decreasing Speed", "Loop", "TSRs" };
+
             /* Pagenate the data for writing to excel. */
             int excelPageSize = 1000000;        /* Page size of the excel worksheet. */
             int excelPages = 1;                 /* Number of Excel pages to write. */
@@ -816,10 +822,11 @@ namespace TrainPerformance
 
             /* Deconstruct the train details into excel columns. */
             double[,] kilometerage = new double[excelPageSize, 1];
-            double[,] underpoweredIncreasingSpeed = new double[excelPageSize, 1];
-            double[,] underpoweredDecreasingSpeed = new double[excelPageSize, 1];
-            double[,] overpoweredIncreasingSpeed = new double[excelPageSize, 1];
-            double[,] overpoweredDecreasingSpeed = new double[excelPageSize, 1];
+            double[,] elevation = new double[excelPageSize, 1];
+            double[,] underpoweredIncreasingSpeed = new double[excelPageSize, 1];   // Pacific National
+            double[,] underpoweredDecreasingSpeed = new double[excelPageSize, 1];   // Pacific National
+            double[,] overpoweredIncreasingSpeed = new double[excelPageSize, 1];    // Aurizon
+            double[,] overpoweredDecreasingSpeed = new double[excelPageSize, 1];    // Aurizon
             double[,] totalIncreasingSpeed = new double[excelPageSize, 1];
             double[,] totalDecreasingSpeed = new double[excelPageSize, 1];
             string[,] isLoophere = new string[excelPageSize, 1];
@@ -838,7 +845,7 @@ namespace TrainPerformance
                 /* Set the active worksheet. */
                 worksheet = (Microsoft.Office.Interop.Excel._Worksheet)workbook.Sheets[excelPage + 1];
                 workbook.Sheets[excelPage + 1].Activate();
-                worksheet.get_Range("A1", "I1").Value2 = headerString;
+                worksheet.get_Range("A1", "J1").Value2 = headerString;
 
                 /* Loop through the data for each excel page. */
                 for (int j = 0; j < excelPageSize; j++)
@@ -847,6 +854,8 @@ namespace TrainPerformance
                     int checkIdx = j + excelPage * excelPageSize;
 
                     kilometerage[j, 0] = Settings.startKm + Settings.interval / 1000 * checkIdx;
+                    elevation[j, 0] = 0;
+                   
                     underpoweredIncreasingSpeed[j, 0] = 0;
                     underpoweredDecreasingSpeed[j, 0] = 0;
                     overpoweredIncreasingSpeed[j, 0] = 0;
@@ -859,10 +868,11 @@ namespace TrainPerformance
                     /* Populate the average speed data. */
                     if (checkIdx < averageData.Count())
                     {
-                        underpoweredIncreasingSpeed[j, 0] = averageData[checkIdx].underpoweredIncreaseingAverage;
-                        underpoweredDecreasingSpeed[j, 0] = averageData[checkIdx].underpoweredDecreaseingAverage;
-                        overpoweredIncreasingSpeed[j, 0] = averageData[checkIdx].overpoweredIncreaseingAverage;
-                        overpoweredDecreasingSpeed[j, 0] = averageData[checkIdx].overpoweredDecreaseingAverage;
+                        elevation[j, 0] = averageData[checkIdx].elevation;
+                        underpoweredIncreasingSpeed[j, 0] = averageData[checkIdx].underpoweredIncreaseingAverage;   // Pacific National
+                        underpoweredDecreasingSpeed[j, 0] = averageData[checkIdx].underpoweredDecreaseingAverage;   // Pacific National
+                        overpoweredIncreasingSpeed[j, 0] = averageData[checkIdx].overpoweredIncreaseingAverage;     // Aurizon
+                        overpoweredDecreasingSpeed[j, 0] = averageData[checkIdx].overpoweredDecreaseingAverage;     // Aurizon
                         totalIncreasingSpeed[j, 0] = averageData[checkIdx].totalIncreasingAverage;
                         totalDecreasingSpeed[j, 0] = averageData[checkIdx].totalDecreasingAverage;
 
@@ -878,18 +888,19 @@ namespace TrainPerformance
 
                 /* Write the data to the active excel workseet. */
                 worksheet.get_Range("A" + headerOffset, "A" + (headerOffset + excelPageSize - 1)).Value2 = kilometerage;
-                worksheet.get_Range("B" + headerOffset, "B" + (headerOffset + excelPageSize - 1)).Value2 = underpoweredIncreasingSpeed;
-                worksheet.get_Range("C" + headerOffset, "C" + (headerOffset + excelPageSize - 1)).Value2 = underpoweredDecreasingSpeed;
-                worksheet.get_Range("D" + headerOffset, "D" + (headerOffset + excelPageSize - 1)).Value2 = overpoweredIncreasingSpeed;
-                worksheet.get_Range("E" + headerOffset, "E" + (headerOffset + excelPageSize - 1)).Value2 = overpoweredDecreasingSpeed;
-                worksheet.get_Range("F" + headerOffset, "F" + (headerOffset + excelPageSize - 1)).Value2 = totalIncreasingSpeed;
-                worksheet.get_Range("G" + headerOffset, "G" + (headerOffset + excelPageSize - 1)).Value2 = totalDecreasingSpeed;
-                worksheet.get_Range("H" + headerOffset, "H" + (headerOffset + excelPageSize - 1)).Value2 = isLoophere;
-                worksheet.get_Range("I" + headerOffset, "I" + (headerOffset + excelPageSize - 1)).Value2 = isTSRhere;
+                worksheet.get_Range("B" + headerOffset, "B" + (headerOffset + excelPageSize - 1)).Value2 = elevation;
+                worksheet.get_Range("C" + headerOffset, "C" + (headerOffset + excelPageSize - 1)).Value2 = underpoweredIncreasingSpeed;     // Pacific National
+                worksheet.get_Range("D" + headerOffset, "D" + (headerOffset + excelPageSize - 1)).Value2 = underpoweredDecreasingSpeed;     // Pacific National
+                worksheet.get_Range("E" + headerOffset, "E" + (headerOffset + excelPageSize - 1)).Value2 = overpoweredIncreasingSpeed;      // Aurizon
+                worksheet.get_Range("F" + headerOffset, "F" + (headerOffset + excelPageSize - 1)).Value2 = overpoweredDecreasingSpeed;      // Aurizon
+                worksheet.get_Range("G" + headerOffset, "G" + (headerOffset + excelPageSize - 1)).Value2 = totalIncreasingSpeed;
+                worksheet.get_Range("H" + headerOffset, "H" + (headerOffset + excelPageSize - 1)).Value2 = totalDecreasingSpeed;
+                worksheet.get_Range("I" + headerOffset, "I" + (headerOffset + excelPageSize - 1)).Value2 = isLoophere;
+                worksheet.get_Range("J" + headerOffset, "J" + (headerOffset + excelPageSize - 1)).Value2 = isTSRhere;
 
                 //stats.numberOfTrains
-                worksheet.get_Range("K1", "K6").Value2 = statisticsHeader;
-                worksheet.get_Range("L1", "L6").Value2 = totalStatistics;
+                worksheet.get_Range("L1", "L6").Value2 = statisticsHeader;
+                worksheet.get_Range("M1", "M6").Value2 = totalStatistics;
 
 
             }
@@ -959,6 +970,8 @@ namespace TrainPerformance
 
             return minDate;
         }
+
+        
 
     }   // Class FileOperations
 }

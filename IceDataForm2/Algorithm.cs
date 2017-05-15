@@ -22,6 +22,7 @@ namespace TrainPerformance
 
         public string TrainID;
         public string LocoID;
+        public string Operator;
         public double powerToWeight;
         public DateTime NotificationDateTime;
         public GeoLocation location = new GeoLocation();
@@ -41,6 +42,7 @@ namespace TrainPerformance
         {
             this.TrainID = "none";
             this.LocoID = "none";
+            this.Operator = null;
             this.powerToWeight = 0;
             this.NotificationDateTime = new DateTime(2000, 1, 1, 0, 0, 0);
             this.location.latitude = -33.8519;   //Sydney Harbour Bridge
@@ -68,11 +70,12 @@ namespace TrainPerformance
         /// <param name="kmPost">The closest km marker to the train at the time of recording</param>
         /// <param name="geometryKm">The calcualted distance from the km post of the first point.</param>
         /// <param name="trainDirection">The train bearing.</param>
-        public TrainDetails(string TrainID, string locoID, double powerToWeight, DateTime NotificationDateTime, double latitude, double longitude,
+        public TrainDetails(string TrainID, string locoID, string Operator, double powerToWeight, DateTime NotificationDateTime, double latitude, double longitude,
                             double speed, double kmPost, double geometryKm, direction trainDirection, bool loop, bool TSR, double TSRspeed)
         {
             this.TrainID = TrainID;
             this.LocoID = locoID;
+            this.Operator = Operator;
             this.powerToWeight = powerToWeight;
             this.NotificationDateTime = NotificationDateTime;
             this.location.latitude = latitude;
@@ -97,6 +100,7 @@ namespace TrainPerformance
     {
         public List<TrainDetails> TrainJourney;
         public bool include;                        // Include the train in the data.
+        //public string Operator;
 
         /// <summary>
         /// Default constructor
@@ -105,6 +109,7 @@ namespace TrainPerformance
         {
             this.TrainJourney = null;
             this.include = false;
+            //this.Operator = "Not Specified";
         }
 
         /// <summary>
@@ -115,6 +120,7 @@ namespace TrainPerformance
         {
             this.TrainJourney = trainDetails;
             this.include = true;
+            //this.Operator = "Not Specified";
         }
 
         /// <summary>
@@ -126,6 +132,7 @@ namespace TrainPerformance
         {
             this.TrainJourney = trainDetails;
             this.include = include;
+            //this.Operator = "Not Specified";
         }
 
         /// <summary>
@@ -140,7 +147,7 @@ namespace TrainPerformance
             for (int journeyIdx = 0; journeyIdx < trainDetails.Count(); journeyIdx++)
             {
                 /* Convert each interpolatedTrain object to a trainDetail object. */
-                TrainDetails newitem = new TrainDetails(trainDetails[journeyIdx].TrainID, trainDetails[journeyIdx].LocoID, trainDetails[journeyIdx].powerToWeight, trainDetails[journeyIdx].NotificationDateTime, 0, 0,
+                TrainDetails newitem = new TrainDetails(trainDetails[journeyIdx].TrainID, trainDetails[journeyIdx].LocoID, trainDetails[journeyIdx].Operator ,trainDetails[journeyIdx].powerToWeight, trainDetails[journeyIdx].NotificationDateTime, 0, 0,
                                                         trainDetails[journeyIdx].speed, 0, trainDetails[journeyIdx].geometryKm, trainDirection, trainDetails[journeyIdx].isLoopeHere,
                                                         trainDetails[journeyIdx].isTSRHere, trainDetails[journeyIdx].TSRspeed);
                 journey.Add(newitem);
@@ -148,6 +155,7 @@ namespace TrainPerformance
             }
             this.TrainJourney = journey;
             this.include = true;
+            //this.Operator = Operator;
         }
 
         /// <summary>
@@ -178,6 +186,7 @@ namespace TrainPerformance
     {
         public string TrainID;
         public string LocoID;
+        public string Operator;
         public double powerToWeight;
         public DateTime NotificationDateTime;
         public double speed;
@@ -194,6 +203,7 @@ namespace TrainPerformance
         {
             this.TrainID = null;
             this.LocoID = null;
+            this.Operator = null;
             this.powerToWeight = 1;
             this.NotificationDateTime = DateTime.MinValue;
             this.speed = 0;
@@ -211,10 +221,11 @@ namespace TrainPerformance
         /// <param name="NotificationDateTime">The intiial notification time for the start of the data.</param>
         /// <param name="geometryKm">The calculated actual kilometerage of the train.</param>
         /// <param name="speed">The speed (kph) at each location.</param>
-        public InterpolatedTrain(string TrainID, string locoID, double powerToWeight, DateTime NotificationDateTime, double geometryKm, double speed, bool loop, bool TSR, double TSRspeed)
+        public InterpolatedTrain(string TrainID, string locoID, string Operator, double powerToWeight, DateTime NotificationDateTime, double geometryKm, double speed, bool loop, bool TSR, double TSRspeed)
         {
             this.TrainID = TrainID;
             this.LocoID = locoID;
+            this.Operator = Operator;
             this.powerToWeight = powerToWeight;
             this.NotificationDateTime = NotificationDateTime;
             this.geometryKm = geometryKm;
@@ -232,6 +243,7 @@ namespace TrainPerformance
         {
             this.TrainID = details.TrainID;
             this.LocoID = details.LocoID;
+            this.Operator = details.Operator;
             this.powerToWeight = details.powerToWeight;
             this.NotificationDateTime = details.NotificationDateTime;
             this.geometryKm = details.geometryKm;
@@ -240,6 +252,8 @@ namespace TrainPerformance
             this.isTSRHere = details.isTSRHere;
             this.TSRspeed = details.TSRspeed;
         }
+
+
     }
 
     /// <summary>
@@ -343,6 +357,7 @@ namespace TrainPerformance
     public class averagedTrainData
     {
         public double kilometerage;
+        public double elevation;
         public double underpoweredIncreaseingAverage;
         public double underpoweredDecreaseingAverage;
         public double overpoweredIncreaseingAverage;
@@ -358,6 +373,7 @@ namespace TrainPerformance
         public averagedTrainData()
         {
             this.kilometerage = 0;
+            this.elevation = 0;
             this.underpoweredIncreaseingAverage = 0;
             this.underpoweredDecreaseingAverage = 0;
             this.overpoweredIncreaseingAverage = 0;
@@ -372,14 +388,17 @@ namespace TrainPerformance
         /// averageTrainData Constructor.
         /// </summary>
         /// <param name="km">Kilometerage of each location</param>
+        /// <param name="elevation">The elevationof the track at each location</param>
         /// <param name="underIncreasing">Average Speed at kilometreage for the underpowered category in the increasing direction.</param>
         /// <param name="underDecreasing">Average Speed at kilometreage for the underpowered category in the decreasing direction.</param>
         /// <param name="overIncreasing">Average Speed at kilometreage for the overpowered category in the increasing direction.</param>
         /// <param name="overDecreasing">Average Speed at kilometreage for the overpowered category in the decreasing direction.</param>
         /// <param name="loop">Flag indicating if the location is within the boudanry of a loop.</param>
-        public averagedTrainData(double km, double underIncreasing, double underDecreasing, double overIncreasing, double overDecreasing, double totalIncreasing, double totalDecreasing, bool loop, bool TSR)
+        public averagedTrainData(double km, double elevation, double underIncreasing, double underDecreasing, double overIncreasing, double overDecreasing, 
+            double totalIncreasing, double totalDecreasing, bool loop, bool TSR)
         {
             this.kilometerage = km;
+            this.elevation = elevation;
             this.underpoweredIncreaseingAverage = underIncreasing;
             this.underpoweredDecreaseingAverage = underDecreasing;
             this.overpoweredIncreaseingAverage = overIncreasing;
@@ -591,10 +610,12 @@ namespace TrainPerformance
             /* Clean data - remove trains with insufficient data. */
             /******** Should only be required while we are waiting for the data in the prefered format ********/
 
+            //List<Train> testTrainRecords = new List<Train>();
+            //testTrainRecords = MakeTrains(trackGeometry, OrderdTrainRecords, TSRs);
+            
             List<Train> CleanTrainRecords = new List<Train>();
             CleanTrainRecords = CleanData(trackGeometry, OrderdTrainRecords, TSRs);
-            //CleanTrainRecords = MakeTrains(trackGeometry, OrderdTrainRecords);
-
+                        
             /* interpolate data */
             /******** Should only be required while we are waiting for the data in the prefered format ********/
             List<Train> interpolatedRecords = new List<Train>();
@@ -620,9 +641,15 @@ namespace TrainPerformance
 
             /* Average the train data for each direction with regard for TSR's and loop locations. */
             List<averagedTrainData> averageData = new List<averagedTrainData>();
-            averageData = processing.powerToWeightAverageSpeed(interpolatedRecords, simulationUnderpoweredIncreasing, simulationUnderpoweredDecreasing,
-                simulationOverpoweredIncreasing, simulationOverpoweredDecreasing);
 
+            if (Settings.HunterValleyRegion)
+                averageData = processing.operatorAverageSpeed(interpolatedRecords, trackGeometry, simulationUnderpoweredIncreasing, simulationUnderpoweredDecreasing,
+                    simulationOverpoweredIncreasing, simulationOverpoweredDecreasing);
+            else
+                averageData = processing.powerToWeightAverageSpeed(interpolatedRecords, trackGeometry, simulationUnderpoweredIncreasing, simulationUnderpoweredDecreasing,
+                    simulationOverpoweredIncreasing, simulationOverpoweredDecreasing);
+
+            
             /* Seperate averages for P/W ratio groups, commodity, Operator */
             /* AverageByPower2Weight    -> powerToWeightAverageSpeed
              * AverageByCommodity       -> not written
@@ -660,6 +687,7 @@ namespace TrainPerformance
             bool removeTrain = false;
             double distance = 0;
             double journeyDistance = 0;
+            string trainOperator = null;
 
             GeoLocation point1 = null;
             GeoLocation point2 = null;
@@ -708,7 +736,13 @@ namespace TrainPerformance
 
                     /* Validate the direction of train */
                     Train item = new Train();
+                    bool HunterValley = true;
+                    
+                    if (HunterValley)
+                        trainOperator = whoIsOperator(newTrainList[0].LocoID);
+
                     item.TrainJourney = newTrainList.ToList();
+                    processing.populateOperator(item, trainOperator);
                     processing.populateDirection(item, trackGeometry);
 
                     /* remove the train if the direction is not valid. */
@@ -754,7 +788,12 @@ namespace TrainPerformance
 
                     /* Validate the direction of train */
                     Train lastItem = new Train();
+                    bool HunterValley = true;
+                    if (HunterValley)
+                        trainOperator = whoIsOperator(newTrainList[0].LocoID);
+
                     lastItem.TrainJourney = newTrainList.ToList();
+                    processing.populateOperator(lastItem, trainOperator);
                     processing.populateDirection(lastItem, trackGeometry);
 
                     /* remove the train if the direction is not valid. */
@@ -795,6 +834,8 @@ namespace TrainPerformance
             /* List of each Train with its journey details that is acceptable. */
             List<Train> cleanTrainList = new List<Train>();
 
+            string trainOperator = null;
+
             /* Add the first record to the list. */
             newTrainList.Add(trainRecords[0]);
             GeoLocation trainPoint = new GeoLocation(trainRecords[0]);
@@ -819,7 +860,12 @@ namespace TrainPerformance
 
                     /* Validate the direction of train */
                     Train item = new Train();
+                    bool HunterValley = true;
+                    if (HunterValley)
+                        trainOperator = whoIsOperator(newTrainList[0].LocoID);
+
                     item.TrainJourney = newTrainList.ToList();
+                    processing.populateOperator(item, trainOperator);
                     processing.populateDirection(item, trackGeometry);
 
                     /* Determine the actual km, and populate the loops and TSR information. */
@@ -849,7 +895,12 @@ namespace TrainPerformance
 
                     /* Validate the direction of train */
                     Train lastItem = new Train();
+                    bool HunterValley = true;
+                    if (HunterValley)
+                        trainOperator = whoIsOperator(newTrainList[0].LocoID);
+
                     lastItem.TrainJourney = newTrainList.ToList();
+                    processing.populateOperator(lastItem, trainOperator);
                     processing.populateDirection(lastItem, trackGeometry);
 
                     /* If all points are aceptable, add the train journey to the cleaned list. */
@@ -915,6 +966,28 @@ namespace TrainPerformance
             }
             return unpackedData;
         }
+
+        /// <summary>
+        /// This function determines the train operator based on the loco ID, This is generally only 
+        /// applicable for the Hunter Valley region.
+        /// </summary>
+        /// <param name="locoID">The Loco ID of the train</param>
+        /// <returns>The name of the train operator.</returns>
+        private static string whoIsOperator(string locoID)
+        {
+            double aurizon = 0;
+            double.TryParse(locoID, out aurizon);
+
+            if (locoID.Substring(0, 2).Equals("TT", StringComparison.OrdinalIgnoreCase))
+                return "Pacific National";
+            else if (aurizon >= 5000)
+                return "Aurizon";
+            else
+                return "Unknown";
+        }
+
+        
+
 
 
     } // Class Algorithm

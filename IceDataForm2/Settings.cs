@@ -53,6 +53,8 @@ namespace Globalsettings
         public static double combinedLowerBound;            /* The lower bound cuttoff for the combined trains. */
         public static double combinedUpperBound;            /* The upper bound cuttoff for the combined trains. */
 
+        public static bool HunterValleyRegion;
+
         /// <summary>
         /// This function resets the power to weight upper and lower boundaries to 
         /// default values when there are no power to weight ratio values available 

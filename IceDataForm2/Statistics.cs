@@ -32,20 +32,14 @@ namespace TrainPerformance
         {
             /* Extract the number of trains in the list */
             numberOfTrains = trains.Count();
-            // This should be generic, should pass in only the lists that conforms to desired boundaries.
 
             List<double> distance = new List<double>();
             List<double> speed = new List<double>();
             List<double> power2Weight = new List<double>();
 
-            double a1, a2;
-
             /* Cycle through all the trains. */
             foreach (Train train in trains)
             {
-                a1 = train.TrainJourney.Where(t => t.speed > 0).Max(t => t.geometryKm);
-                a2 = train.TrainJourney.Where(t => t.speed > 0).Min(t => t.geometryKm);
-
                 /* Calculate the distance travelled for each train */
                 double distanceTravelled = (train.TrainJourney.Where(t => t.speed > 0).Max(t => t.geometryKm) - train.TrainJourney.Where(t => t.speed > 0).Min(t => t.geometryKm));
                 distance.Add(distanceTravelled);
@@ -59,13 +53,28 @@ namespace TrainPerformance
             }
 
             /* Calcaulte the averages. */
-            averageSpeed = speed.Average();
-            averageDistanceTravelled = distance.Average();
-            averagePowerToWeightRatio = power2Weight.Average();
+            if (speed.Count() > 0)
+                averageSpeed = speed.Average();
+            else
+                averageSpeed = 0;
 
-            /* Calcualte the standard deviation of the power to weight ratios. */
-            standardDeviationP2W = Math.Sqrt(power2Weight.Average(v => Math.Pow(v - averagePowerToWeightRatio, 2)));
+            if (distance.Count() > 0)
+                averageDistanceTravelled = distance.Average();
+            else
+                averageDistanceTravelled = 0;
 
+            if (power2Weight.Count() > 0)
+            {
+                averagePowerToWeightRatio = power2Weight.Average();
+                /* Calcualte the standard deviation of the power to weight ratios. */
+                standardDeviationP2W = Math.Sqrt(power2Weight.Average(v => Math.Pow(v - averagePowerToWeightRatio, 2)));
+            }
+            else
+            {
+                averagePowerToWeightRatio = 0;
+                standardDeviationP2W = 0;
+            }
+            
         }
 
         ///* Stats for each direction. */

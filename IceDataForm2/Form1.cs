@@ -572,6 +572,12 @@ namespace TrainPerformance
         }
 
         /// <summary>
+        /// Extract the value of the getHunterValleyRegion flag.
+        /// </summary>
+        /// <returns>The value of the boolean flag.</returns>
+        public bool getHunterValleyRegion() { return HunterValley.Checked; }
+
+        /// <summary>
         /// This function sets all the testing parameters for the Cullerin Ranges data
         /// </summary>
         /// <param name="sender">The object container.</param>
@@ -622,8 +628,7 @@ namespace TrainPerformance
             ResultsDestination.Text = FileSettings.aggregatedDestination;
             ResultsDestination.ForeColor = System.Drawing.Color.Black;
         
-            /* Settings */
-           
+            /* Settings */           
             fromDate.Value = new DateTime(2016,1,1);
             toDate.Value = new DateTime(2016,4,1);
 
@@ -649,6 +654,8 @@ namespace TrainPerformance
             underpoweredUpperBound.Text = "4";
             overpoweredLowerBound.Text = "4";
             overpoweredUpperBound.Text = "6";
+
+            HunterValley.Checked = false;
 
            
         }
@@ -728,11 +735,12 @@ namespace TrainPerformance
             TSRWindowBoundary.Text = "1";
 
             /* Power to weight ratios done make sense for Gunnedah basin analysis, as this is between operators. */
-            underpoweredLowerBound.Text = "-1";
+            underpoweredLowerBound.Text = "0";
             underpoweredUpperBound.Text = "100";
             overpoweredLowerBound.Text = "100";
             overpoweredUpperBound.Text = "200";
 
+            HunterValley.Checked = true;
 
         }
 
@@ -815,6 +823,9 @@ namespace TrainPerformance
             underpoweredUpperBound.Text = "4.5";
             overpoweredLowerBound.Text = "4.5";
             overpoweredUpperBound.Text = "11.5";
+
+            HunterValley.Checked = false;
+
         }
 
         /// <summary>
@@ -896,6 +907,9 @@ namespace TrainPerformance
             underpoweredUpperBound.Text = "4";
             overpoweredLowerBound.Text = "4";
             overpoweredUpperBound.Text = "5.5";
+
+            HunterValley.Checked = false;
+
         }
 
         /// <summary>
@@ -976,7 +990,43 @@ namespace TrainPerformance
             underpoweredUpperBound.Text = "3";
             overpoweredLowerBound.Text = "3";
             overpoweredUpperBound.Text = "4";
+
+            HunterValley.Checked = false;
+
         }
+
+        /// <summary>
+        /// This function resets the required lables on the fomr when changing between the 
+        /// Hunter Valley region and the Interstate Network.
+        /// </summary>
+        /// <param name="sender">The object container.</param>
+        /// <param name="e">The event arguments.</param>
+        private void hunterValley_CheckedChanged(object sender, EventArgs e)
+        {
+            if (HunterValley.Checked)
+            {
+                underpoweredFileLabel.Text = "Pacific National";
+                underpoweredLabel.Text = "Pacific National:";
+                SimUnderpoweredLabel.Text = "Pacific National:";
+
+                overpoweredFileLabel.Text = "Aurizon";
+                overpoweredLabel.Text = "Aurizon:";
+                SimOverpoweredLabel.Text = "Aurizon:";
+            }
+            else 
+            {
+                underpoweredFileLabel.Text = "Underpowered";
+                underpoweredLabel.Text = "Underpowered:";
+                SimUnderpoweredLabel.Text = "Underpowered:";
+
+                overpoweredFileLabel.Text = "Overpowered";
+                overpoweredLabel.Text = "Overpowered:";
+                SimOverpoweredLabel.Text = "Overpowered:";
+            }
+        }
+
+       
+
 
 
         

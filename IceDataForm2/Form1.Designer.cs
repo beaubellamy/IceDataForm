@@ -30,6 +30,13 @@
         {
             this.SimualtionFileTab = new System.Windows.Forms.TabControl();
             this.fileSelectionTab = new System.Windows.Forms.TabPage();
+            this.HunterValley = new System.Windows.Forms.CheckBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.Tarcoola2Kalgoorlie = new System.Windows.Forms.CheckBox();
+            this.Melbourne2Cootamundra = new System.Windows.Forms.CheckBox();
+            this.Macarthur2Botany = new System.Windows.Forms.CheckBox();
+            this.GunnedahBasin = new System.Windows.Forms.CheckBox();
+            this.CulleranRanges = new System.Windows.Forms.CheckBox();
             this.temporarySpeedRestrictionFile = new System.Windows.Forms.TextBox();
             this.selectTSRFile = new System.Windows.Forms.Button();
             this.IceDataFile5 = new System.Windows.Forms.TextBox();
@@ -134,12 +141,6 @@
             this.underpoweredIncreasingSimulationFile = new System.Windows.Forms.TextBox();
             this.selectDecreasingSimulation = new System.Windows.Forms.Button();
             this.selectIncreasingSimulation = new System.Windows.Forms.Button();
-            this.CulleranRanges = new System.Windows.Forms.CheckBox();
-            this.GunnedahBasin = new System.Windows.Forms.CheckBox();
-            this.Macarthur2Botany = new System.Windows.Forms.CheckBox();
-            this.Melbourne2Cootamundra = new System.Windows.Forms.CheckBox();
-            this.Tarcoola2Kalgoorlie = new System.Windows.Forms.CheckBox();
-            this.label3 = new System.Windows.Forms.Label();
             this.SimualtionFileTab.SuspendLayout();
             this.fileSelectionTab.SuspendLayout();
             this.processingTab.SuspendLayout();
@@ -161,6 +162,7 @@
             // 
             // fileSelectionTab
             // 
+            this.fileSelectionTab.Controls.Add(this.HunterValley);
             this.fileSelectionTab.Controls.Add(this.label3);
             this.fileSelectionTab.Controls.Add(this.Tarcoola2Kalgoorlie);
             this.fileSelectionTab.Controls.Add(this.Melbourne2Cootamundra);
@@ -193,6 +195,81 @@
             this.fileSelectionTab.TabIndex = 0;
             this.fileSelectionTab.Text = "File Selection";
             this.fileSelectionTab.UseVisualStyleBackColor = true;
+            // 
+            // HunterValley
+            // 
+            this.HunterValley.AutoSize = true;
+            this.HunterValley.Location = new System.Drawing.Point(816, 55);
+            this.HunterValley.Name = "HunterValley";
+            this.HunterValley.Size = new System.Drawing.Size(126, 17);
+            this.HunterValley.TabIndex = 31;
+            this.HunterValley.Text = "Hunter Valley Region";
+            this.HunterValley.UseVisualStyleBackColor = true;
+            this.HunterValley.CheckedChanged += new System.EventHandler(this.hunterValley_CheckedChanged);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(876, 199);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(111, 13);
+            this.label3.TabIndex = 30;
+            this.label3.Text = "Set Testing Parmaters";
+            // 
+            // Tarcoola2Kalgoorlie
+            // 
+            this.Tarcoola2Kalgoorlie.AutoSize = true;
+            this.Tarcoola2Kalgoorlie.Location = new System.Drawing.Point(879, 316);
+            this.Tarcoola2Kalgoorlie.Name = "Tarcoola2Kalgoorlie";
+            this.Tarcoola2Kalgoorlie.Size = new System.Drawing.Size(129, 17);
+            this.Tarcoola2Kalgoorlie.TabIndex = 29;
+            this.Tarcoola2Kalgoorlie.Text = "Tarcoola to Kalgoorlie";
+            this.Tarcoola2Kalgoorlie.UseVisualStyleBackColor = true;
+            this.Tarcoola2Kalgoorlie.Click += new System.EventHandler(this.Tarcoola2Kalgoorlie_Click);
+            // 
+            // Melbourne2Cootamundra
+            // 
+            this.Melbourne2Cootamundra.AutoSize = true;
+            this.Melbourne2Cootamundra.Location = new System.Drawing.Point(879, 293);
+            this.Melbourne2Cootamundra.Name = "Melbourne2Cootamundra";
+            this.Melbourne2Cootamundra.Size = new System.Drawing.Size(154, 17);
+            this.Melbourne2Cootamundra.TabIndex = 28;
+            this.Melbourne2Cootamundra.Text = "Melbourne to Cootamundra";
+            this.Melbourne2Cootamundra.UseVisualStyleBackColor = true;
+            this.Melbourne2Cootamundra.Click += new System.EventHandler(this.Melbourne2Cootamundra_Click);
+            // 
+            // Macarthur2Botany
+            // 
+            this.Macarthur2Botany.AutoSize = true;
+            this.Macarthur2Botany.Location = new System.Drawing.Point(879, 270);
+            this.Macarthur2Botany.Name = "Macarthur2Botany";
+            this.Macarthur2Botany.Size = new System.Drawing.Size(122, 17);
+            this.Macarthur2Botany.TabIndex = 27;
+            this.Macarthur2Botany.Text = "Macarthur to Botany";
+            this.Macarthur2Botany.UseVisualStyleBackColor = true;
+            this.Macarthur2Botany.Click += new System.EventHandler(this.Macarthur2Botany_Click);
+            // 
+            // GunnedahBasin
+            // 
+            this.GunnedahBasin.AutoSize = true;
+            this.GunnedahBasin.Location = new System.Drawing.Point(879, 247);
+            this.GunnedahBasin.Name = "GunnedahBasin";
+            this.GunnedahBasin.Size = new System.Drawing.Size(105, 17);
+            this.GunnedahBasin.TabIndex = 26;
+            this.GunnedahBasin.Text = "Gunnedah Basin";
+            this.GunnedahBasin.UseVisualStyleBackColor = true;
+            this.GunnedahBasin.Click += new System.EventHandler(this.GunnedahBasin_Click);
+            // 
+            // CulleranRanges
+            // 
+            this.CulleranRanges.AutoSize = true;
+            this.CulleranRanges.Location = new System.Drawing.Point(879, 224);
+            this.CulleranRanges.Name = "CulleranRanges";
+            this.CulleranRanges.Size = new System.Drawing.Size(99, 17);
+            this.CulleranRanges.TabIndex = 25;
+            this.CulleranRanges.Text = "Culleran ranges";
+            this.CulleranRanges.UseVisualStyleBackColor = true;
+            this.CulleranRanges.Click += new System.EventHandler(this.CulleranRanges_Click);
             // 
             // temporarySpeedRestrictionFile
             // 
@@ -505,27 +582,27 @@
             this.loopSpeedLabel.AutoSize = true;
             this.loopSpeedLabel.Location = new System.Drawing.Point(361, 280);
             this.loopSpeedLabel.Name = "loopSpeedLabel";
-            this.loopSpeedLabel.Size = new System.Drawing.Size(98, 13);
+            this.loopSpeedLabel.Size = new System.Drawing.Size(115, 13);
             this.loopSpeedLabel.TabIndex = 23;
-            this.loopSpeedLabel.Text = "Loop Speed Factor";
+            this.loopSpeedLabel.Text = "Loop Speed Factor (%)";
             // 
             // loopBoundaryLabel
             // 
             this.loopBoundaryLabel.AutoSize = true;
             this.loopBoundaryLabel.Location = new System.Drawing.Point(361, 254);
             this.loopBoundaryLabel.Name = "loopBoundaryLabel";
-            this.loopBoundaryLabel.Size = new System.Drawing.Size(129, 13);
+            this.loopBoundaryLabel.Size = new System.Drawing.Size(152, 13);
             this.loopBoundaryLabel.TabIndex = 22;
-            this.loopBoundaryLabel.Text = "Loop Boundary Threshold";
+            this.loopBoundaryLabel.Text = "Loop Boundary Threshold (km)";
             // 
             // endInterpolationLabel
             // 
             this.endInterpolationLabel.AutoSize = true;
             this.endInterpolationLabel.Location = new System.Drawing.Point(361, 202);
             this.endInterpolationLabel.Name = "endInterpolationLabel";
-            this.endInterpolationLabel.Size = new System.Drawing.Size(87, 13);
+            this.endInterpolationLabel.Size = new System.Drawing.Size(110, 13);
             this.endInterpolationLabel.TabIndex = 21;
-            this.endInterpolationLabel.Text = "End Interpolation";
+            this.endInterpolationLabel.Text = "End Interpolation (km)";
             // 
             // timeSeparationLabel
             // 
@@ -559,18 +636,18 @@
             this.IntervalLabel.AutoSize = true;
             this.IntervalLabel.Location = new System.Drawing.Point(35, 228);
             this.IntervalLabel.Name = "IntervalLabel";
-            this.IntervalLabel.Size = new System.Drawing.Size(103, 13);
+            this.IntervalLabel.Size = new System.Drawing.Size(120, 13);
             this.IntervalLabel.TabIndex = 17;
-            this.IntervalLabel.Text = "Interpolation Interval";
+            this.IntervalLabel.Text = "Interpolation Interval (m)";
             // 
             // startInterpolationLabel
             // 
             this.startInterpolationLabel.AutoSize = true;
             this.startInterpolationLabel.Location = new System.Drawing.Point(35, 202);
             this.startInterpolationLabel.Name = "startInterpolationLabel";
-            this.startInterpolationLabel.Size = new System.Drawing.Size(90, 13);
+            this.startInterpolationLabel.Size = new System.Drawing.Size(113, 13);
             this.startInterpolationLabel.TabIndex = 16;
-            this.startInterpolationLabel.Text = "Start Interpolation";
+            this.startInterpolationLabel.Text = "Start Interpolation (km)";
             // 
             // toLongitude
             // 
@@ -1208,70 +1285,6 @@
             this.selectIncreasingSimulation.UseVisualStyleBackColor = true;
             this.selectIncreasingSimulation.Click += new System.EventHandler(this.selectUnderpoweredIncreasingSimulationFile_Click);
             // 
-            // CulleranRanges
-            // 
-            this.CulleranRanges.AutoSize = true;
-            this.CulleranRanges.Location = new System.Drawing.Point(874, 53);
-            this.CulleranRanges.Name = "CulleranRanges";
-            this.CulleranRanges.Size = new System.Drawing.Size(99, 17);
-            this.CulleranRanges.TabIndex = 25;
-            this.CulleranRanges.Text = "Culleran ranges";
-            this.CulleranRanges.UseVisualStyleBackColor = true;
-            this.CulleranRanges.Click += new System.EventHandler(this.CulleranRanges_Click);
-            // 
-            // GunnedahBasin
-            // 
-            this.GunnedahBasin.AutoSize = true;
-            this.GunnedahBasin.Location = new System.Drawing.Point(874, 76);
-            this.GunnedahBasin.Name = "GunnedahBasin";
-            this.GunnedahBasin.Size = new System.Drawing.Size(105, 17);
-            this.GunnedahBasin.TabIndex = 26;
-            this.GunnedahBasin.Text = "Gunnedah Basin";
-            this.GunnedahBasin.UseVisualStyleBackColor = true;
-            this.GunnedahBasin.Click += new System.EventHandler(this.GunnedahBasin_Click);
-            // 
-            // Macarthur2Botany
-            // 
-            this.Macarthur2Botany.AutoSize = true;
-            this.Macarthur2Botany.Location = new System.Drawing.Point(874, 99);
-            this.Macarthur2Botany.Name = "Macarthur2Botany";
-            this.Macarthur2Botany.Size = new System.Drawing.Size(122, 17);
-            this.Macarthur2Botany.TabIndex = 27;
-            this.Macarthur2Botany.Text = "Macarthur to Botany";
-            this.Macarthur2Botany.UseVisualStyleBackColor = true;
-            this.Macarthur2Botany.Click += new System.EventHandler(this.Macarthur2Botany_Click);
-            // 
-            // Melbourne2Cootamundra
-            // 
-            this.Melbourne2Cootamundra.AutoSize = true;
-            this.Melbourne2Cootamundra.Location = new System.Drawing.Point(874, 122);
-            this.Melbourne2Cootamundra.Name = "Melbourne2Cootamundra";
-            this.Melbourne2Cootamundra.Size = new System.Drawing.Size(154, 17);
-            this.Melbourne2Cootamundra.TabIndex = 28;
-            this.Melbourne2Cootamundra.Text = "Melbourne to Cootamundra";
-            this.Melbourne2Cootamundra.UseVisualStyleBackColor = true;
-            this.Melbourne2Cootamundra.Click += new System.EventHandler(this.Melbourne2Cootamundra_Click);
-            // 
-            // Tarcoola2Kalgoorlie
-            // 
-            this.Tarcoola2Kalgoorlie.AutoSize = true;
-            this.Tarcoola2Kalgoorlie.Location = new System.Drawing.Point(874, 145);
-            this.Tarcoola2Kalgoorlie.Name = "Tarcoola2Kalgoorlie";
-            this.Tarcoola2Kalgoorlie.Size = new System.Drawing.Size(129, 17);
-            this.Tarcoola2Kalgoorlie.TabIndex = 29;
-            this.Tarcoola2Kalgoorlie.Text = "Tarcoola to Kalgoorlie";
-            this.Tarcoola2Kalgoorlie.UseVisualStyleBackColor = true;
-            this.Tarcoola2Kalgoorlie.Click += new System.EventHandler(this.Tarcoola2Kalgoorlie_Click);
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(871, 28);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(111, 13);
-            this.label3.TabIndex = 30;
-            this.label3.Text = "Set Testing Parmaters";
-            // 
             // TrainPerformanceAnalysis
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1407,6 +1420,7 @@
         private System.Windows.Forms.CheckBox GunnedahBasin;
         private System.Windows.Forms.CheckBox CulleranRanges;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.CheckBox HunterValley;
     }
 }
 
