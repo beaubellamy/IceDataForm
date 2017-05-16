@@ -298,13 +298,17 @@ namespace TrainPerformance
             List<TrainDetails> TrainRecords = new List<TrainDetails>();
             foreach (string file in FileSettings.batchFiles)
                 TrainRecords.AddRange(FileOperations.readICEData(file, excludeTrainList));
-            
+
             if (TrainRecords.Count() == 0)
             {
                 tool.messageBox("There is no data within the specified boundaries.\nCheck the processing parameters.");
                 return;
             }
+            
+            if (TrainRecords.Where(t => t.powerToWeight == 0).Count() == TrainRecords.Count())
+                Settings.resetPowerToWeightBoundariesToZero();
 
+            
 
             /* Sort the data by [trainID, locoID, Date & Time, kmPost]. */
             List<TrainDetails> OrderdTrainRecords = new List<TrainDetails>();
@@ -316,6 +320,7 @@ namespace TrainPerformance
             CleanTrainRecords = Algorithm.CleanData(trackGeometry, OrderdTrainRecords, TSRs);
             /**************************************************************************************************/
 
+            
             /* Calculate the avareage power to weight ratio for a given band and train direction. */
             underpoweredIncreasingP2W.Text = string.Format("{0:#.000}", averagePowerToWeightRatio(CleanTrainRecords, Settings.underpoweredLowerBound, Settings.underpoweredUpperBound, direction.increasing));
             underpoweredDecreasingP2W.Text = string.Format("{0:#.000}", averagePowerToWeightRatio(CleanTrainRecords, Settings.underpoweredLowerBound, Settings.underpoweredUpperBound, direction.decreasing));
