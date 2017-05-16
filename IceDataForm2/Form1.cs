@@ -1030,7 +1030,159 @@ namespace TrainPerformance
             }
         }
 
-       
+        /// <summary>
+        /// Function determines if the testing parameters for Culleran Ranges need 
+        /// to be set or resets to default settings.
+        /// </summary>
+        /// <param name="sender">The object container.</param>
+        /// <param name="e">The event arguments.</param>
+        private void CulleranRanges_CheckedChanged(object sender, EventArgs e)
+        {
+            /* If Cullerin Ranges tesging flag is checked, set the appropriate parameters. */
+            if (CulleranRanges.Checked)
+                CulleranRanges_Click(sender, e);
+            else
+                resetDefaultParameters();
+        }
+
+        /// <summary>
+        /// Function determines if the testing parameters for Gunnedah Basin need 
+        /// to be set or resets to default settings.
+        /// </summary>
+        /// <param name="sender">The object container.</param>
+        /// <param name="e">The event arguments.</param>
+        private void GunnedahBasin_CheckedChanged(object sender, EventArgs e)
+        {
+            /* If Gunnedah Basin testing flag is checked, set the appropriate parameters. */
+            if (GunnedahBasin.Checked)
+                GunnedahBasin_Click(sender, e);
+            else
+                resetDefaultParameters();
+        }
+
+        /// <summary>
+        /// Function determines if the testing parameters for Macarthur to Botany need 
+        /// to be set or resets to default settings.
+        /// </summary>
+        /// <param name="sender">The object container.</param>
+        /// <param name="e">The event arguments.</param>
+        private void Macarthur2Botany_CheckedChanged(object sender, EventArgs e)
+        {
+            /* If Macarthur to Botany testing flag is checked, set the appropriate parameters. */
+            if (Macarthur2Botany.Checked)
+                Macarthur2Botany_Click(sender, e);
+            else
+                resetDefaultParameters();
+        }
+
+        /// <summary>
+        /// Function determines if the testing parameters for Melbourne to Cootamundra need 
+        /// to be set or resets to default settings.
+        /// </summary>
+        /// <param name="sender">The object container.</param>
+        /// <param name="e">The event arguments.</param>
+        private void Melbourne2Cootamundra_CheckedChanged(object sender, EventArgs e)
+        {
+            /* If Melbourne to Cootamundra testing flag is checked, set the appropriate parameters. */
+            if (Melbourne2Cootamundra.Checked)
+                Melbourne2Cootamundra_Click(sender, e);
+            else
+                resetDefaultParameters();
+        }
+
+        /// <summary>
+        /// Function determines if the testing parameters for Tarcoola to Kalgoorlie need 
+        /// to be set or resets to default settings.
+        /// </summary>
+        /// <param name="sender">The object container.</param>
+        /// <param name="e">The event arguments.</param>
+        private void Tarcoola2Kalgoorlie_CheckedChanged(object sender, EventArgs e)
+        {
+            /* If Tarcoola to Kalgoorlie testing flag is checked, set the appropriate parameters. */
+            if (Tarcoola2Kalgoorlie.Checked)
+                Tarcoola2Kalgoorlie_Click(sender, e);
+            else
+                resetDefaultParameters();
+        }
+
+        /// <summary>
+        /// function resets the train performance analysis form to default settings.
+        /// </summary>
+        private void resetDefaultParameters()
+        {
+
+            /* Data File */
+            IceDataFile.Text = "<Required>";
+            IceDataFile.ForeColor = SystemColors.InactiveCaptionText;
+            simIceDataFile.Text = "Data File Loaded from FileSelection tab";
+            simIceDataFile.ForeColor = SystemColors.InactiveCaptionText;
+
+            FileSettings.batchFiles.Clear(); 
+
+            /* Geometry File */
+            FileSettings.geometryFile = null;
+            GeometryFile.Text = "<Required>";
+            GeometryFile.ForeColor = SystemColors.InactiveCaptionText;
+
+            /* TSR File */
+            FileSettings.temporarySpeedRestrictionFile = null;
+            temporarySpeedRestrictionFile.Text = "<Required>";
+            temporarySpeedRestrictionFile.ForeColor = SystemColors.InactiveCaptionText;
+
+            /* Simulation files */
+            FileSettings.underpoweredIncreasingSimulationFile = null;
+            underpoweredIncreasingSimulationFile.Text = "<Optional>";
+            underpoweredIncreasingSimulationFile.ForeColor = SystemColors.InactiveCaptionText;
+
+            FileSettings.underpoweredDecreasingSimulationFile = null;
+            underpoweredDecreasingSimulationFile.Text = "<Optional>";
+            underpoweredDecreasingSimulationFile.ForeColor = SystemColors.InactiveCaptionText;
+
+            FileSettings.overpoweredIncreasingSimulationFile = null;
+            overpoweredIncreasingSimulationFile.Text = "<Optional>";
+            overpoweredIncreasingSimulationFile.ForeColor = SystemColors.InactiveCaptionText;
+
+            FileSettings.overpoweredDecreasingSimulationFile = null;
+            overpoweredDecreasingSimulationFile.Text = "<Optional>";
+            overpoweredDecreasingSimulationFile.ForeColor = SystemColors.InactiveCaptionText;
+
+            /* Destination Folder */
+            FileSettings.aggregatedDestination = null;
+            ResultsDestination.Text = "<Required>";
+            ResultsDestination.ForeColor = SystemColors.InactiveCaptionText;
+
+            /* Settings */
+            fromDate.Value = new DateTime(2016, 1, 1);
+            toDate.Value = new DateTime(2016, 2, 1);
+
+            /* Geographic box for Australia */
+            fromLatitude.Text = "-10";
+            toLatitude.Text = "-40";
+            fromLongitude.Text = "110";
+            toLongitude.Text = "152";
+
+            includeAListOfTrainsToExclude.Checked = false;
+
+            startInterpolationKm.Text = "0";
+            endInterpolationKm.Text = "100";
+            interpolationInterval.Text = "50";
+            minimumJourneyDistance.Text = "80";
+            distanceThreshold.Text = "4";
+            timeSeparation.Text = "10";
+
+            loopBoundary.Text = "1";
+            loopSpeedFactor.Text = "50";
+            TSRWindowBoundary.Text = "1";
+
+            underpoweredLowerBound.Text = "0";
+            underpoweredUpperBound.Text = "0";
+            overpoweredLowerBound.Text = "0";
+            overpoweredUpperBound.Text = "0";
+
+            HunterValley.Checked = false;
+            
+        
+        }
 
 
 

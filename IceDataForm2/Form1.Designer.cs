@@ -225,7 +225,7 @@
             this.Tarcoola2Kalgoorlie.TabIndex = 29;
             this.Tarcoola2Kalgoorlie.Text = "Tarcoola to Kalgoorlie";
             this.Tarcoola2Kalgoorlie.UseVisualStyleBackColor = true;
-            this.Tarcoola2Kalgoorlie.Click += new System.EventHandler(this.Tarcoola2Kalgoorlie_Click);
+            this.Tarcoola2Kalgoorlie.CheckedChanged += new System.EventHandler(this.Tarcoola2Kalgoorlie_CheckedChanged);
             // 
             // Melbourne2Cootamundra
             // 
@@ -236,7 +236,7 @@
             this.Melbourne2Cootamundra.TabIndex = 28;
             this.Melbourne2Cootamundra.Text = "Melbourne to Cootamundra";
             this.Melbourne2Cootamundra.UseVisualStyleBackColor = true;
-            this.Melbourne2Cootamundra.Click += new System.EventHandler(this.Melbourne2Cootamundra_Click);
+            this.Melbourne2Cootamundra.CheckedChanged += new System.EventHandler(this.Melbourne2Cootamundra_CheckedChanged);
             // 
             // Macarthur2Botany
             // 
@@ -247,7 +247,7 @@
             this.Macarthur2Botany.TabIndex = 27;
             this.Macarthur2Botany.Text = "Macarthur to Botany";
             this.Macarthur2Botany.UseVisualStyleBackColor = true;
-            this.Macarthur2Botany.Click += new System.EventHandler(this.Macarthur2Botany_Click);
+            this.Macarthur2Botany.CheckedChanged += new System.EventHandler(this.Macarthur2Botany_CheckedChanged);
             // 
             // GunnedahBasin
             // 
@@ -258,7 +258,7 @@
             this.GunnedahBasin.TabIndex = 26;
             this.GunnedahBasin.Text = "Gunnedah Basin";
             this.GunnedahBasin.UseVisualStyleBackColor = true;
-            this.GunnedahBasin.Click += new System.EventHandler(this.GunnedahBasin_Click);
+            this.GunnedahBasin.CheckedChanged += new System.EventHandler(this.GunnedahBasin_CheckedChanged);
             // 
             // CulleranRanges
             // 
@@ -269,7 +269,7 @@
             this.CulleranRanges.TabIndex = 25;
             this.CulleranRanges.Text = "Culleran ranges";
             this.CulleranRanges.UseVisualStyleBackColor = true;
-            this.CulleranRanges.Click += new System.EventHandler(this.CulleranRanges_Click);
+            this.CulleranRanges.CheckedChanged += new System.EventHandler(this.CulleranRanges_CheckedChanged);
             // 
             // temporarySpeedRestrictionFile
             // 
