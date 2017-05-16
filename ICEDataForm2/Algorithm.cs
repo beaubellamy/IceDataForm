@@ -629,10 +629,10 @@ namespace TrainPerformance
             /* Populate the trains TSR values after interpolation to gain more granularity with TSR boundary. */
             processing.populateAllTrainsTemporarySpeedRestrictions(interpolatedRecords, TSRs);
 
-            List<InterpolatedTrain> unpackedInterpolation = new List<InterpolatedTrain>();
-            unpackedInterpolation = unpackInterpolatedData(interpolatedRecords);
+            //List<InterpolatedTrain> unpackedInterpolation = new List<InterpolatedTrain>();
+            //unpackedInterpolation = unpackInterpolatedData(interpolatedRecords);
             //FileOperations.writeTrainData(unpackedInterpolation);
-            FileOperations.writeTrainDataForComparison(interpolatedRecords);
+            FileOperations.writeTrainData(interpolatedRecords);
 
             /* Generate some statistical information for the aggregated data. */
             interpolatedRecords = interpolatedRecords.Where(t => t.TrainJourney[0].powerToWeight > Settings.combinedLowerBound).

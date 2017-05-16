@@ -659,10 +659,11 @@ namespace TrainPerformance
         }
         
         /// <summary>
-        /// Write the interpolated train data to file for comparison against prevoiuosly completed train performance analysis corridors.
+        /// This function writes each interpolated train journey to an individual column in excel.
+        /// This can be used to compare against previously completed corridor analysis for validation.
         /// </summary>
         /// <param name="trainRecords">List of trains containing the interpolated data.</param>
-        public static void writeTrainDataForComparison(List<Train> trainRecords)
+        public static void writeTrainData(List<Train> trainRecords)
         {
 
             /* Create the microsfot excel references. */
@@ -762,7 +763,7 @@ namespace TrainPerformance
 
             /* Generate the resulting file name and location to save to. */
             string savePath = FileSettings.aggregatedDestination;
-            string saveFilename = savePath + @"\ICEData_InterpolatedCompare" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx";
+            string saveFilename = savePath + @"\ICEData_InterpolatedTrains" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx";
 
             /* Check the file does not exist yet. */
             if (File.Exists(saveFilename))
@@ -783,7 +784,7 @@ namespace TrainPerformance
         }
 
         /// <summary>
-        /// Write all catagories of the averaged Ice data to a file, information includes the loop boundary flags.
+        /// This function writes all catagories of the averaged Ice data to a file, information includes the loop boundary flags.
         /// </summary>
         /// <param name="averageData">A list of train data containing the average speed and loop boundary locations for each catagory.</param>
         public static void writeAverageData(List<averagedTrainData> averageData)
