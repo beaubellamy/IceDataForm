@@ -378,7 +378,7 @@ namespace TrainPerformance
         /// </summary>
         /// <param name="train">The train object.</param>
         /// <param name="trainOperator">The train operator.</param>
-        public void populateOperator(Train train, string trainOperator)
+        public void populateOperator(Train train, trainOperator trainOperator)
         {
             foreach (TrainDetails journey in train.TrainJourney)
             {
@@ -758,7 +758,7 @@ namespace TrainPerformance
                 }
 
                 /* Create the interpolated data object and add it to the list. */
-                InterpolatedTrain item = new InterpolatedTrain("Simulated Train", "Simulated Loco", "Simulated Operator", powerToWeight, simTime, currentKm, interpolatedSpeed, loop, TSR, TSRspeed);
+                InterpolatedTrain item = new InterpolatedTrain("Simulated Train", "Simulated Loco", trainOperator.simulated, powerToWeight, simTime, currentKm, interpolatedSpeed, loop, TSR, TSRspeed);
                 simulatedInterpolation.Add(item);
 
                 /* Create a copy of the current km marker and increment. */
@@ -1435,7 +1435,7 @@ namespace TrainPerformance
                             {
                                 //isInLoopBoundary = false;
                                 
-                                if (train.TrainJourney[0].Operator.Equals("Pacific National",StringComparison.OrdinalIgnoreCase))
+                                if (train.TrainJourney[0].Operator == trainOperator.PacificNational)
                                 {
                                     /* Underpowered increasing trains. */
                                     pacificNationalIncreasingSpeed.Add(journey.speed);
@@ -1447,7 +1447,7 @@ namespace TrainPerformance
                                     pacificNationalIncreasingWeight++;
                                 }
 
-                                if (train.TrainJourney[0].Operator.Equals("Aurizon", StringComparison.OrdinalIgnoreCase))
+                                if (train.TrainJourney[0].Operator == trainOperator.Aurizon)
                                 {
                                     /* Overpowered incerasing trains. */
                                     aurizonIncreasingSpeed.Add(journey.speed);
@@ -1465,7 +1465,7 @@ namespace TrainPerformance
                                 isInLoopBoundary = true;
 
                                 /* Train is within the loop boundaries */
-                                if (train.TrainJourney[0].Operator.Equals("Pacific National", StringComparison.OrdinalIgnoreCase))
+                                if (train.TrainJourney[0].Operator == trainOperator.PacificNational)
                                 {
                                     /* Underpowered increasing trains. */
                                     if (journey.speed > (pacificNationalIncreasingSimulation[journeyIdx].speed * Settings.loopSpeedThreshold))
@@ -1480,7 +1480,7 @@ namespace TrainPerformance
                                     }
                                 }
 
-                                if (train.TrainJourney[0].Operator.Equals("Aurizon", StringComparison.OrdinalIgnoreCase))
+                                if (train.TrainJourney[0].Operator == trainOperator.Aurizon)
                                 {
                                     /* Overpowered incerasing trains. */
                                     if (journey.speed > (aurizonIncreasingSimulation[journeyIdx].speed * Settings.loopSpeedThreshold))
@@ -1505,10 +1505,10 @@ namespace TrainPerformance
                             /* We dont want to include the speed in the aggregation if the train is within the
                              * bundaries of a TSR and is forced to slow down.  
                              */
-                            if (train.TrainJourney[0].Operator.Equals("Pacific National", StringComparison.OrdinalIgnoreCase))
+                            if (train.TrainJourney[0].Operator == trainOperator.PacificNational)
                                 pacificNationalIncreasingWeight++;
 
-                            if (train.TrainJourney[0].Operator.Equals("Aurizon", StringComparison.OrdinalIgnoreCase))
+                            if (train.TrainJourney[0].Operator == trainOperator.Aurizon)
                                 aurizonIncreasingWeight++;
 
 
@@ -1528,7 +1528,7 @@ namespace TrainPerformance
                             {
                                 isInLoopBoundary = false;
 
-                                if (train.TrainJourney[0].Operator.Equals("Pacific National", StringComparison.OrdinalIgnoreCase))
+                                if (train.TrainJourney[0].Operator == trainOperator.PacificNational)
                                 {
                                     /* Underpowered decreasing trains. */
                                     pacificNationalDecreasingSpeed.Add(journey.speed);
@@ -1540,7 +1540,7 @@ namespace TrainPerformance
                                     pacificNationalDecreasingWeight++;
 
                                 }
-                                if (train.TrainJourney[0].Operator.Equals("Aurizon", StringComparison.OrdinalIgnoreCase))
+                                if (train.TrainJourney[0].Operator == trainOperator.Aurizon)
                                 {
                                     /* Overpowered decerasing trains. */
                                     aurizonDecreasingSpeed.Add(journey.speed);
@@ -1558,7 +1558,7 @@ namespace TrainPerformance
                             {
                                 isInLoopBoundary = true;
                                 /* Train is within the loop boundaries */
-                                if (train.TrainJourney[0].Operator.Equals("Pacific National", StringComparison.OrdinalIgnoreCase))
+                                if (train.TrainJourney[0].Operator == trainOperator.PacificNational)
                                 {
                                     /* Underpowered decreasing trains. */
                                     if (journey.speed > (pacificNationalDecreasingSimulation[journeyIdx].speed * Settings.loopSpeedThreshold))
@@ -1573,7 +1573,7 @@ namespace TrainPerformance
                                     }
                                 }
 
-                                if (train.TrainJourney[0].Operator.Equals("Aurizon", StringComparison.OrdinalIgnoreCase))
+                                if (train.TrainJourney[0].Operator == trainOperator.Aurizon)
                                 {
                                     /* overpowered decreasing trains. */
                                     if (journey.speed > (aurizonDecreasingSimulation[journeyIdx].speed * Settings.loopSpeedThreshold))
@@ -1599,10 +1599,10 @@ namespace TrainPerformance
                             /* We dont want to include the speed in the aggregation if the train is within the
                              * bundaries of a TSR and is forced to slow down.  
                              */
-                            if (train.TrainJourney[0].Operator.Equals("Pacific National", StringComparison.OrdinalIgnoreCase))                                
+                            if (train.TrainJourney[0].Operator == trainOperator.PacificNational)                                
                                 pacificNationalDecreasingWeight++;
 
-                            if (train.TrainJourney[0].Operator.Equals("Aurizon", StringComparison.OrdinalIgnoreCase))
+                            if (train.TrainJourney[0].Operator == trainOperator.Aurizon)
                                 aurizonDecreasingWeight++;
 
                         }

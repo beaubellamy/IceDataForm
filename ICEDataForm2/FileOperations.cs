@@ -89,15 +89,15 @@ namespace TrainPerformance
                     /* Seperate each record into each field */
                     fields = line.Split(delimeters);
 
-                    TrainID = fields[22];
-                    locoID = fields[12];
+                    TrainID = fields[9];//22
+                    locoID = fields[3];//12
                     /* needs to perform tests */
-                    double.TryParse(fields[20], out speed);
-                    double.TryParse(fields[10], out kmPost);
-                    double.TryParse(fields[11], out latitude);
-                    double.TryParse(fields[13], out longitude);
-                    DateTime.TryParse(fields[14], out NotificationDateTime);
-                    double.TryParse(fields[25], out powerToWeight);
+                    double.TryParse(fields[16], out speed);//20
+                    double.TryParse(fields[13], out kmPost);//10
+                    double.TryParse(fields[2], out latitude);//11
+                    double.TryParse(fields[4], out longitude);//13
+                    DateTime.TryParse(fields[6], out NotificationDateTime);//14
+                    //double.TryParse(fields[18], out powerToWeight);//25
                     /* possible TSR information as well*/
                                         
                     /* Check if the train is in the exclude list */
@@ -108,7 +108,7 @@ namespace TrainPerformance
                         NotificationDateTime >= Settings.dateRange[0] && NotificationDateTime < Settings.dateRange[1] &&
                         !includeTrain)
                     {
-                        TrainDetails record = new TrainDetails(TrainID, locoID, null, powerToWeight, NotificationDateTime, latitude, longitude, 
+                        TrainDetails record = new TrainDetails(TrainID, locoID, trainOperator.unknown, powerToWeight, NotificationDateTime, latitude, longitude, 
                             speed, kmPost, geometryKm, direction.notSpecified, false, false, 0);
                         IceRecord.Add(record);
                     }
@@ -787,7 +787,7 @@ namespace TrainPerformance
         /// This function writes all catagories of the averaged Ice data to a file, information includes the loop boundary flags.
         /// </summary>
         /// <param name="averageData">A list of train data containing the average speed and loop boundary locations for each catagory.</param>
-        public static void writeAverageData(List<averagedTrainData> averageData)
+        public static void writeAverageData(List<averagedTrainData> averageData, List<Statistics> stats)
         {
             /* Create the microsfot excel references. */
             Microsoft.Office.Interop.Excel.Application excel;
@@ -837,8 +837,27 @@ namespace TrainPerformance
             // How to defind an empy 2D array that we dont have a size for
             // if Statistics is available populate header and values, else leave empty
             
+            Type type = typeof(Statistics);
+            int n = type.GetProperties().Length;
+
             string[,] statisticsHeader = {{"Statistics:"}, {"Number Of Trains"}, {"Average Distance Travelled"}, {"Average Speed"}, {"Average P/W Ratio"}, {"P/W standard Deviation" }};
-            string[,] totalStatistics = { { "Total" }, { Statistics.numberOfTrains.ToString() }, { Statistics.averageDistanceTravelled.ToString() }, { Statistics.averageSpeed.ToString() }, { Statistics.averagePowerToWeightRatio.ToString() }, { Statistics.standardDeviationP2W.ToString() } };
+            string[,] totalStatistics = new string[statisticsHeader.GetLength(0), stats.Count()];
+
+            int a = statisticsHeader.GetLength(0);
+            int b = statisticsHeader.GetLength(1);
+
+
+            for (int index = 0; index < stats.Count();  index++)
+            {
+                totalStatistics[0,index] = stats[index].catagory;
+                totalStatistics[1,index] = stats[index].numberOfTrains.ToString();
+                totalStatistics[2,index] = stats[index].averageDistanceTravelled.ToString();
+                totalStatistics[3,index] = stats[index].averageSpeed.ToString();
+                totalStatistics[4,index] = stats[index].averagePowerToWeightRatio.ToString();
+                totalStatistics[5,index] = stats[index].standardDeviationP2W.ToString();
+            
+            }
+            
             
             /* Loop through the excel pages. */
             for (int excelPage = 0; excelPage < excelPages; excelPage++)
@@ -900,8 +919,11 @@ namespace TrainPerformance
                 worksheet.get_Range("J" + headerOffset, "J" + (headerOffset + excelPageSize - 1)).Value2 = isTSRhere;
 
                 //stats.numberOfTrains
+                Microsoft.Office.Interop.Excel.Range topLeft = (Microsoft.Office.Interop.Excel.Range)worksheet.Cells[statisticsHeader.GetLength(1), 13];    // M1
+                Microsoft.Office.Interop.Excel.Range bottomRight = (Microsoft.Office.Interop.Excel.Range)worksheet.Cells[statisticsHeader.GetLength(0), 15];    // O6
+
                 worksheet.get_Range("L1", "L6").Value2 = statisticsHeader;
-                worksheet.get_Range("M1", "M6").Value2 = totalStatistics;
+                worksheet.get_Range(topLeft, bottomRight).Value2 = totalStatistics;
 
 
             }
@@ -938,16 +960,23 @@ namespace TrainPerformance
         /// <returns>True if the file is already open.</returns>
         public static void isFileOpen(string filename)
         {
+            FileStream stream = null;
+
             /* Can the file be opened and read. */
             try
             {
-                string[] l = System.IO.File.ReadAllLines(filename);
+                stream = System.IO.File.Open(filename, FileMode.Open, FileAccess.Read);
             }
             catch (IOException e)
             {
                 /* File is already opended and locked for reading. */
                 tool.messageBox(e.Message + ":\n\nClose the file and Start again.");
                 Environment.Exit(0);
+            }
+            finally
+            {
+                if (stream != null)
+                    stream.Close();
             }
 
         }

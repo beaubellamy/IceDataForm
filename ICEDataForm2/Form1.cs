@@ -673,7 +673,8 @@ namespace TrainPerformance
         private void GunnedahBasin_Click(object sender, EventArgs e)
         {
             /* Data File */
-            string batchFileName = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin\Gunnedah Basin test data.csv";
+            string batchFileName = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin\Gunnedah Basin - BigData.txt";
+                //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin\Gunnedah Basin test data.csv";
 
             IceDataFile.Text = Path.GetFileName(batchFileName);
             simIceDataFile.Text = Path.GetFileName(batchFileName);
