@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -145,8 +146,12 @@ namespace TrainPerformance
         /// <param name="e">The event arguments.</param>
         private void selectUnderpoweredIncreasingSimulationFile_Click(object sender, EventArgs e)
         {
+            string browseFile = "Select the underpowered increasing km simulation file.";
+            if (getHunterValleyRegion())
+                browseFile = "Select the Pacific National increasing km simulation file.";
+
             FileSettings.underpoweredIncreasingSimulationFile = //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Traxim\2017\Projects\Macarthur to Botany\Botany to Macarthur - All - 3.33_ThuW1.csv";
-                tool.browseFile("Select the underpowered increasing km simulation file.");
+                tool.browseFile(browseFile);
             underpoweredIncreasingSimulationFile.Text = Path.GetFileName(FileSettings.underpoweredIncreasingSimulationFile);
             underpoweredIncreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
         }
@@ -158,11 +163,16 @@ namespace TrainPerformance
         /// <param name="e">The event arguments.</param>
         private void selectUnderpoweredDecreasingSimulationFile_Click(object sender, EventArgs e)
         {
+            string browseFile = "Select the underpowered decreasing km simulation file.";
+            if (getHunterValleyRegion())
+                browseFile = "Select the Pacific National decreasing km simulation file.";
+
             FileSettings.underpoweredDecreasingSimulationFile = //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Traxim\2017\Projects\Macarthur to Botany\Macarthur to Botany - All - 3.20_SatW1.csv";
-            tool.browseFile("Select the underpowered decreasing km simulation file.");
+            tool.browseFile(browseFile);
             underpoweredDecreasingSimulationFile.Text = Path.GetFileName(FileSettings.underpoweredDecreasingSimulationFile);
             underpoweredDecreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
         }
+
         /// <summary>
         /// Select the simulation file with increasing km.
         /// </summary>
@@ -170,8 +180,12 @@ namespace TrainPerformance
         /// <param name="e">The event arguments.</param>
         private void selectOverpoweredIncreasingSimulationFile_Click(object sender, EventArgs e)
         {
+            string browseFile = "Select the overpowered increasing km simulation file.";
+            if (getHunterValleyRegion())
+                browseFile = "Select the Aurizon increasing km simulation file.";
+
             FileSettings.overpoweredIncreasingSimulationFile = //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Traxim\2017\Projects\Macarthur to Botany\Botany to Macarthur - All - 7.87_ThuW1.csv";
-            tool.browseFile("Select the overpowered increasing km simulation file.");
+            tool.browseFile(browseFile);
             overpoweredIncreasingSimulationFile.Text = Path.GetFileName(FileSettings.overpoweredIncreasingSimulationFile);
             overpoweredIncreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
         }
@@ -183,8 +197,12 @@ namespace TrainPerformance
         /// <param name="e">The event arguments.</param>
         private void selectOverpoweredDecreasingSimulationFile_Click(object sender, EventArgs e)
         {
+            string browseFile = "Select the overpowered decreasing km simulation file.";
+            if (getHunterValleyRegion())
+                browseFile = "Select the Aurizon decreasing km simulation file.";
+
             FileSettings.overpoweredDecreasingSimulationFile = //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Traxim\2017\Projects\Macarthur to Botany\Macarthur to Botany - All - 6.97_SatW1.csv";
-            tool.browseFile("Select the overpowered decreasing km simulation file.");
+            tool.browseFile(browseFile);
             overpoweredDecreasingSimulationFile.Text = Path.GetFileName(FileSettings.overpoweredDecreasingSimulationFile);
             overpoweredDecreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
         }
@@ -230,9 +248,17 @@ namespace TrainPerformance
                 return;
             }
 
+            Stopwatch timer = new Stopwatch();
+            timer.Start();
+
             /* Run the train performance analysis. */
             List<Train> trains = new List<Train>();
             trains = Algorithm.trainPerformance();
+            timer.Stop();
+            TimeSpan ts = timer.Elapsed;
+            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",ts.Hours, ts.Minutes, ts.Seconds,ts.Milliseconds / 10);
+            Console.WriteLine("RunTime " + elapsedTime);
+
 
             /* Populate the counts for each train catagory. */
             underpoweredIncreasingCount.Text = trains.Where(t => t.TrainJourney[0].trainDirection == direction.increasing).
@@ -254,6 +280,8 @@ namespace TrainPerformance
             totalDecreasingCount.Text = trains.Where(t => t.TrainJourney[0].trainDirection == direction.decreasing).
                                             Where(t => t.TrainJourney[0].powerToWeight > Settings.underpoweredLowerBound).
                                             Where(t => t.TrainJourney[0].powerToWeight <= Settings.overpoweredUpperBound).Count().ToString();
+
+            ExecutionTime.Text = elapsedTime;
 
             tool.messageBox("Program Complete.");
 
@@ -691,24 +719,24 @@ namespace TrainPerformance
             GeometryFile.ForeColor = System.Drawing.Color.Black;
 
             /* TSR File */
-            FileSettings.temporarySpeedRestrictionFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin\Gunnedah Basin TSR.csv";
+            FileSettings.temporarySpeedRestrictionFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin\Gunnedah Basin TSR 2016 - 2017.csv";
             temporarySpeedRestrictionFile.Text = Path.GetFileName(FileSettings.temporarySpeedRestrictionFile);
             temporarySpeedRestrictionFile.ForeColor = System.Drawing.Color.Black;
 
             /* Simulation files */
-            FileSettings.underpoweredIncreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin\PN - Increasing.csv";
+            FileSettings.underpoweredIncreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin\PacificNational-Increasing.csv"; //PN - Increasing.csv";
             underpoweredIncreasingSimulationFile.Text = Path.GetFileName(FileSettings.underpoweredIncreasingSimulationFile);
             underpoweredIncreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
 
-            FileSettings.underpoweredDecreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin\PN - Decreasing.csv";
+            FileSettings.underpoweredDecreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin\PacificNational-Decreasing.csv"; //PN - Decreasing.csv";
             underpoweredDecreasingSimulationFile.Text = Path.GetFileName(FileSettings.underpoweredDecreasingSimulationFile);
             underpoweredDecreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
 
-            FileSettings.overpoweredIncreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin\QR - Increasing.csv";
+            FileSettings.overpoweredIncreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin\Aurizon-Increasing-60.csv"; //QR - Increasing.csv";
             overpoweredIncreasingSimulationFile.Text = Path.GetFileName(FileSettings.overpoweredIncreasingSimulationFile);
             overpoweredIncreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
 
-            FileSettings.overpoweredDecreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin\QR - Decreasing.csv";
+            FileSettings.overpoweredDecreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin\Aurizon-Decreasing.csv"; //QR - Decreasing.csv";
             overpoweredDecreasingSimulationFile.Text = Path.GetFileName(FileSettings.overpoweredDecreasingSimulationFile);
             overpoweredDecreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
 
@@ -719,8 +747,8 @@ namespace TrainPerformance
 
             /* Settings */
 
-            fromDate.Value = new DateTime(2015,1,4);
-            toDate.Value = new DateTime(2016,4,4);
+            fromDate.Value = new DateTime(2016,4,1);
+            toDate.Value = new DateTime(2016,5,1);
 
             fromLatitude.Text = "-10";
             toLatitude.Text = "-40";

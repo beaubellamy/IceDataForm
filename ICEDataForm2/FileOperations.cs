@@ -808,6 +808,23 @@ namespace TrainPerformance
             /* Get the reference to the new workbook. */
             workbook = (Microsoft.Office.Interop.Excel._Workbook)(excel.Workbooks.Add(""));
 
+            /* Extract the statistics */
+            /* Note: there is no check to confimr the order in which the statistics values are listed. */
+            string[,] statisticsHeader = { { "Statistics:" }, { "Number Of Trains" }, { "Average Distance Travelled" }, { "Average Speed" }, { "Average P/W Ratio" }, { "P/W standard Deviation" } };
+            string[,] totalStatistics = new string[statisticsHeader.GetLength(0), stats.Count()];
+
+
+            for (int index = 0; index < stats.Count(); index++)
+            {
+                totalStatistics[0, index] = stats[index].catagory;
+                totalStatistics[1, index] = stats[index].numberOfTrains.ToString();
+                totalStatistics[2, index] = stats[index].averageDistanceTravelled.ToString();
+                totalStatistics[3, index] = stats[index].averageSpeed.ToString();
+                totalStatistics[4, index] = stats[index].averagePowerToWeightRatio.ToString();
+                totalStatistics[5, index] = stats[index].standardDeviationP2W.ToString();
+
+            }
+            
             /* Create the header details. */
             string[] headerString = new string[] {};
             if (Settings.HunterValleyRegion)
@@ -820,7 +837,7 @@ namespace TrainPerformance
             /* Pagenate the data for writing to excel. */
             int excelPageSize = 1000000;        /* Page size of the excel worksheet. */
             int excelPages = 1;                 /* Number of Excel pages to write. */
-            int headerOffset = 2;
+            int headerOffset = statisticsHeader.GetLength(0) + 4;
 
             /* Adjust the excel page size or the number of pages to write. */
             if (averageData.Count() < excelPageSize)
@@ -841,27 +858,6 @@ namespace TrainPerformance
             string[,] isLoophere = new string[excelPageSize, 1];
             string[,] isTSRhere = new string[excelPageSize, 1];
 
-            /* Extract the statistics */
-            // How to defind an empy 2D array that we dont have a size for
-            // if Statistics is available populate header and values, else leave empty
-            
-            Type type = typeof(Statistics);
-            int n = type.GetProperties().Length;
-
-            string[,] statisticsHeader = {{"Statistics:"}, {"Number Of Trains"}, {"Average Distance Travelled"}, {"Average Speed"}, {"Average P/W Ratio"}, {"P/W standard Deviation" }};
-            string[,] totalStatistics = new string[statisticsHeader.GetLength(0), stats.Count()];
-
-            
-            for (int index = 0; index < stats.Count();  index++)
-            {
-                totalStatistics[0,index] = stats[index].catagory;
-                totalStatistics[1,index] = stats[index].numberOfTrains.ToString();
-                totalStatistics[2,index] = stats[index].averageDistanceTravelled.ToString();
-                totalStatistics[3,index] = stats[index].averageSpeed.ToString();
-                totalStatistics[4,index] = stats[index].averagePowerToWeightRatio.ToString();
-                totalStatistics[5,index] = stats[index].standardDeviationP2W.ToString();
-            
-            }
             
             
             /* Loop through the excel pages. */
@@ -870,8 +866,7 @@ namespace TrainPerformance
                 /* Set the active worksheet. */
                 worksheet = (Microsoft.Office.Interop.Excel._Worksheet)workbook.Sheets[excelPage + 1];
                 workbook.Sheets[excelPage + 1].Activate();
-                worksheet.get_Range("A1", "J1").Value2 = headerString;
-
+                
                 /* Loop through the data for each excel page. */
                 for (int j = 0; j < excelPageSize; j++)
                 {
@@ -911,6 +906,20 @@ namespace TrainPerformance
 
                 }
 
+                /* Display the statistics for each catagory. */
+                int column = 3;
+                Microsoft.Office.Interop.Excel.Range topLeft = 
+                    (Microsoft.Office.Interop.Excel.Range)worksheet.Cells[statisticsHeader.GetLength(1), column];
+                Microsoft.Office.Interop.Excel.Range bottomRight =
+                    (Microsoft.Office.Interop.Excel.Range)worksheet.Cells[statisticsHeader.GetLength(0), column + totalStatistics.GetLength(1) - 1];
+
+                /* Set statistics. */
+                worksheet.get_Range("A1", "A6").Value2 = statisticsHeader;
+                worksheet.get_Range(topLeft, bottomRight).Value2 = totalStatistics;
+
+                /* Set the data header. */
+                worksheet.get_Range("A9", "J9").Value2 = headerString;
+
                 /* Write the data to the active excel workseet. */
                 worksheet.get_Range("A" + headerOffset, "A" + (headerOffset + excelPageSize - 1)).Value2 = kilometerage;
                 worksheet.get_Range("B" + headerOffset, "B" + (headerOffset + excelPageSize - 1)).Value2 = elevation;
@@ -923,14 +932,7 @@ namespace TrainPerformance
                 worksheet.get_Range("I" + headerOffset, "I" + (headerOffset + excelPageSize - 1)).Value2 = isLoophere;
                 worksheet.get_Range("J" + headerOffset, "J" + (headerOffset + excelPageSize - 1)).Value2 = isTSRhere;
 
-                //stats.numberOfTrains
-                int column = 13;
-                Microsoft.Office.Interop.Excel.Range topLeft = (Microsoft.Office.Interop.Excel.Range)worksheet.Cells[statisticsHeader.GetLength(1), column];    // M1
-                Microsoft.Office.Interop.Excel.Range bottomRight = (Microsoft.Office.Interop.Excel.Range)worksheet.Cells[statisticsHeader.GetLength(0), column + totalStatistics.GetLength(1)-1];    // O6
-
-                worksheet.get_Range("L1", "L6").Value2 = statisticsHeader;
-                worksheet.get_Range(topLeft, bottomRight).Value2 = totalStatistics;
-
+                
 
             }
 

@@ -141,6 +141,8 @@
             this.underpoweredIncreasingSimulationFile = new System.Windows.Forms.TextBox();
             this.selectDecreasingSimulation = new System.Windows.Forms.Button();
             this.selectIncreasingSimulation = new System.Windows.Forms.Button();
+            this.ExecutionTimeLabel = new System.Windows.Forms.Label();
+            this.ExecutionTime = new System.Windows.Forms.Label();
             this.SimualtionFileTab.SuspendLayout();
             this.fileSelectionTab.SuspendLayout();
             this.processingTab.SuspendLayout();
@@ -1132,6 +1134,8 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.ExecutionTime);
+            this.tabPage1.Controls.Add(this.ExecutionTimeLabel);
             this.tabPage1.Controls.Add(this.ResultLabel);
             this.tabPage1.Controls.Add(this.ResultsDestination);
             this.tabPage1.Controls.Add(this.DestinationFolder);
@@ -1285,6 +1289,24 @@
             this.selectIncreasingSimulation.UseVisualStyleBackColor = true;
             this.selectIncreasingSimulation.Click += new System.EventHandler(this.selectUnderpoweredIncreasingSimulationFile_Click);
             // 
+            // ExecutionTimeLabel
+            // 
+            this.ExecutionTimeLabel.AutoSize = true;
+            this.ExecutionTimeLabel.Location = new System.Drawing.Point(543, 415);
+            this.ExecutionTimeLabel.Name = "ExecutionTimeLabel";
+            this.ExecutionTimeLabel.Size = new System.Drawing.Size(79, 13);
+            this.ExecutionTimeLabel.TabIndex = 39;
+            this.ExecutionTimeLabel.Text = "Execition Time:";
+            // 
+            // ExecutionTime
+            // 
+            this.ExecutionTime.AutoSize = true;
+            this.ExecutionTime.Location = new System.Drawing.Point(628, 415);
+            this.ExecutionTime.Name = "ExecutionTime";
+            this.ExecutionTime.Size = new System.Drawing.Size(13, 13);
+            this.ExecutionTime.TabIndex = 40;
+            this.ExecutionTime.Text = "0";
+            // 
             // TrainPerformanceAnalysis
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1421,6 +1443,8 @@
         private System.Windows.Forms.CheckBox CulleranRanges;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.CheckBox HunterValley;
+        private System.Windows.Forms.Label ExecutionTime;
+        private System.Windows.Forms.Label ExecutionTimeLabel;
     }
 }
 

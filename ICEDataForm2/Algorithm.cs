@@ -650,13 +650,16 @@ namespace TrainPerformance
                     simulationOverpoweredIncreasing, simulationOverpoweredDecreasing);
 
                 /* Generate some statistical information for the aggregated data. */
-                List<Train> PacificNational = interpolatedRecords.Where(t => t.TrainJourney[0].Operator == trainOperator.PacificNational).ToList();
-                List<Train> Aurizon = interpolatedRecords.Where(t => t.TrainJourney[0].Operator == trainOperator.Aurizon).ToList();
+                List<Train> PacificNationalIncreasing = interpolatedRecords.Where(t => t.TrainJourney[0].Operator == trainOperator.PacificNational).Where(t => t.TrainJourney[0].trainDirection == direction.increasing).ToList();
+                List<Train> PacificNationalDecreasing = interpolatedRecords.Where(t => t.TrainJourney[0].Operator == trainOperator.PacificNational).Where(t => t.TrainJourney[0].trainDirection == direction.decreasing).ToList();
+                List<Train> AurizonIncreasing = interpolatedRecords.Where(t => t.TrainJourney[0].Operator == trainOperator.Aurizon).Where(t => t.TrainJourney[0].trainDirection == direction.increasing).ToList();
+                List<Train> AurizonDecreasing = interpolatedRecords.Where(t => t.TrainJourney[0].Operator == trainOperator.Aurizon).Where(t => t.TrainJourney[0].trainDirection == direction.decreasing).ToList();
                 
                 /* Calcualte the statistics on each group. */
-                stats.Add(Statistics.generateStats(PacificNational, "Pacific National"));
-                stats.Add(Statistics.generateStats(Aurizon, "Aurizon"));
-                stats.Add(Statistics.generateStats(interpolatedRecords, "Combined"));
+                stats.Add(Statistics.generateStats(PacificNationalIncreasing, "Pacific National Increasing"));
+                stats.Add(Statistics.generateStats(PacificNationalDecreasing, "Pacific National Decreasing"));
+                stats.Add(Statistics.generateStats(AurizonIncreasing, "Aurizon Increasing"));
+                stats.Add(Statistics.generateStats(AurizonDecreasing, "Aurizon Decreasing"));
                 
 
             }
@@ -677,10 +680,10 @@ namespace TrainPerformance
                 stats.Add(Statistics.generateStats(interpolatedRecords, "Combined"));
 
             }
-            stats.Add(Statistics.generateStats(increasing, "Increasing"));
-            stats.Add(Statistics.generateStats(decreasing, "Decreasing"));
 
-            
+            stats.Add(Statistics.generateStats(increasing, "Combined Increasing"));
+            stats.Add(Statistics.generateStats(decreasing, "Combined Decreasing"));
+                
             /* Seperate averages for P/W ratio groups, commodity, Operator */
             /* AverageByPower2Weight    -> powerToWeightAverageSpeed
              * AverageByCommodity       -> not written

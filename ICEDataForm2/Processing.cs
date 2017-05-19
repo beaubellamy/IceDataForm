@@ -758,7 +758,7 @@ namespace TrainPerformance
                 }
 
                 /* Create the interpolated data object and add it to the list. */
-                InterpolatedTrain item = new InterpolatedTrain("Simulated Train", "Simulated Loco", trainOperator.simulated, powerToWeight, simTime, currentKm, interpolatedSpeed, loop, TSR, TSRspeed);
+                InterpolatedTrain item = new InterpolatedTrain("Simulated Train", "Simulated Loco", trainOperator.Simulated, powerToWeight, simTime, currentKm, interpolatedSpeed, loop, TSR, TSRspeed);
                 simulatedInterpolation.Add(item);
 
                 /* Create a copy of the current km marker and increment. */
@@ -1675,7 +1675,7 @@ namespace TrainPerformance
 
                 double kilometerage = Settings.startKm + Settings.interval / 1000 * journeyIdx;
                 
-                double elevation = trackGeometry[TrainPerformanceAnalysis.track.findClosestTrackGeometryPoint(trackGeometry, kilometerage)].elevation; 
+                double elevation = trackGeometry[TrainPerformanceAnalysis.track.findClosestTrackGeometryPoint(trackGeometry, kilometerage)].elevation;
 
                 /* Add the averages to the list. */
                 averagedTrainData item = new averagedTrainData(kilometerage, elevation, pacificNationalIncreasingAverage, pacificNatiolDecreasingAverage,
