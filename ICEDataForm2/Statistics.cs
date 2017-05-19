@@ -45,12 +45,16 @@ namespace TrainPerformance
             foreach (Train train in trains)
             {
                 /* Calculate the distance travelled for each train */
-                double distanceTravelled = (train.TrainJourney.Where(t => t.speed > 0).Max(t => t.geometryKm) - train.TrainJourney.Where(t => t.speed > 0).Min(t => t.geometryKm));
+                double distanceTravelled = 0;
+                if (train.TrainJourney.Where(t => t.speed > 0).Count() != 0)
+                {
+                    distanceTravelled = (train.TrainJourney.Where(t => t.speed > 0).Max(t => t.geometryKm) - train.TrainJourney.Where(t => t.speed > 0).Min(t => t.geometryKm));
+                    /* Calcualte the average speed of the train journey. */
+                    speed.Add(train.TrainJourney.Where(t => t.speed > 0).Average(t => t.speed));
+                }
+
                 distance.Add(distanceTravelled);
-
-                /* Calcualte the average speed of the train journey. */
-                speed.Add(train.TrainJourney.Where(t => t.speed > 0).Average(t => t.speed));
-
+                
                 /* Add he power to weight ratio to the list. */
                 power2Weight.Add(train.TrainJourney[0].powerToWeight);
 

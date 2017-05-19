@@ -12,7 +12,7 @@ namespace TrainPerformance
     /// Enumerated direction of the train km's.
     /// </summary>
     public enum direction { increasing, decreasing, invalid, notSpecified };
-    public enum trainOperator { PacificNational, Aurizon, simulated, unknown};
+    public enum trainOperator { PacificNational, Aurizon, Simulated, unknown};
 
     /// <summary>
     /// A class to hold the train details of each record.
@@ -612,7 +612,7 @@ namespace TrainPerformance
 
             //List<Train> testTrainRecords = new List<Train>();
             //testTrainRecords = MakeTrains(trackGeometry, OrderdTrainRecords, TSRs);
-            
+
             List<Train> CleanTrainRecords = new List<Train>();
             CleanTrainRecords = CleanData(trackGeometry, OrderdTrainRecords, TSRs);
                         
@@ -620,6 +620,7 @@ namespace TrainPerformance
             /******** Should only be required while we are waiting for the data in the prefered format ********/
             List<Train> interpolatedRecords = new List<Train>();
             interpolatedRecords = processing.interpolateTrainData(CleanTrainRecords, trackGeometry);
+            //interpolatedRecords = processing.interpolateTrainData(testTrainRecords, trackGeometry);
 
             /**************************************************************************************************/
 
@@ -635,11 +636,11 @@ namespace TrainPerformance
             FileOperations.writeTrainData(interpolatedRecords);
 
            
-
+            /* Genearate the statistics lists. */
             List<Statistics> stats = new List<Statistics>();
-            Type type = typeof(Statistics);
-            int n = type.GetProperties().Length;
-
+            List<Train> increasing = interpolatedRecords.Where(t => t.TrainJourney[0].trainDirection == direction.increasing).ToList();
+            List<Train> decreasing = interpolatedRecords.Where(t => t.TrainJourney[0].trainDirection == direction.decreasing).ToList();
+                
             /* Average the train data for each direction with regard for TSR's and loop locations. */
             List<averagedTrainData> averageData = new List<averagedTrainData>();
 
@@ -652,16 +653,33 @@ namespace TrainPerformance
                 List<Train> PacificNational = interpolatedRecords.Where(t => t.TrainJourney[0].Operator == trainOperator.PacificNational).ToList();
                 List<Train> Aurizon = interpolatedRecords.Where(t => t.TrainJourney[0].Operator == trainOperator.Aurizon).ToList();
                 
+                /* Calcualte the statistics on each group. */
                 stats.Add(Statistics.generateStats(PacificNational, "Pacific National"));
                 stats.Add(Statistics.generateStats(Aurizon, "Aurizon"));
                 stats.Add(Statistics.generateStats(interpolatedRecords, "Combined"));
+                
 
             }
             else
             {
                 averageData = processing.powerToWeightAverageSpeed(interpolatedRecords, trackGeometry, simulationUnderpoweredIncreasing, simulationUnderpoweredDecreasing,
                     simulationOverpoweredIncreasing, simulationOverpoweredDecreasing);
+
+                /* Generate some statistical information for the aggregated data. */
+                List<Train> underpoweredTrains = interpolatedRecords.Where(t => t.TrainJourney[0].powerToWeight > Settings.underpoweredLowerBound &&
+                    t.TrainJourney[0].powerToWeight > Settings.underpoweredLowerBound).ToList();
+                List<Train> overpoweredTrains = interpolatedRecords.Where(t => t.TrainJourney[0].powerToWeight > Settings.overpoweredLowerBound &&
+                    t.TrainJourney[0].powerToWeight > Settings.overpoweredLowerBound).ToList();
+
+                /* Calcualte the statistics on each group. */
+                stats.Add(Statistics.generateStats(underpoweredTrains, "Underpowered Trains"));
+                stats.Add(Statistics.generateStats(overpoweredTrains, "Overpowered Trains"));
+                stats.Add(Statistics.generateStats(interpolatedRecords, "Combined"));
+
             }
+            stats.Add(Statistics.generateStats(increasing, "Increasing"));
+            stats.Add(Statistics.generateStats(decreasing, "Decreasing"));
+
             
             /* Seperate averages for P/W ratio groups, commodity, Operator */
             /* AverageByPower2Weight    -> powerToWeightAverageSpeed
@@ -834,7 +852,7 @@ namespace TrainPerformance
         }
 
         /// <summary>
-        /// Contruct a list of Trains with individual train journey and details
+        /// Construct a list of Trains with individual train journey and details
         /// </summary>
         /// <param name="trackGeometry">A list of track Geometry objects</param>
         /// <param name="trainRecords">List of TrainDetail objects</param>

@@ -89,16 +89,24 @@ namespace TrainPerformance
                     /* Seperate each record into each field */
                     fields = line.Split(delimeters);
 
-                    TrainID = fields[9];//22
-                    locoID = fields[3];//12
-                    /* needs to perform tests */
-                    double.TryParse(fields[16], out speed);//20
-                    double.TryParse(fields[13], out kmPost);//10
-                    double.TryParse(fields[2], out latitude);//11
-                    double.TryParse(fields[4], out longitude);//13
-                    DateTime.TryParse(fields[6], out NotificationDateTime);//14
-                    //double.TryParse(fields[18], out powerToWeight);//25
+                    TrainID = fields[8];
+                    locoID = fields[3];
+
+                    /* Ensure values are valid while reading them out. */
+                    double.TryParse(fields[14], out speed);
+                    double.TryParse(fields[11], out kmPost);
+                    double.TryParse(fields[2], out latitude);
+                    double.TryParse(fields[4], out longitude);
+                    DateTime.TryParse(fields[6], out NotificationDateTime);
+                    //double.TryParse(fields[18], out powerToWeight);
+
                     /* possible TSR information as well*/
+                    /* TSR region
+                     * Start km
+                     * end km
+                     * TSR issue Data
+                     * TSR lift date
+                     */
                                         
                     /* Check if the train is in the exclude list */
                     includeTrain = excludeTrainList.Contains(TrainID);
@@ -843,10 +851,7 @@ namespace TrainPerformance
             string[,] statisticsHeader = {{"Statistics:"}, {"Number Of Trains"}, {"Average Distance Travelled"}, {"Average Speed"}, {"Average P/W Ratio"}, {"P/W standard Deviation" }};
             string[,] totalStatistics = new string[statisticsHeader.GetLength(0), stats.Count()];
 
-            int a = statisticsHeader.GetLength(0);
-            int b = statisticsHeader.GetLength(1);
-
-
+            
             for (int index = 0; index < stats.Count();  index++)
             {
                 totalStatistics[0,index] = stats[index].catagory;
@@ -919,8 +924,9 @@ namespace TrainPerformance
                 worksheet.get_Range("J" + headerOffset, "J" + (headerOffset + excelPageSize - 1)).Value2 = isTSRhere;
 
                 //stats.numberOfTrains
-                Microsoft.Office.Interop.Excel.Range topLeft = (Microsoft.Office.Interop.Excel.Range)worksheet.Cells[statisticsHeader.GetLength(1), 13];    // M1
-                Microsoft.Office.Interop.Excel.Range bottomRight = (Microsoft.Office.Interop.Excel.Range)worksheet.Cells[statisticsHeader.GetLength(0), 15];    // O6
+                int column = 13;
+                Microsoft.Office.Interop.Excel.Range topLeft = (Microsoft.Office.Interop.Excel.Range)worksheet.Cells[statisticsHeader.GetLength(1), column];    // M1
+                Microsoft.Office.Interop.Excel.Range bottomRight = (Microsoft.Office.Interop.Excel.Range)worksheet.Cells[statisticsHeader.GetLength(0), column + totalStatistics.GetLength(1)-1];    // O6
 
                 worksheet.get_Range("L1", "L6").Value2 = statisticsHeader;
                 worksheet.get_Range(topLeft, bottomRight).Value2 = totalStatistics;
