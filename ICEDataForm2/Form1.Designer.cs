@@ -127,6 +127,13 @@
             this.DataFileLabel = new System.Windows.Forms.Label();
             this.simIceDataFile = new System.Windows.Forms.TextBox();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.alternativeFileLabel = new System.Windows.Forms.Label();
+            this.alternativeDecreasingFile = new System.Windows.Forms.TextBox();
+            this.alternativeIncreasingFile = new System.Windows.Forms.TextBox();
+            this.button3 = new System.Windows.Forms.Button();
+            this.button4 = new System.Windows.Forms.Button();
+            this.ExecutionTime = new System.Windows.Forms.Label();
+            this.ExecutionTimeLabel = new System.Windows.Forms.Label();
             this.ResultLabel = new System.Windows.Forms.Label();
             this.ResultsDestination = new System.Windows.Forms.TextBox();
             this.DestinationFolder = new System.Windows.Forms.Button();
@@ -141,8 +148,7 @@
             this.underpoweredIncreasingSimulationFile = new System.Windows.Forms.TextBox();
             this.selectDecreasingSimulation = new System.Windows.Forms.Button();
             this.selectIncreasingSimulation = new System.Windows.Forms.Button();
-            this.ExecutionTimeLabel = new System.Windows.Forms.Label();
-            this.ExecutionTime = new System.Windows.Forms.Label();
+            this.Ulan = new System.Windows.Forms.CheckBox();
             this.SimualtionFileTab.SuspendLayout();
             this.fileSelectionTab.SuspendLayout();
             this.processingTab.SuspendLayout();
@@ -164,6 +170,7 @@
             // 
             // fileSelectionTab
             // 
+            this.fileSelectionTab.Controls.Add(this.Ulan);
             this.fileSelectionTab.Controls.Add(this.HunterValley);
             this.fileSelectionTab.Controls.Add(this.label3);
             this.fileSelectionTab.Controls.Add(this.Tarcoola2Kalgoorlie);
@@ -1134,6 +1141,11 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.alternativeFileLabel);
+            this.tabPage1.Controls.Add(this.alternativeDecreasingFile);
+            this.tabPage1.Controls.Add(this.alternativeIncreasingFile);
+            this.tabPage1.Controls.Add(this.button3);
+            this.tabPage1.Controls.Add(this.button4);
             this.tabPage1.Controls.Add(this.ExecutionTime);
             this.tabPage1.Controls.Add(this.ExecutionTimeLabel);
             this.tabPage1.Controls.Add(this.ResultLabel);
@@ -1156,6 +1168,69 @@
             this.tabPage1.TabIndex = 3;
             this.tabPage1.Text = "Simulation File Selection";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // alternativeFileLabel
+            // 
+            this.alternativeFileLabel.AutoSize = true;
+            this.alternativeFileLabel.Location = new System.Drawing.Point(17, 194);
+            this.alternativeFileLabel.Name = "alternativeFileLabel";
+            this.alternativeFileLabel.Size = new System.Drawing.Size(57, 13);
+            this.alternativeFileLabel.TabIndex = 45;
+            this.alternativeFileLabel.Text = "Alternative";
+            // 
+            // alternativeDecreasingFile
+            // 
+            this.alternativeDecreasingFile.ForeColor = System.Drawing.SystemColors.InactiveCaptionText;
+            this.alternativeDecreasingFile.Location = new System.Drawing.Point(251, 251);
+            this.alternativeDecreasingFile.Name = "alternativeDecreasingFile";
+            this.alternativeDecreasingFile.Size = new System.Drawing.Size(550, 20);
+            this.alternativeDecreasingFile.TabIndex = 44;
+            this.alternativeDecreasingFile.Text = "<Required>";
+            // 
+            // alternativeIncreasingFile
+            // 
+            this.alternativeIncreasingFile.ForeColor = System.Drawing.SystemColors.InactiveCaptionText;
+            this.alternativeIncreasingFile.Location = new System.Drawing.Point(251, 215);
+            this.alternativeIncreasingFile.Name = "alternativeIncreasingFile";
+            this.alternativeIncreasingFile.Size = new System.Drawing.Size(550, 20);
+            this.alternativeIncreasingFile.TabIndex = 43;
+            this.alternativeIncreasingFile.Text = "<Required>";
+            // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(29, 246);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(163, 28);
+            this.button3.TabIndex = 42;
+            this.button3.Text = "Select Decreasing Simulation";
+            this.button3.UseVisualStyleBackColor = true;
+            // 
+            // button4
+            // 
+            this.button4.Location = new System.Drawing.Point(29, 210);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(163, 28);
+            this.button4.TabIndex = 41;
+            this.button4.Text = "Select Increasing Simulation File";
+            this.button4.UseVisualStyleBackColor = true;
+            // 
+            // ExecutionTime
+            // 
+            this.ExecutionTime.AutoSize = true;
+            this.ExecutionTime.Location = new System.Drawing.Point(628, 415);
+            this.ExecutionTime.Name = "ExecutionTime";
+            this.ExecutionTime.Size = new System.Drawing.Size(13, 13);
+            this.ExecutionTime.TabIndex = 40;
+            this.ExecutionTime.Text = "0";
+            // 
+            // ExecutionTimeLabel
+            // 
+            this.ExecutionTimeLabel.AutoSize = true;
+            this.ExecutionTimeLabel.Location = new System.Drawing.Point(543, 415);
+            this.ExecutionTimeLabel.Name = "ExecutionTimeLabel";
+            this.ExecutionTimeLabel.Size = new System.Drawing.Size(79, 13);
+            this.ExecutionTimeLabel.TabIndex = 39;
+            this.ExecutionTimeLabel.Text = "Execition Time:";
             // 
             // ResultLabel
             // 
@@ -1198,7 +1273,7 @@
             // overpoweredFileLabel
             // 
             this.overpoweredFileLabel.AutoSize = true;
-            this.overpoweredFileLabel.Location = new System.Drawing.Point(26, 178);
+            this.overpoweredFileLabel.Location = new System.Drawing.Point(17, 105);
             this.overpoweredFileLabel.Name = "overpoweredFileLabel";
             this.overpoweredFileLabel.Size = new System.Drawing.Size(71, 13);
             this.overpoweredFileLabel.TabIndex = 20;
@@ -1207,7 +1282,7 @@
             // underpoweredFileLabel
             // 
             this.underpoweredFileLabel.AutoSize = true;
-            this.underpoweredFileLabel.Location = new System.Drawing.Point(26, 24);
+            this.underpoweredFileLabel.Location = new System.Drawing.Point(17, 16);
             this.underpoweredFileLabel.Name = "underpoweredFileLabel";
             this.underpoweredFileLabel.Size = new System.Drawing.Size(77, 13);
             this.underpoweredFileLabel.TabIndex = 19;
@@ -1216,7 +1291,7 @@
             // overpoweredDecreasingSimulationFile
             // 
             this.overpoweredDecreasingSimulationFile.ForeColor = System.Drawing.SystemColors.InactiveCaptionText;
-            this.overpoweredDecreasingSimulationFile.Location = new System.Drawing.Point(260, 271);
+            this.overpoweredDecreasingSimulationFile.Location = new System.Drawing.Point(251, 162);
             this.overpoweredDecreasingSimulationFile.Name = "overpoweredDecreasingSimulationFile";
             this.overpoweredDecreasingSimulationFile.Size = new System.Drawing.Size(550, 20);
             this.overpoweredDecreasingSimulationFile.TabIndex = 18;
@@ -1225,7 +1300,7 @@
             // overpoweredIncreasingSimulationFile
             // 
             this.overpoweredIncreasingSimulationFile.ForeColor = System.Drawing.SystemColors.InactiveCaptionText;
-            this.overpoweredIncreasingSimulationFile.Location = new System.Drawing.Point(260, 211);
+            this.overpoweredIncreasingSimulationFile.Location = new System.Drawing.Point(251, 126);
             this.overpoweredIncreasingSimulationFile.Name = "overpoweredIncreasingSimulationFile";
             this.overpoweredIncreasingSimulationFile.Size = new System.Drawing.Size(550, 20);
             this.overpoweredIncreasingSimulationFile.TabIndex = 17;
@@ -1233,7 +1308,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(38, 266);
+            this.button1.Location = new System.Drawing.Point(29, 157);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(163, 28);
             this.button1.TabIndex = 16;
@@ -1243,7 +1318,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(38, 206);
+            this.button2.Location = new System.Drawing.Point(29, 121);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(163, 28);
             this.button2.TabIndex = 15;
@@ -1254,7 +1329,7 @@
             // underpoweredDecreasingSimulationFile
             // 
             this.underpoweredDecreasingSimulationFile.ForeColor = System.Drawing.SystemColors.InactiveCaptionText;
-            this.underpoweredDecreasingSimulationFile.Location = new System.Drawing.Point(260, 127);
+            this.underpoweredDecreasingSimulationFile.Location = new System.Drawing.Point(251, 73);
             this.underpoweredDecreasingSimulationFile.Name = "underpoweredDecreasingSimulationFile";
             this.underpoweredDecreasingSimulationFile.Size = new System.Drawing.Size(550, 20);
             this.underpoweredDecreasingSimulationFile.TabIndex = 14;
@@ -1263,7 +1338,7 @@
             // underpoweredIncreasingSimulationFile
             // 
             this.underpoweredIncreasingSimulationFile.ForeColor = System.Drawing.SystemColors.InactiveCaptionText;
-            this.underpoweredIncreasingSimulationFile.Location = new System.Drawing.Point(260, 67);
+            this.underpoweredIncreasingSimulationFile.Location = new System.Drawing.Point(251, 37);
             this.underpoweredIncreasingSimulationFile.Name = "underpoweredIncreasingSimulationFile";
             this.underpoweredIncreasingSimulationFile.Size = new System.Drawing.Size(550, 20);
             this.underpoweredIncreasingSimulationFile.TabIndex = 13;
@@ -1271,7 +1346,7 @@
             // 
             // selectDecreasingSimulation
             // 
-            this.selectDecreasingSimulation.Location = new System.Drawing.Point(38, 122);
+            this.selectDecreasingSimulation.Location = new System.Drawing.Point(29, 68);
             this.selectDecreasingSimulation.Name = "selectDecreasingSimulation";
             this.selectDecreasingSimulation.Size = new System.Drawing.Size(163, 28);
             this.selectDecreasingSimulation.TabIndex = 12;
@@ -1281,7 +1356,7 @@
             // 
             // selectIncreasingSimulation
             // 
-            this.selectIncreasingSimulation.Location = new System.Drawing.Point(38, 62);
+            this.selectIncreasingSimulation.Location = new System.Drawing.Point(29, 32);
             this.selectIncreasingSimulation.Name = "selectIncreasingSimulation";
             this.selectIncreasingSimulation.Size = new System.Drawing.Size(163, 28);
             this.selectIncreasingSimulation.TabIndex = 11;
@@ -1289,23 +1364,16 @@
             this.selectIncreasingSimulation.UseVisualStyleBackColor = true;
             this.selectIncreasingSimulation.Click += new System.EventHandler(this.selectUnderpoweredIncreasingSimulationFile_Click);
             // 
-            // ExecutionTimeLabel
+            // Ulan
             // 
-            this.ExecutionTimeLabel.AutoSize = true;
-            this.ExecutionTimeLabel.Location = new System.Drawing.Point(543, 415);
-            this.ExecutionTimeLabel.Name = "ExecutionTimeLabel";
-            this.ExecutionTimeLabel.Size = new System.Drawing.Size(79, 13);
-            this.ExecutionTimeLabel.TabIndex = 39;
-            this.ExecutionTimeLabel.Text = "Execition Time:";
-            // 
-            // ExecutionTime
-            // 
-            this.ExecutionTime.AutoSize = true;
-            this.ExecutionTime.Location = new System.Drawing.Point(628, 415);
-            this.ExecutionTime.Name = "ExecutionTime";
-            this.ExecutionTime.Size = new System.Drawing.Size(13, 13);
-            this.ExecutionTime.TabIndex = 40;
-            this.ExecutionTime.Text = "0";
+            this.Ulan.AutoSize = true;
+            this.Ulan.Location = new System.Drawing.Point(879, 339);
+            this.Ulan.Name = "Ulan";
+            this.Ulan.Size = new System.Drawing.Size(48, 17);
+            this.Ulan.TabIndex = 32;
+            this.Ulan.Text = "Ulan";
+            this.Ulan.UseVisualStyleBackColor = true;
+            this.Ulan.CheckedChanged += new System.EventHandler(this.Ulan_CheckedChanged);
             // 
             // TrainPerformanceAnalysis
             // 
@@ -1445,6 +1513,12 @@
         private System.Windows.Forms.CheckBox HunterValley;
         private System.Windows.Forms.Label ExecutionTime;
         private System.Windows.Forms.Label ExecutionTimeLabel;
+        private System.Windows.Forms.Label alternativeFileLabel;
+        private System.Windows.Forms.TextBox alternativeDecreasingFile;
+        private System.Windows.Forms.TextBox alternativeIncreasingFile;
+        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.CheckBox Ulan;
     }
 }
 

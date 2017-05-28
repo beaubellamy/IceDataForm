@@ -18,6 +18,8 @@ namespace Globalsettings
         public static string underpoweredDecreasingSimulationFile = null;
         public static string overpoweredIncreasingSimulationFile = null;
         public static string overpoweredDecreasingSimulationFile = null;
+        public static string alternativeIncreasingSimulationFile = null;
+        public static string alternativeDecreasingSimulationFile = null;
 
         public static string aggregatedDestination = null;
 

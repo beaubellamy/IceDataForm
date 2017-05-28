@@ -12,7 +12,7 @@ namespace TrainPerformance
     /// Enumerated direction of the train km's.
     /// </summary>
     public enum direction { increasing, decreasing, invalid, notSpecified };
-    public enum trainOperator { PacificNational, Aurizon, Simulated, unknown};
+    public enum trainOperator { PacificNational, Aurizon, Freightliner, Simulated, unknown};
 
     /// <summary>
     /// A class to hold the train details of each record.
@@ -362,6 +362,8 @@ namespace TrainPerformance
         public double underpoweredDecreaseingAverage;
         public double overpoweredIncreaseingAverage;
         public double overpoweredDecreaseingAverage;
+        public double alternativeIncreaseingAverage;
+        public double alternativeDecreaseingAverage;
         public double totalIncreasingAverage;
         public double totalDecreasingAverage;
         public bool isInLoopBoundary;
@@ -378,6 +380,8 @@ namespace TrainPerformance
             this.underpoweredDecreaseingAverage = 0;
             this.overpoweredIncreaseingAverage = 0;
             this.overpoweredDecreaseingAverage = 0;
+            this.alternativeIncreaseingAverage = 0;
+            this.alternativeDecreaseingAverage = 0;
             this.totalIncreasingAverage = 0;
             this.totalDecreasingAverage = 0;
             this.isInLoopBoundary = false;
@@ -393,7 +397,10 @@ namespace TrainPerformance
         /// <param name="underDecreasing">Average Speed at kilometreage for the underpowered category in the decreasing direction.</param>
         /// <param name="overIncreasing">Average Speed at kilometreage for the overpowered category in the increasing direction.</param>
         /// <param name="overDecreasing">Average Speed at kilometreage for the overpowered category in the decreasing direction.</param>
-        /// <param name="loop">Flag indicating if the location is within the boudanry of a loop.</param>
+        /// <param name="totalIncreasing">Average Speed at kilometreage for the weighted average in the increasing direction.</param>
+        /// <param name="totalDecreasing">Average Speed at kilometreage for the weighted average in the decreasing direction.</param>
+        /// <param name="loop">Flag indicating if the location is within the boudary of a loop</param>
+        /// <param name="TSR">Flaag indicating if the location is within the boudary of a TSR</param>
         public averagedTrainData(double km, double elevation, double underIncreasing, double underDecreasing, double overIncreasing, double overDecreasing, 
             double totalIncreasing, double totalDecreasing, bool loop, bool TSR)
         {
@@ -403,6 +410,39 @@ namespace TrainPerformance
             this.underpoweredDecreaseingAverage = underDecreasing;
             this.overpoweredIncreaseingAverage = overIncreasing;
             this.overpoweredDecreaseingAverage = overDecreasing;
+            
+            this.totalIncreasingAverage = totalIncreasing;
+            this.totalDecreasingAverage = totalDecreasing;
+            this.isInLoopBoundary = loop;
+            this.isTSRboundary = TSR;
+        }
+
+        /// <summary>
+        /// averageTrainData Constructor.
+        /// </summary>
+        /// <param name="km">Kilometerage of each location</param>
+        /// <param name="elevation">The elevationof the track at each location</param>
+        /// <param name="underIncreasing">Average Speed at kilometreage for the underpowered category in the increasing direction.</param>
+        /// <param name="underDecreasing">Average Speed at kilometreage for the underpowered category in the decreasing direction.</param>
+        /// <param name="overIncreasing">Average Speed at kilometreage for the overpowered category in the increasing direction.</param>
+        /// <param name="overDecreasing">Average Speed at kilometreage for the overpowered category in the decreasing direction.</param>
+        /// <param name="alternativeIncreasing">Average Speed at kilometreage for the alternative category in the increasing direction.</param>
+        /// <param name="alternativeDecreasing">Average Speed at kilometreage for the alternative category in the decreasing direction.</param>
+        /// <param name="totalIncreasing">Average Speed at kilometreage for the weighted average in the increasing direction.</param>
+        /// <param name="totalDecreasing">Average Speed at kilometreage for the weighted average in the decreasing direction.</param>
+        /// <param name="loop">Flag indicating if the location is within the boudary of a loop</param>
+        /// <param name="TSR">Flaag indicating if the location is within the boudary of a TSR</param>
+        public averagedTrainData(double km, double elevation, double underIncreasing, double underDecreasing, double overIncreasing, double overDecreasing,
+            double alternativeIncreasing, double alternativeDecreasing, double totalIncreasing, double totalDecreasing, bool loop, bool TSR)
+        {
+            this.kilometerage = km;
+            this.elevation = elevation;
+            this.underpoweredIncreaseingAverage = underIncreasing;
+            this.underpoweredDecreaseingAverage = underDecreasing;
+            this.overpoweredIncreaseingAverage = overIncreasing;
+            this.overpoweredDecreaseingAverage = overDecreasing;
+            this.alternativeIncreaseingAverage = alternativeIncreasing;
+            this.alternativeDecreaseingAverage = alternativeDecreasing;
             this.totalIncreasingAverage = totalIncreasing;
             this.totalDecreasingAverage = totalDecreasing;
             this.isInLoopBoundary = loop;
@@ -584,10 +624,43 @@ namespace TrainPerformance
             List<InterpolatedTrain> simulationOverpoweredDecreasing = new List<InterpolatedTrain>();
             simulationOverpoweredDecreasing = processing.interpolateSimulationData(overpoweredDecreasingSimulation, trackGeometry);
 
+            List<InterpolatedTrain> alternativeIncreasing = new List<InterpolatedTrain>();
+            List<InterpolatedTrain> alternativeDecreasing = new List<InterpolatedTrain>();
+                 
             /* Read the data. */
             List<TrainDetails> TrainRecords = new List<TrainDetails>();
             foreach (string batchFile in FileSettings.batchFiles)
                 TrainRecords.AddRange(FileOperations.readICEData(batchFile, excludeTrainList));
+
+//            int numberOfOperators = TrainRecords.Select(t => t.Operator).Distinct().Count();
+            List<trainOperator> operators = TrainRecords.Select(t => t.Operator).Distinct().ToList();
+            operators.Remove(trainOperator.unknown);
+            int numberOfOperators = operators.Count();
+
+            if (numberOfOperators == 2)
+            { 
+                /* Do nothing, The neccessary simulation files have been loaded. */
+            }
+            if (numberOfOperators == 3)
+            { 
+                /* Load another simulation file. */
+                List<simulatedTrain> alternativeIncreasingSimulation = new List<simulatedTrain>();
+                alternativeIncreasingSimulation = FileOperations.readSimulationData(FileSettings.alternativeIncreasingSimulationFile);
+                
+                alternativeIncreasing = processing.interpolateSimulationData(alternativeIncreasingSimulation, trackGeometry);
+
+                List<simulatedTrain> alternativeDecreasingSimulation = new List<simulatedTrain>();
+                alternativeDecreasingSimulation = FileOperations.readSimulationData(FileSettings.alternativeDecreasingSimulationFile);
+                alternativeDecreasingSimulation = underpoweredDecreasingSimulation.OrderBy(t => t.singleLineKm).ToList();
+                
+                alternativeDecreasing = processing.interpolateSimulationData(alternativeDecreasingSimulation, trackGeometry);
+
+            }
+            else
+            {
+                Console.WriteLine("The number of operators in the train list is: " + numberOfOperators);
+            }
+
 
             if (TrainRecords.Count() == 0)
             {
@@ -595,7 +668,6 @@ namespace TrainPerformance
                 return new List<Train>();
             }
 
-            //int a = TrainRecords.Where(t => t.powerToWeight == 0).Count();
             if (TrainRecords.Where(t => t.powerToWeight == 0).Count() == TrainRecords.Count())
                 Settings.resetPowerToWeightBoundariesToZero();
 
@@ -604,8 +676,7 @@ namespace TrainPerformance
             OrderdTrainRecords = TrainRecords.OrderBy(t => t.TrainID).ThenBy(t => t.LocoID).ThenBy(t => t.NotificationDateTime).ThenBy(t => t.kmPost).ToList();
 
 
-
-
+            
             /**************************************************************************************************/
             /* Clean data - remove trains with insufficient data. */
             /******** Should only be required while we are waiting for the data in the prefered format ********/
@@ -615,7 +686,9 @@ namespace TrainPerformance
 
             List<Train> CleanTrainRecords = new List<Train>();
             CleanTrainRecords = CleanData(trackGeometry, OrderdTrainRecords, TSRs);
-                        
+
+
+            
             /* interpolate data */
             /******** Should only be required while we are waiting for the data in the prefered format ********/
             List<Train> interpolatedRecords = new List<Train>();
@@ -623,12 +696,12 @@ namespace TrainPerformance
             //interpolatedRecords = processing.interpolateTrainData(testTrainRecords, trackGeometry);
 
             /**************************************************************************************************/
-
-
+           
 
 
             /* Populate the trains TSR values after interpolation to gain more granularity with TSR boundary. */
-            processing.populateAllTrainsTemporarySpeedRestrictions(interpolatedRecords, TSRs);
+            if (TSRs.Count() > 0)
+                processing.populateAllTrainsTemporarySpeedRestrictions(interpolatedRecords, TSRs);
 
             //List<InterpolatedTrain> unpackedInterpolation = new List<InterpolatedTrain>();
             //unpackedInterpolation = unpackInterpolatedData(interpolatedRecords);
@@ -638,6 +711,7 @@ namespace TrainPerformance
            
             /* Genearate the statistics lists. */
             List<Statistics> stats = new List<Statistics>();
+            // These should be limited by the underpowerd lower P/W and overpowered upper P/W boundaries.
             List<Train> increasing = interpolatedRecords.Where(t => t.TrainJourney[0].trainDirection == direction.increasing).ToList();
             List<Train> decreasing = interpolatedRecords.Where(t => t.TrainJourney[0].trainDirection == direction.decreasing).ToList();
                 
@@ -646,22 +720,40 @@ namespace TrainPerformance
 
             if (Settings.HunterValleyRegion)
             {
-                averageData = processing.operatorAverageSpeed(interpolatedRecords, trackGeometry, simulationUnderpoweredIncreasing, simulationUnderpoweredDecreasing,
-                    simulationOverpoweredIncreasing, simulationOverpoweredDecreasing);
-
                 /* Generate some statistical information for the aggregated data. */
                 List<Train> PacificNationalIncreasing = interpolatedRecords.Where(t => t.TrainJourney[0].Operator == trainOperator.PacificNational).Where(t => t.TrainJourney[0].trainDirection == direction.increasing).ToList();
                 List<Train> PacificNationalDecreasing = interpolatedRecords.Where(t => t.TrainJourney[0].Operator == trainOperator.PacificNational).Where(t => t.TrainJourney[0].trainDirection == direction.decreasing).ToList();
                 List<Train> AurizonIncreasing = interpolatedRecords.Where(t => t.TrainJourney[0].Operator == trainOperator.Aurizon).Where(t => t.TrainJourney[0].trainDirection == direction.increasing).ToList();
                 List<Train> AurizonDecreasing = interpolatedRecords.Where(t => t.TrainJourney[0].Operator == trainOperator.Aurizon).Where(t => t.TrainJourney[0].trainDirection == direction.decreasing).ToList();
+
                 
                 /* Calcualte the statistics on each group. */
                 stats.Add(Statistics.generateStats(PacificNationalIncreasing, "Pacific National Increasing"));
                 stats.Add(Statistics.generateStats(PacificNationalDecreasing, "Pacific National Decreasing"));
                 stats.Add(Statistics.generateStats(AurizonIncreasing, "Aurizon Increasing"));
                 stats.Add(Statistics.generateStats(AurizonDecreasing, "Aurizon Decreasing"));
-                
 
+                if (numberOfOperators == 2)
+                    averageData = processing.operatorAverageSpeed(interpolatedRecords, trackGeometry, simulationUnderpoweredIncreasing, simulationUnderpoweredDecreasing,
+                            simulationOverpoweredIncreasing, simulationOverpoweredDecreasing);
+                else if (numberOfOperators == 3)
+                {
+                    List<Train> FreightLinerIncreasing = interpolatedRecords.Where(t => t.TrainJourney[0].Operator == trainOperator.Freightliner).Where(t => t.TrainJourney[0].trainDirection == direction.increasing).ToList();
+                    List<Train> FreightLinerDecreasing = interpolatedRecords.Where(t => t.TrainJourney[0].Operator == trainOperator.Freightliner).Where(t => t.TrainJourney[0].trainDirection == direction.decreasing).ToList();
+                
+                    stats.Add(Statistics.generateStats(FreightLinerIncreasing, "FreightLiner Increasing"));
+                    stats.Add(Statistics.generateStats(FreightLinerDecreasing, "FreightLiner Decreasing"));
+
+                    averageData = processing.operatorAverageSpeed(interpolatedRecords, trackGeometry, simulationUnderpoweredIncreasing, simulationUnderpoweredDecreasing,
+                           simulationOverpoweredIncreasing, simulationOverpoweredDecreasing, alternativeIncreasing, alternativeDecreasing);
+                }
+                else
+                {
+                    /* this is not supported */
+                }
+
+               
+                
             }
             else
             {
@@ -669,16 +761,25 @@ namespace TrainPerformance
                     simulationOverpoweredIncreasing, simulationOverpoweredDecreasing);
 
                 /* Generate some statistical information for the aggregated data. */
-                List<Train> underpoweredTrains = interpolatedRecords.Where(t => t.TrainJourney[0].powerToWeight > Settings.underpoweredLowerBound &&
-                    t.TrainJourney[0].powerToWeight > Settings.underpoweredLowerBound).ToList();
-                List<Train> overpoweredTrains = interpolatedRecords.Where(t => t.TrainJourney[0].powerToWeight > Settings.overpoweredLowerBound &&
-                    t.TrainJourney[0].powerToWeight > Settings.overpoweredLowerBound).ToList();
-
+                List<Train> underpoweredIncreasing = interpolatedRecords.Where(t => t.TrainJourney[0].powerToWeight > Settings.underpoweredLowerBound).
+                    Where(t => t.TrainJourney[0].powerToWeight <= Settings.underpoweredUpperBound).
+                    Where(t => t.TrainJourney[0].trainDirection == direction.increasing).ToList();
+                List<Train> underpoweredDecreasing = interpolatedRecords.Where(t => t.TrainJourney[0].powerToWeight > Settings.underpoweredLowerBound).
+                    Where(t => t.TrainJourney[0].powerToWeight <= Settings.underpoweredUpperBound).
+                    Where(t => t.TrainJourney[0].trainDirection == direction.decreasing).ToList();
+                List<Train> overpoweredIncreasing = interpolatedRecords.Where(t => t.TrainJourney[0].powerToWeight > Settings.overpoweredLowerBound).
+                    Where(t => t.TrainJourney[0].powerToWeight <= Settings.overpoweredUpperBound).
+                    Where(t => t.TrainJourney[0].trainDirection == direction.increasing).ToList();
+                List<Train> overpoweredDecreasing = interpolatedRecords.Where(t => t.TrainJourney[0].powerToWeight > Settings.overpoweredLowerBound).
+                    Where(t => t.TrainJourney[0].powerToWeight <= Settings.overpoweredUpperBound).
+                    Where(t => t.TrainJourney[0].trainDirection == direction.decreasing).ToList();
+                
                 /* Calcualte the statistics on each group. */
-                stats.Add(Statistics.generateStats(underpoweredTrains, "Underpowered Trains"));
-                stats.Add(Statistics.generateStats(overpoweredTrains, "Overpowered Trains"));
-                stats.Add(Statistics.generateStats(interpolatedRecords, "Combined"));
-
+                stats.Add(Statistics.generateStats(underpoweredIncreasing, "Underpowered Increasing"));
+                stats.Add(Statistics.generateStats(underpoweredDecreasing, "Underpowered Decreasing"));
+                stats.Add(Statistics.generateStats(overpoweredIncreasing, "Overpowered Increasing"));
+                stats.Add(Statistics.generateStats(overpoweredDecreasing, "Overpowered Decreasing"));
+                
             }
 
             stats.Add(Statistics.generateStats(increasing, "Combined Increasing"));
@@ -770,13 +871,13 @@ namespace TrainPerformance
 
                     /* Validate the direction of train */
                     Train item = new Train();
-                    bool HunterValley = true;
+                    //bool HunterValley = true;
                     
-                    if (HunterValley)
-                        trainOperator = whoIsOperator(newTrainList[0].LocoID);
+                    //if (HunterValley)
+                    //    trainOperator = whoIsOperator(newTrainList[0].LocoID);
 
                     item.TrainJourney = newTrainList.ToList();
-                    processing.populateOperator(item, trainOperator);
+                    //processing.populateOperator(item, trainOperator);
                     processing.populateDirection(item, trackGeometry);
 
                     /* remove the train if the direction is not valid. */
@@ -822,12 +923,12 @@ namespace TrainPerformance
 
                     /* Validate the direction of train */
                     Train lastItem = new Train();
-                    bool HunterValley = true;
-                    if (HunterValley)
-                        trainOperator = whoIsOperator(newTrainList[0].LocoID);
+                    //bool HunterValley = true;
+                    //if (HunterValley)
+                    //    trainOperator = whoIsOperator(newTrainList[0].LocoID);
 
                     lastItem.TrainJourney = newTrainList.ToList();
-                    processing.populateOperator(lastItem, trainOperator);
+                    //processing.populateOperator(lastItem, trainOperator);
                     processing.populateDirection(lastItem, trackGeometry);
 
                     /* remove the train if the direction is not valid. */
@@ -894,12 +995,12 @@ namespace TrainPerformance
 
                     /* Validate the direction of train */
                     Train item = new Train();
-                    bool HunterValley = true;
-                    if (HunterValley)
-                        trainOperator = whoIsOperator(newTrainList[0].LocoID);
+                    //bool HunterValley = true;
+                    //if (HunterValley)
+                    //    trainOperator = whoIsOperator(newTrainList[0].LocoID);
 
                     item.TrainJourney = newTrainList.ToList();
-                    processing.populateOperator(item, trainOperator);
+                    //processing.populateOperator(item, trainOperator);
                     processing.populateDirection(item, trackGeometry);
 
                     /* Determine the actual km, and populate the loops and TSR information. */
@@ -929,12 +1030,12 @@ namespace TrainPerformance
 
                     /* Validate the direction of train */
                     Train lastItem = new Train();
-                    bool HunterValley = true;
-                    if (HunterValley)
-                        trainOperator = whoIsOperator(newTrainList[0].LocoID);
+                    //bool HunterValley = true;
+                    //if (HunterValley)
+                    //    trainOperator = whoIsOperator(newTrainList[0].LocoID);
 
                     lastItem.TrainJourney = newTrainList.ToList();
-                    processing.populateOperator(lastItem, trainOperator);
+                    //processing.populateOperator(lastItem, trainOperator);
                     processing.populateDirection(lastItem, trackGeometry);
 
                     /* If all points are aceptable, add the train journey to the cleaned list. */
@@ -1007,18 +1108,27 @@ namespace TrainPerformance
         /// </summary>
         /// <param name="locoID">The Loco ID of the train</param>
         /// <returns>The name of the train operator.</returns>
-        private static trainOperator whoIsOperator(string locoID)
-        {
-            double aurizon = 0;
-            double.TryParse(locoID, out aurizon);
+        //private static trainOperator whoIsOperator(string locoID)
+        //{
+        //    /*
+        //     * describe assumptions around loco values
+        //     */
+        //    double LocoNumber = 0;
+        //    double.TryParse(locoID, out LocoNumber);
 
-            if (locoID.Substring(0, 2).Equals("TT", StringComparison.OrdinalIgnoreCase))
-                return trainOperator.PacificNational;  //"Pacific National";
-            else if (aurizon >= 5000)
-                return trainOperator.Aurizon; // "Aurizon";
-            else
-                return trainOperator.unknown; // "Unknown";
-        }
+        //    /* New method:
+        //     * Determine if LocoID is a number or string
+        //     * add conditions for all permutations
+        //     */
+
+        //    if (locoID.Substring(0, 2).Equals("TT", StringComparison.OrdinalIgnoreCase))
+        //        return trainOperator.PacificNational;  //"Pacific National";
+        //    else if (LocoNumber >= 5000)
+        //        return trainOperator.Aurizon; // "Aurizon";
+        //    else
+        //        return trainOperator.unknown; // "Unknown";
+
+        //}
 
         
 

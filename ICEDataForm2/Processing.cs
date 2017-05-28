@@ -547,6 +547,8 @@ namespace TrainPerformance
         /// <returns>List of train objects with interpolated values at the specified interval.</returns>
         public List<Train> interpolateTrainData(List<Train> trains, List<TrackGeometry> trackGeometry)
         {
+            int a = 0;
+
             /* Placeholders for the interpolated distance markers. */
             double previousKm = 0;
             double currentKm = 0;
@@ -577,7 +579,9 @@ namespace TrainPerformance
             /* Cycle through each train to interpolate between points. */
             for (int trainIdx = 0; trainIdx < trains.Count(); trainIdx++)
             {
-                
+                if (trainIdx == 2412)
+                    index0 = -1;
+
                 /* Create a new journey list of interpolated values. */
                 List<InterpolatedTrain> interpolatedTrainList = new List<InterpolatedTrain>();
                 
@@ -589,7 +593,9 @@ namespace TrainPerformance
 
                 while (currentKm < Settings.endKm)
                 {
-                    
+                    if (currentKm >= 337)
+                        a = 0;
+
                     /* Find the closest kilometerage markers either side of the current interpolation point. */
                     index0 = findClosestLowerKm(currentKm, journey);
                     index1 = findClosestGreaterKm(currentKm, journey);
@@ -606,6 +612,14 @@ namespace TrainPerformance
                             time = journey[index0].NotificationDateTime;
                             timeChange = false;
                         }
+
+                        if (Y0 > 200)
+                            Console.WriteLine("Train ID: "+journey[index0].TrainID+", Loco ID: "+journey[index0].LocoID+", Date: "+journey[index0].NotificationDateTime.ToString()+
+                                ", km Post: "+journey[index0].kmPost+", speed:"+journey[index0].speed);
+
+                        if (Y1 > 200)
+                            Console.WriteLine("Train ID: " + journey[index1].TrainID + ", Loco ID: " + journey[index1].LocoID + ", Date: " + journey[index1].NotificationDateTime.ToString() +
+                                ", km Post: " + journey[index1].kmPost + ", speed:" + journey[index1].speed);
 
                         /* Perform linear interpolation. */
                         interpolatedSpeed = linear(currentKm, X0, X1, Y0, Y1);
@@ -633,9 +647,18 @@ namespace TrainPerformance
                     }
 
                     /* Create the interpolated data object and add it to the list. */
-                    InterpolatedTrain item = new InterpolatedTrain(trains[trainIdx].TrainJourney[0].TrainID, trains[trainIdx].TrainJourney[0].LocoID, trains[trainIdx].TrainJourney[0].Operator, 
-                                                                    trains[trainIdx].TrainJourney[0].powerToWeight, time, currentKm, interpolatedSpeed, loop, TSR, TSRspeed);
-                    interpolatedTrainList.Add(item);
+                    try
+                    {
+                        InterpolatedTrain item = new InterpolatedTrain(trains[trainIdx].TrainJourney[0].TrainID, trains[trainIdx].TrainJourney[0].LocoID, trains[trainIdx].TrainJourney[0].Operator,
+                                                                        trains[trainIdx].TrainJourney[0].powerToWeight, time, currentKm, interpolatedSpeed, loop, TSR, TSRspeed);
+                        interpolatedTrainList.Add(item);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Adding interpolated point: " + e.ToString());
+                    }
+
+
 
                     /* Create a copy of the current km marker and increment. */
                     previousKm = currentKm;
@@ -649,9 +672,16 @@ namespace TrainPerformance
                 }
 
                 /* Add the interpolated list to the list of new train objects. */
-                Train trainItem = new Train(interpolatedTrainList, journey[0].trainDirection);
-                newTrainList.Add(trainItem);
-                               
+                try
+                {
+                    Train trainItem = new Train(interpolatedTrainList, journey[0].trainDirection);
+                    newTrainList.Add(trainItem);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Adding a new interpolated train: " + e.ToString());
+                }
+
             }
 
             /* Return the completed interpolated train data. */
@@ -1686,7 +1716,414 @@ namespace TrainPerformance
 
             return averageSpeed;
         }
-        
+
+        public List<averagedTrainData> operatorAverageSpeed(List<Train> trains, List<TrackGeometry> trackGeometry,
+                                                                List<InterpolatedTrain> pacificNationalIncreasingSimulation, List<InterpolatedTrain> pacificNationalDecreasingSimulation,
+                                                                List<InterpolatedTrain> aurizonIncreasingSimulation, List<InterpolatedTrain> aurizonDecreasingSimulation,
+                                                                List<InterpolatedTrain> freightlinerIncreasingSimulation, List<InterpolatedTrain> freightlinerDecreasingSimulation)
+        {
+            /* Declare the local variables to store the sum and averages. */
+            double pacificNationalIncreasingSum, pacificNationalDecreasingSum, aurizonIncreasingSum, aurizonDecreasingSum, freightlinerIncreasingSum, freightlinerDecreasingSum ,totalIncreasingSum, totalDecreasingSum;
+            double pacificNationalIncreasingAverage, pacificNatiolDecreasingAverage, aurizonIncreasingAverage, aurizonDecreasingAverage, freightlinerIncreasingAverage, freightlinerDecreasingAverage, totalIncreasingAverage, totalDecreasingAverage;
+            double pacificNationalIncreasingWeight, pacificNationalDecreasingWeight, aurizonIncreasingWeight, aurizonDecreasingWeight, freightlinerIncreasingWeight, freightlinerDecreasingWeight;
+
+            bool isInLoopBoundary = false;
+            bool isInTSRBoundary = false;
+            List<bool> TSRList = new List<bool>();
+
+            /* Calculate the number of elements in the array/list. */
+            int size = (int)((Settings.endKm - Settings.startKm) / (Settings.interval / 1000));
+
+            /* Place holders for the included speeds and the resulting average speed at each location. */
+            List<double> pacificNationalIncreasingSpeed = new List<double>();
+            List<double> pacificNationalDecreasingSpeed = new List<double>();
+            List<double> aurizonIncreasingSpeed = new List<double>();
+            List<double> aurizonDecreasingSpeed = new List<double>();
+            List<double> freightlinerIncreasingSpeed = new List<double>();
+            List<double> freightlinerDecreasingSpeed = new List<double>();
+            
+            List<double> totalIncreasingSpeed = new List<double>();
+            List<double> totalDecreasingSpeed = new List<double>();
+
+            List<averagedTrainData> averageSpeed = new List<averagedTrainData>();
+
+            TrainDetails journey = new TrainDetails();
+
+            /* Loop through each interpolated location. */
+            for (int journeyIdx = 0; journeyIdx < size; journeyIdx++)
+            {
+                /* Initialise the sums and the speed lists. */
+                pacificNationalIncreasingSum = 0;
+                pacificNationalDecreasingSum = 0;
+                aurizonIncreasingSum = 0;
+                aurizonDecreasingSum = 0;
+                freightlinerIncreasingSum = 0;
+                freightlinerDecreasingSum = 0;
+                totalIncreasingSum = 0;
+                totalDecreasingSum = 0;
+
+                pacificNationalIncreasingWeight = 0;
+                pacificNationalDecreasingWeight = 0;
+                aurizonIncreasingWeight = 0;
+                aurizonDecreasingWeight = 0;
+                freightlinerIncreasingWeight = 0;
+                freightlinerDecreasingWeight = 0;
+
+                pacificNationalIncreasingSpeed.Clear();
+                pacificNationalDecreasingSpeed.Clear();
+                aurizonIncreasingSpeed.Clear();
+                aurizonDecreasingSpeed.Clear();
+                freightlinerIncreasingSpeed.Clear();
+                freightlinerDecreasingSpeed.Clear();
+                totalDecreasingSpeed.Clear();
+                totalIncreasingSpeed.Clear();
+
+                TSRList.Clear();
+
+                /* Loop through each train. */
+                foreach (Train train in trains)
+                {
+
+                    journey = train.TrainJourney[journeyIdx];
+
+                    /* Seperate the averages for each direction. */
+                    if (journey.trainDirection == direction.increasing)
+                    {
+
+                        /* Is there a TSR that applies */
+                        if (!withinTemporarySpeedRestrictionBoundaries(train, journey.geometryKm))
+                        {
+                            TSRList.Add(false);
+
+                            /* Check train is not within the loop boundaries */
+                            if (!isTrainInLoopBoundary(train, journey.geometryKm))
+                            {
+                                //isInLoopBoundary = false;
+
+                                if (train.TrainJourney[0].Operator == trainOperator.PacificNational)
+                                {
+                                    /* Underpowered increasing trains. */
+                                    pacificNationalIncreasingSpeed.Add(journey.speed);
+                                    pacificNationalIncreasingSum = pacificNationalIncreasingSum + journey.speed;
+
+                                    totalIncreasingSpeed.Add(journey.speed);
+                                    totalIncreasingSum = totalIncreasingSum + journey.speed;
+
+                                    pacificNationalIncreasingWeight++;
+                                }
+
+                                if (train.TrainJourney[0].Operator == trainOperator.Aurizon)
+                                {
+                                    /* Overpowered incerasing trains. */
+                                    aurizonIncreasingSpeed.Add(journey.speed);
+                                    aurizonIncreasingSum = aurizonIncreasingSum + journey.speed;
+
+                                    totalIncreasingSpeed.Add(journey.speed);
+                                    totalIncreasingSum = totalIncreasingSum + journey.speed;
+
+                                    aurizonIncreasingWeight++;
+                                }
+
+                                if (train.TrainJourney[0].Operator == trainOperator.Freightliner)
+                                {
+                                    /* Underpowered increasing trains. */
+                                    freightlinerIncreasingSpeed.Add(journey.speed);
+                                    freightlinerIncreasingSum = freightlinerIncreasingSum + journey.speed;
+
+                                    totalIncreasingSpeed.Add(journey.speed);
+                                    totalIncreasingSum = totalIncreasingSum + journey.speed;
+
+                                    freightlinerIncreasingWeight++;
+                                }
+
+                            }
+                            else
+                            {
+                                isInLoopBoundary = true;
+
+                                /* Train is within the loop boundaries */
+                                if (train.TrainJourney[0].Operator == trainOperator.PacificNational)
+                                {
+                                    /* Underpowered increasing trains. */
+                                    if (journey.speed > (pacificNationalIncreasingSimulation[journeyIdx].speed * Settings.loopSpeedThreshold))
+                                    {
+                                        pacificNationalIncreasingSpeed.Add(journey.speed);
+                                        pacificNationalIncreasingSum = pacificNationalIncreasingSum + journey.speed;
+
+                                        totalIncreasingSpeed.Add(journey.speed);
+                                        totalIncreasingSum = totalIncreasingSum + journey.speed;
+
+                                        pacificNationalIncreasingWeight++;
+                                    }
+                                }
+
+                                if (train.TrainJourney[0].Operator == trainOperator.Aurizon)
+                                {
+                                    /* Overpowered incerasing trains. */
+                                    if (journey.speed > (aurizonIncreasingSimulation[journeyIdx].speed * Settings.loopSpeedThreshold))
+                                    {
+                                        aurizonIncreasingSpeed.Add(journey.speed);
+                                        aurizonIncreasingSum = aurizonIncreasingSum + journey.speed;
+
+                                        totalIncreasingSpeed.Add(journey.speed);
+                                        totalIncreasingSum = totalIncreasingSum + journey.speed;
+
+                                        aurizonIncreasingWeight++;
+                                    }
+                                }
+
+                                if (train.TrainJourney[0].Operator == trainOperator.Freightliner)
+                                {
+                                    /* Overpowered incerasing trains. */
+                                    if (journey.speed > (freightlinerIncreasingSimulation[journeyIdx].speed * Settings.loopSpeedThreshold))
+                                    {
+                                        freightlinerIncreasingSpeed.Add(journey.speed);
+                                        freightlinerIncreasingSum = freightlinerIncreasingSum + journey.speed;
+
+                                        totalIncreasingSpeed.Add(journey.speed);
+                                        totalIncreasingSum = totalIncreasingSum + journey.speed;
+
+                                        freightlinerIncreasingWeight++;
+                                    }
+                                }
+
+                            }
+                        }
+                        else
+                        {
+                            /* A TSR applies to the current position of the train. */
+                            TSRList.Add(true);
+
+                            /* We dont want to include the speed in the aggregation if the train is within the
+                             * bundaries of a TSR and is forced to slow down.  
+                             */
+                            if (train.TrainJourney[0].Operator == trainOperator.PacificNational)
+                                pacificNationalIncreasingWeight++;
+
+                            if (train.TrainJourney[0].Operator == trainOperator.Aurizon)
+                                aurizonIncreasingWeight++;
+
+                            if (train.TrainJourney[0].Operator == trainOperator.Freightliner)
+                                freightlinerIncreasingWeight++;
+
+
+                        }
+                    }
+                    else if (journey.trainDirection == direction.decreasing)
+                    {
+
+                        /* Is there a TSR that applies */
+                        if (!withinTemporarySpeedRestrictionBoundaries(train, journey.geometryKm))
+                        {
+                            TSRList.Add(false);
+
+                            /* Check train is not within the loop boundaries */
+                            if (!isTrainInLoopBoundary(train, journey.geometryKm))
+                            {
+                                isInLoopBoundary = false;
+
+                                if (train.TrainJourney[0].Operator == trainOperator.PacificNational)
+                                {
+                                    /* Underpowered decreasing trains. */
+                                    pacificNationalDecreasingSpeed.Add(journey.speed);
+                                    pacificNationalDecreasingSum = pacificNationalDecreasingSum + journey.speed;
+
+                                    totalDecreasingSpeed.Add(journey.speed);
+                                    totalDecreasingSum = totalDecreasingSum + journey.speed;
+
+                                    pacificNationalDecreasingWeight++;
+
+                                }
+
+                                if (train.TrainJourney[0].Operator == trainOperator.Aurizon)
+                                {
+                                    /* Overpowered decerasing trains. */
+                                    aurizonDecreasingSpeed.Add(journey.speed);
+                                    aurizonDecreasingSum = aurizonDecreasingSum + journey.speed;
+
+                                    totalDecreasingSpeed.Add(journey.speed);
+                                    totalDecreasingSum = totalDecreasingSum + journey.speed;
+
+                                    aurizonDecreasingWeight++;
+
+                                }
+
+                                if (train.TrainJourney[0].Operator == trainOperator.Freightliner)
+                                {
+                                    /* Underpowered increasing trains. */
+                                    freightlinerDecreasingSpeed.Add(journey.speed);
+                                    freightlinerDecreasingSum = freightlinerDecreasingSum + journey.speed;
+
+                                    totalDecreasingSpeed.Add(journey.speed);
+                                    totalDecreasingSum = totalDecreasingSum + journey.speed;
+
+                                    freightlinerDecreasingWeight++;
+                                }
+
+                            }
+                            else
+                            {
+                                isInLoopBoundary = true;
+                                /* Train is within the loop boundaries */
+                                if (train.TrainJourney[0].Operator == trainOperator.PacificNational)
+                                {
+                                    /* Underpowered decreasing trains. */
+                                    if (journey.speed > (pacificNationalDecreasingSimulation[journeyIdx].speed * Settings.loopSpeedThreshold))
+                                    {
+                                        pacificNationalDecreasingSpeed.Add(journey.speed);
+                                        pacificNationalDecreasingSum = pacificNationalDecreasingSum + journey.speed;
+
+                                        totalDecreasingSpeed.Add(journey.speed);
+                                        totalDecreasingSum = totalDecreasingSum + journey.speed;
+
+                                        pacificNationalDecreasingWeight++;
+                                    }
+                                }
+
+                                if (train.TrainJourney[0].Operator == trainOperator.Aurizon)
+                                {
+                                    /* overpowered decreasing trains. */
+                                    if (journey.speed > (aurizonDecreasingSimulation[journeyIdx].speed * Settings.loopSpeedThreshold))
+                                    {
+                                        aurizonDecreasingSpeed.Add(journey.speed);
+                                        aurizonDecreasingSum = aurizonDecreasingSum + journey.speed;
+
+                                        totalDecreasingSpeed.Add(journey.speed);
+                                        totalDecreasingSum = totalDecreasingSum + journey.speed;
+
+                                        aurizonDecreasingWeight++;
+                                    }
+                                }
+
+                                if (train.TrainJourney[0].Operator == trainOperator.Freightliner)
+                                {
+                                    /* Overpowered incerasing trains. */
+                                    if (journey.speed > (freightlinerDecreasingSimulation[journeyIdx].speed * Settings.loopSpeedThreshold))
+                                    {
+                                        freightlinerDecreasingSpeed.Add(journey.speed);
+                                        freightlinerDecreasingSum = freightlinerDecreasingSum + journey.speed;
+
+                                        totalDecreasingSpeed.Add(journey.speed);
+                                        totalDecreasingSum = totalDecreasingSum + journey.speed;
+
+                                        freightlinerDecreasingWeight++;
+                                    }
+                                }
+
+
+                            }
+                        }
+                        else
+                        {
+                            /* A TSR applies to the current position of the train. */
+                            TSRList.Add(true);
+
+                            /* We dont want to include the speed in the aggregation if the train is within the
+                             * bundaries of a TSR and is forced to slow down.  
+                             */
+                            if (train.TrainJourney[0].Operator == trainOperator.PacificNational)
+                                pacificNationalDecreasingWeight++;
+
+                            if (train.TrainJourney[0].Operator == trainOperator.Aurizon)
+                                aurizonDecreasingWeight++;
+
+                            if (train.TrainJourney[0].Operator == trainOperator.Freightliner)
+                                freightlinerDecreasingWeight++;
+
+                        }
+                    }
+                    else
+                    {
+                        /* No direction specified. */
+                    }
+
+                }
+
+                int TSRTrueCount = TSRList.Where(t => t == true).Count();
+
+                if (TSRTrueCount > 0)
+                    isInTSRBoundary = true;
+                else
+                    isInTSRBoundary = false;
+
+                /* If the TSR applied the whole analysis period, the simualtion speed is used. */
+                if (TSRTrueCount == TSRList.Count())
+                {
+                    pacificNationalIncreasingAverage = pacificNationalIncreasingSimulation[journeyIdx].speed;
+                    pacificNatiolDecreasingAverage = pacificNationalDecreasingSimulation[journeyIdx].speed;
+                    aurizonIncreasingAverage = aurizonIncreasingSimulation[journeyIdx].speed;
+                    aurizonDecreasingAverage = aurizonDecreasingSimulation[journeyIdx].speed;
+                    freightlinerIncreasingAverage = freightlinerIncreasingSimulation[journeyIdx].speed;
+                    freightlinerDecreasingAverage = freightlinerDecreasingSimulation[journeyIdx].speed;
+                    
+                    /* Calcualte the weighted average of the simualtions for the total power catagory. */
+                    double totalIncreasing = (pacificNationalIncreasingAverage * pacificNationalIncreasingWeight + aurizonIncreasingAverage * aurizonIncreasingWeight + freightlinerIncreasingWeight * freightlinerIncreasingAverage) /
+                        (pacificNationalIncreasingWeight + aurizonIncreasingWeight + freightlinerIncreasingWeight);
+                    double totalDecreasing = (pacificNatiolDecreasingAverage * pacificNationalDecreasingWeight + aurizonDecreasingAverage * aurizonDecreasingWeight + freightlinerDecreasingWeight * freightlinerDecreasingAverage) /
+                        (pacificNationalDecreasingWeight + aurizonDecreasingWeight + freightlinerDecreasingWeight);
+
+                    totalIncreasingAverage = totalIncreasing;
+                    totalDecreasingAverage = totalDecreasing;
+                }
+                else
+                {
+                    /* Calcualte the average speed for each category at each location. */
+                    if (pacificNationalIncreasingSpeed.Count() == 0 || pacificNationalIncreasingSum == 0)
+                        pacificNationalIncreasingAverage = 0.0; //underpoweredIncreasingSimulation[journeyIdx].speed;
+                    else
+                        pacificNationalIncreasingAverage = pacificNationalIncreasingSpeed.Where(x => x > 0.0).Average(x => x);
+
+                    if (pacificNationalDecreasingSpeed.Count() == 0 || pacificNationalDecreasingSum == 0)
+                        pacificNatiolDecreasingAverage = 0.0; //underpoweredDecreasingSimulation[journeyIdx].speed;
+                    else
+                        pacificNatiolDecreasingAverage = pacificNationalDecreasingSpeed.Where(x => x > 0.0).Average(x => x);
+
+                    if (aurizonIncreasingSpeed.Count() == 0 || aurizonIncreasingSum == 0)
+                        aurizonIncreasingAverage = 0.0; //overpoweredIncreasingSimulation[journeyIdx].speed;
+                    else
+                        aurizonIncreasingAverage = aurizonIncreasingSpeed.Where(x => x > 0.0).Average(x => x);
+
+                    if (aurizonDecreasingSpeed.Count() == 0 || aurizonDecreasingSum == 0)
+                        aurizonDecreasingAverage = 0.0; //overpoweredDecreasingSimulation[journeyIdx].speed;
+                    else
+                        aurizonDecreasingAverage = aurizonDecreasingSpeed.Where(x => x > 0.0).Average(x => x);
+
+                    if (freightlinerIncreasingSpeed.Count() == 0 || freightlinerIncreasingSum == 0)
+                        freightlinerIncreasingAverage = 0.0; //overpoweredIncreasingSimulation[journeyIdx].speed;
+                    else
+                        freightlinerIncreasingAverage = freightlinerIncreasingSpeed.Where(x => x > 0.0).Average(x => x);
+
+                    if (freightlinerDecreasingSpeed.Count() == 0 || freightlinerDecreasingSum == 0)
+                        freightlinerDecreasingAverage = 0.0; //overpoweredDecreasingSimulation[journeyIdx].speed;
+                    else
+                        freightlinerDecreasingAverage = freightlinerDecreasingSpeed.Where(x => x > 0.0).Average(x => x);
+
+                    if (totalIncreasingSpeed.Count() == 0 || totalIncreasingSum == 0)
+                        totalIncreasingAverage = 0.0; //journey.speed;
+                    else
+                        totalIncreasingAverage = totalIncreasingSpeed.Where(x => x > 0.0).Average(x => x);
+
+                    if (totalDecreasingSpeed.Count() == 0 || totalDecreasingSum == 0)
+                        totalDecreasingAverage = 0.0; //journey.speed;
+                    else
+                        totalDecreasingAverage = totalDecreasingSpeed.Where(x => x > 0.0).Average(x => x);
+                }
+
+                double kilometerage = Settings.startKm + Settings.interval / 1000 * journeyIdx;
+
+                double elevation = trackGeometry[TrainPerformanceAnalysis.track.findClosestTrackGeometryPoint(trackGeometry, kilometerage)].elevation;
+
+                /* Add the averages to the list. */
+                averagedTrainData item = new averagedTrainData(kilometerage, elevation, pacificNationalIncreasingAverage, pacificNatiolDecreasingAverage,
+                    aurizonIncreasingAverage, aurizonDecreasingAverage, freightlinerIncreasingAverage, freightlinerDecreasingAverage, 
+                    totalIncreasingAverage, totalDecreasingAverage, isInLoopBoundary, isInTSRBoundary);
+                averageSpeed.Add(item);
+
+            }
+
+            return averageSpeed;
+        }
+
         /// <summary>
         /// Calculate the average power to weight ratio of all trains within a band for a given direction of travel.
         /// </summary>

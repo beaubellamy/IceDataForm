@@ -20,44 +20,35 @@ namespace TrainPerformance
 
 
         /// <summary>
-        /// Read the ICE data file in to a list of Train records taht will be analysed
-        /// The file is assumed to be in a specific format.
+        /// This function reads the data file that should be created using Tableau to extract 
+        /// the Data into a csv/txt file. 
+        /// The function produces a list of train records which can then be cleaned and 
+        /// seperated into individual train journies. The data can then be analysed as 
+        /// individual trains.
+        /// The assumed format is described below:
         /// 
-        /// 1       Alarms
-        /// 2       Exclude
-        /// 3       TrainID - Exclude
-        /// 4       Train Shortlist
-        /// 5       TrainCount
-        /// 6       Direction
-        /// 7       Extract Date Time
-        /// 8       Faults
-        /// 9       Insert Date Time
-        /// 10      Journey ID	
-        /// 11      KM Post	
-        /// 12      Latitude	
-        /// 13      Loco ID	
-        /// 14      Longitude	
-        /// 15      Notification Date Time	
-        /// 16      Notification Date	
-        /// 17      Notification Time	
-        /// 18      Notification Type	
-        /// 19      Number of Records	
-        /// 20      Source System	
-        /// 21      Speed	
-        /// 22      Track Number	
-        /// 23      Train ID	
-        /// 24      Update Date Time
-        /// 25      Version ID
+        /// 1       Latitude
+        /// 2       Locomotive Code (Loco ID)
+        /// 3       Longitude
+        /// 4       Extract Date Time [Poll Movement] (Notification Date Time)
+        /// 5       Operator Name
+        /// 6       RAMS Commodity Description
+        /// 7       Train ID [Poll Movement]
+        /// 8       Horse Power (Power to Weight Ratio)
+        /// 9       KM Post
+        /// 10      Speed
         /// </summary>
         /// <param name="filename">The filename of the ICE data</param>
+        /// <param name="excludeTrainList">A list of trains to exclude from teh analysis</param>
         /// <returns>The list of trainDetails objects containnig each valid record.</returns>
         public static List<TrainDetails> readICEData(string filename, List<string> excludeTrainList)
         {
+            int a = 0;
             /* Read all the lines of the data file. */
             isFileOpen(filename);
                         
             string[] lines = System.IO.File.ReadAllLines(filename);
-            char[] delimeters = { ',', '\t' };
+            char[] delimeters = { '\t' };
 
             /* Seperate the fields. */
             string[] fields = lines[0].Split(delimeters);
@@ -65,7 +56,10 @@ namespace TrainPerformance
             /* Initialise the fields of interest. */
             string TrainID = "none";
             string locoID = "none";
-            double powerToWeight = 1.0;
+            trainOperator Operator = trainOperator.unknown;
+            string subOperator = null;
+            string commodity = "none";
+            double powerToWeight = 0.0;
             double speed = 0.0;
             double kmPost = 0.0;
             double geometryKm = 0.0;
@@ -89,16 +83,39 @@ namespace TrainPerformance
                     /* Seperate each record into each field */
                     fields = line.Split(delimeters);
 
-                    TrainID = fields[8];
-                    locoID = fields[3];
+                    TrainID = fields[6];
+                    locoID = fields[1];
+                    if (fields[4].Count() >= 3)
+                        subOperator = fields[4].Substring(0,3);
+                    
+                    switch (subOperator)
+                    { 
+                        case "Aur": // Aurizon
+                            Operator = trainOperator.Aurizon;
+                            break;  
+                        case "Pac": // Pac Nat - [Coal / - Intermodal / -Rural & Bulk], Pacific Nat - ADHOC GRAIN
+                            Operator = trainOperator.PacificNational;
+                            break;
+                        case "Fre": // Freightliner
+                            Operator = trainOperator.Freightliner;
+                            break;
+                        default:    // Australian Rail Track Corporation, RailCorp
+                            Operator = trainOperator.unknown;
+                            break;
+                    }
+
+
+                    commodity = fields[5];
 
                     /* Ensure values are valid while reading them out. */
-                    double.TryParse(fields[14], out speed);
-                    double.TryParse(fields[11], out kmPost);
-                    double.TryParse(fields[2], out latitude);
-                    double.TryParse(fields[4], out longitude);
-                    DateTime.TryParse(fields[6], out NotificationDateTime);
-                    //double.TryParse(fields[18], out powerToWeight);
+                    double.TryParse(fields[9], out speed);
+                    double.TryParse(fields[8], out kmPost);
+                    double.TryParse(fields[0], out latitude);
+                    double.TryParse(fields[2], out longitude);
+                    DateTime.TryParse(fields[3], out NotificationDateTime);
+                    double.TryParse(fields[7], out powerToWeight);
+
+                    // Assign appropriate value for operator, and comodity
 
                     /* possible TSR information as well*/
                     /* TSR region
@@ -107,7 +124,7 @@ namespace TrainPerformance
                      * TSR issue Data
                      * TSR lift date
                      */
-                                        
+
                     /* Check if the train is in the exclude list */
                     includeTrain = excludeTrainList.Contains(TrainID);
 
@@ -116,9 +133,10 @@ namespace TrainPerformance
                         NotificationDateTime >= Settings.dateRange[0] && NotificationDateTime < Settings.dateRange[1] &&
                         !includeTrain)
                     {
-                        TrainDetails record = new TrainDetails(TrainID, locoID, trainOperator.unknown, powerToWeight, NotificationDateTime, latitude, longitude, 
+                        TrainDetails record = new TrainDetails(TrainID, locoID, Operator, powerToWeight, NotificationDateTime, latitude, longitude, 
                             speed, kmPost, geometryKm, direction.notSpecified, false, false, 0);
                         IceRecord.Add(record);
+                                                
                     }
 
                 }
@@ -824,15 +842,29 @@ namespace TrainPerformance
                 totalStatistics[5, index] = stats[index].standardDeviationP2W.ToString();
 
             }
+
+            int catagories = 2;
+
+            if (averageData.Sum(t => t.alternativeIncreaseingAverage) > 0 && averageData.Sum(t => t.alternativeDecreaseingAverage) > 0)
+                catagories = 3;
             
+
             /* Create the header details. */
             string[] headerString = new string[] {};
             if (Settings.HunterValleyRegion)
-                headerString = new string[] { "Kilometreage", "Elevation", "Pacific National Increasing Speed", "Pacific National Decreasing Speed", "Aurizon Increasing Speed", 
-                                        "Aurizon Decreasing Speed", "Total Increasing Speed", "Total Decreasing Speed", "Loop", "TSRs" };
+            {
+                if (catagories == 2)
+                    headerString = new string[] { "Kilometreage", "Elevation", "Pacific National Increasing Speed", "Pacific National Decreasing Speed", 
+                        "Aurizon Increasing Speed", "Aurizon Decreasing Speed", "Weighted Average Increasing Speed", "Weighted Average Decreasing Speed", "Loop", "TSRs" };
+                
+                if (catagories == 3)
+                    headerString = new string[] { "Kilometreage", "Elevation", "Pacific National Increasing Speed", "Pacific National Decreasing Speed", 
+                        "Aurizon Increasing Speed", "Aurizon Decreasing Speed", "Freightliner Increasing Speed", "Freightliner Decreasing Speed", 
+                        "Weighted Average Increasing Speed", "Weighted Average Decreasing Speed", "Loop", "TSRs" };
+            }
             else
                 headerString = new string[] { "Kilometreage", "Elevation", "Underpowered Increasing Speed", "Underpowered Decreasing Speed", "Overpowered Increasing Speed", 
-                                        "Overpowered Decreasing Speed", "Total Increasing Speed", "Total Decreasing Speed", "Loop", "TSRs" };
+                                        "Overpowered Decreasing Speed", "Weighted Average Increasing Speed", "Weighted Average Decreasing Speed", "Loop", "TSRs" };
 
             /* Pagenate the data for writing to excel. */
             int excelPageSize = 1000000;        /* Page size of the excel worksheet. */
@@ -853,6 +885,9 @@ namespace TrainPerformance
             double[,] underpoweredDecreasingSpeed = new double[excelPageSize, 1];   // Pacific National
             double[,] overpoweredIncreasingSpeed = new double[excelPageSize, 1];    // Aurizon
             double[,] overpoweredDecreasingSpeed = new double[excelPageSize, 1];    // Aurizon
+            double[,] alternativeIncreasingSpeed = new double[excelPageSize, 1];    // Freightliner
+            double[,] alternativeDecreasingSpeed = new double[excelPageSize, 1];    // Freightliner
+
             double[,] totalIncreasingSpeed = new double[excelPageSize, 1];
             double[,] totalDecreasingSpeed = new double[excelPageSize, 1];
             string[,] isLoophere = new string[excelPageSize, 1];
@@ -880,6 +915,9 @@ namespace TrainPerformance
                     underpoweredDecreasingSpeed[j, 0] = 0;
                     overpoweredIncreasingSpeed[j, 0] = 0;
                     overpoweredDecreasingSpeed[j, 0] = 0;
+                    alternativeIncreasingSpeed[j, 0] = 0;
+                    alternativeDecreasingSpeed[j, 0] = 0;
+
                     totalIncreasingSpeed[j, 0] = 0;
                     totalDecreasingSpeed[j, 0] = 0;
                     isLoophere[j, 0] = "";
@@ -893,6 +931,11 @@ namespace TrainPerformance
                         underpoweredDecreasingSpeed[j, 0] = averageData[checkIdx].underpoweredDecreaseingAverage;   // Pacific National
                         overpoweredIncreasingSpeed[j, 0] = averageData[checkIdx].overpoweredIncreaseingAverage;     // Aurizon
                         overpoweredDecreasingSpeed[j, 0] = averageData[checkIdx].overpoweredDecreaseingAverage;     // Aurizon
+                        if (catagories == 3)
+                        {
+                            alternativeIncreasingSpeed[j, 0] = averageData[checkIdx].alternativeIncreaseingAverage;     // Freightliner
+                            alternativeDecreasingSpeed[j, 0] = averageData[checkIdx].alternativeDecreaseingAverage;     // Freightliner
+                        }
                         totalIncreasingSpeed[j, 0] = averageData[checkIdx].totalIncreasingAverage;
                         totalDecreasingSpeed[j, 0] = averageData[checkIdx].totalDecreasingAverage;
 
@@ -917,6 +960,8 @@ namespace TrainPerformance
                 worksheet.get_Range("A1", "A6").Value2 = statisticsHeader;
                 worksheet.get_Range(topLeft, bottomRight).Value2 = totalStatistics;
 
+
+                /* Generalise the row and columns */
                 /* Set the data header. */
                 worksheet.get_Range("A9", "J9").Value2 = headerString;
 
@@ -927,11 +972,22 @@ namespace TrainPerformance
                 worksheet.get_Range("D" + headerOffset, "D" + (headerOffset + excelPageSize - 1)).Value2 = underpoweredDecreasingSpeed;     // Pacific National
                 worksheet.get_Range("E" + headerOffset, "E" + (headerOffset + excelPageSize - 1)).Value2 = overpoweredIncreasingSpeed;      // Aurizon
                 worksheet.get_Range("F" + headerOffset, "F" + (headerOffset + excelPageSize - 1)).Value2 = overpoweredDecreasingSpeed;      // Aurizon
-                worksheet.get_Range("G" + headerOffset, "G" + (headerOffset + excelPageSize - 1)).Value2 = totalIncreasingSpeed;
-                worksheet.get_Range("H" + headerOffset, "H" + (headerOffset + excelPageSize - 1)).Value2 = totalDecreasingSpeed;
-                worksheet.get_Range("I" + headerOffset, "I" + (headerOffset + excelPageSize - 1)).Value2 = isLoophere;
-                worksheet.get_Range("J" + headerOffset, "J" + (headerOffset + excelPageSize - 1)).Value2 = isTSRhere;
-
+                if (catagories == 3)
+                {
+                    worksheet.get_Range("G" + headerOffset, "G" + (headerOffset + excelPageSize - 1)).Value2 = alternativeIncreasingSpeed;      // Freightliner
+                    worksheet.get_Range("H" + headerOffset, "H" + (headerOffset + excelPageSize - 1)).Value2 = alternativeDecreasingSpeed;      // Freightliner
+                    worksheet.get_Range("I" + headerOffset, "I" + (headerOffset + excelPageSize - 1)).Value2 = totalIncreasingSpeed;
+                    worksheet.get_Range("J" + headerOffset, "J" + (headerOffset + excelPageSize - 1)).Value2 = totalDecreasingSpeed;
+                    worksheet.get_Range("K" + headerOffset, "K" + (headerOffset + excelPageSize - 1)).Value2 = isLoophere;
+                    worksheet.get_Range("L" + headerOffset, "L" + (headerOffset + excelPageSize - 1)).Value2 = isTSRhere;
+                }
+                else
+                {
+                    worksheet.get_Range("G" + headerOffset, "G" + (headerOffset + excelPageSize - 1)).Value2 = totalIncreasingSpeed;
+                    worksheet.get_Range("H" + headerOffset, "H" + (headerOffset + excelPageSize - 1)).Value2 = totalDecreasingSpeed;
+                    worksheet.get_Range("I" + headerOffset, "I" + (headerOffset + excelPageSize - 1)).Value2 = isLoophere;
+                    worksheet.get_Range("J" + headerOffset, "J" + (headerOffset + excelPageSize - 1)).Value2 = isTSRhere;
+                }
                 
 
             }

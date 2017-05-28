@@ -37,12 +37,8 @@ namespace TrainPerformance
 
             if (sender == selectDataFile)
             {
-                //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - interpolation test.csv";
-                //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\Macarthur to Botany test data.csv";
-                
+                /* Select the data file. */
                 batchFileName = tool.browseFile("Select the data file."); 
-                    //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - sample.csv"; 
-                    //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Macarthur to Botany\raw data - fulltest.csv";
                 IceDataFile.Text = Path.GetFileName(batchFileName);
                 simIceDataFile.Text = Path.GetFileName(batchFileName);
 
@@ -55,7 +51,7 @@ namespace TrainPerformance
             }           
             else if (sender == selectDataFile1)
             {
-                /* Second additional file for batch reading. */
+                /* First additional file for batch reading. */
                 batchFileName = tool.browseFile("Select the data file.");
                 IceDataFile1.Text = Path.GetFileName(batchFileName);                
                 IceDataFile1.ForeColor = System.Drawing.Color.Black;
@@ -65,7 +61,7 @@ namespace TrainPerformance
             }
             else if (sender == selectDataFile2)
             {
-                /* First additional file for batch reading. */
+                /* Second additional file for batch reading. */
                 batchFileName = tool.browseFile("Select the data file.");
                 IceDataFile2.Text = Path.GetFileName(batchFileName);
                 IceDataFile2.ForeColor = System.Drawing.Color.Black;
@@ -206,6 +202,32 @@ namespace TrainPerformance
             overpoweredDecreasingSimulationFile.Text = Path.GetFileName(FileSettings.overpoweredDecreasingSimulationFile);
             overpoweredDecreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
         }
+
+
+        private void selectAlternativeIncreasingSimulationFile_Click(object sender, EventArgs e)
+        {
+            string browseFile = "Select the underpowered increasing km simulation file.";
+            if (getHunterValleyRegion())
+                browseFile = "Select the alternative operator increasing km simulation file.";
+
+            FileSettings.alternativeIncreasingSimulationFile = //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Traxim\2017\Projects\Macarthur to Botany\Botany to Macarthur - All - 3.33_ThuW1.csv";
+                tool.browseFile(browseFile);
+            alternativeIncreasingFile.Text = Path.GetFileName(FileSettings.underpoweredIncreasingSimulationFile);
+            alternativeIncreasingFile.ForeColor = System.Drawing.Color.Black;
+        }
+
+        private void selectAlternativeDecreasingSimulationFile_Click(object sender, EventArgs e)
+        {
+            string browseFile = "Select the alternative operator decreasing km simulation file.";
+            if (getHunterValleyRegion())
+                browseFile = "Select the alternative operator decreasing km simulation file.";
+
+            FileSettings.alternativeDecreasingSimulationFile = //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Traxim\2017\Projects\Macarthur to Botany\Macarthur to Botany - All - 6.97_SatW1.csv";
+            tool.browseFile(browseFile);
+            alternativeDecreasingFile.Text = Path.GetFileName(FileSettings.overpoweredDecreasingSimulationFile);
+            alternativeDecreasingFile.ForeColor = System.Drawing.Color.Black;
+        }
+
 
         /// <summary>
         /// Select the train list file.
@@ -701,7 +723,7 @@ namespace TrainPerformance
         private void GunnedahBasin_Click(object sender, EventArgs e)
         {
             /* Data File */
-            string batchFileName = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin\Gunnedah Basin - BigData.txt";
+            string batchFileName = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin\Gunnedah Basin Data 2016-2017.txt";
                 //@"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Gunnedah Basin\Gunnedah Basin test data.csv";
 
             IceDataFile.Text = Path.GetFileName(batchFileName);
@@ -747,8 +769,8 @@ namespace TrainPerformance
 
             /* Settings */
 
-            fromDate.Value = new DateTime(2016,4,1);
-            toDate.Value = new DateTime(2016,5,1);
+            fromDate.Value = new DateTime(2016,1,1);
+            toDate.Value = new DateTime(2016,10,1);
 
             fromLatitude.Text = "-10";
             toLatitude.Text = "-40";
@@ -1030,6 +1052,99 @@ namespace TrainPerformance
         }
 
         /// <summary>
+        /// This function sets all the testing parameters for the the Ulan line
+        /// </summary>
+        /// <param name="sender">The object container.</param>
+        /// <param name="e">The event arguments.</param>
+        private void Ulan_Click(object sender, EventArgs e)
+        {
+            /* Data File */
+            string batchFileName = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Ulan\Ulan Data 2016-2017.txt";
+
+            IceDataFile.Text = Path.GetFileName(batchFileName);
+            simIceDataFile.Text = Path.GetFileName(batchFileName);
+
+            IceDataFile.ForeColor = System.Drawing.Color.Black;
+            simIceDataFile.ForeColor = System.Drawing.Color.Black;
+
+            if (batchFileName != null || batchFileName != "")
+                FileSettings.batchFiles.Add(batchFileName);
+
+            /* Geometry File */
+            FileSettings.geometryFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Ulan\Ulan Geometry.csv";
+            GeometryFile.Text = Path.GetFileName(FileSettings.geometryFile);
+            GeometryFile.ForeColor = System.Drawing.Color.Black;
+
+            /* TSR File */
+            FileSettings.temporarySpeedRestrictionFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Ulan\Ulan TSR.csv";
+            temporarySpeedRestrictionFile.Text = Path.GetFileName(FileSettings.temporarySpeedRestrictionFile);
+            temporarySpeedRestrictionFile.ForeColor = System.Drawing.Color.Black;
+
+            /* Simulation files */
+            FileSettings.underpoweredIncreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Ulan\Pacific National - Increasing.csv"; //PN - Increasing.csv";
+            underpoweredIncreasingSimulationFile.Text = Path.GetFileName(FileSettings.underpoweredIncreasingSimulationFile);
+            underpoweredIncreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
+
+            FileSettings.underpoweredDecreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Ulan\Pacific National - Decreasing.csv"; //PN - Decreasing.csv";
+            underpoweredDecreasingSimulationFile.Text = Path.GetFileName(FileSettings.underpoweredDecreasingSimulationFile);
+            underpoweredDecreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
+
+            FileSettings.overpoweredIncreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Ulan\Aurizon - Increasing.csv"; //QR - Increasing.csv";
+            overpoweredIncreasingSimulationFile.Text = Path.GetFileName(FileSettings.overpoweredIncreasingSimulationFile);
+            overpoweredIncreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
+
+            FileSettings.overpoweredDecreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Ulan\Aurizon - Decreasing.csv"; //QR - Decreasing.csv";
+            overpoweredDecreasingSimulationFile.Text = Path.GetFileName(FileSettings.overpoweredDecreasingSimulationFile);
+            overpoweredDecreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
+
+            FileSettings.alternativeIncreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Ulan\Freightliner - Increasing.csv"; //Freightliner - Increasing.csv";
+            alternativeIncreasingFile.Text = Path.GetFileName(FileSettings.alternativeIncreasingSimulationFile);
+            alternativeIncreasingFile.ForeColor = System.Drawing.Color.Black;
+
+            FileSettings.alternativeDecreasingSimulationFile = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Ulan\Freightliner - Decreasing.csv"; //Freightliner - Decreasing.csv";
+            alternativeDecreasingFile.Text = Path.GetFileName(FileSettings.alternativeDecreasingSimulationFile);
+            alternativeDecreasingFile.ForeColor = System.Drawing.Color.Black;
+
+            /* Destination Folder */
+            FileSettings.aggregatedDestination = @"S:\Corporate Strategy\Infrastructure Strategies\Simulations\Train Performance Analysis\Ulan";
+            ResultsDestination.Text = FileSettings.aggregatedDestination;
+            ResultsDestination.ForeColor = System.Drawing.Color.Black;
+
+            /* Settings */
+
+            fromDate.Value = new DateTime(2016, 1, 1);
+            toDate.Value = new DateTime(2016, 2, 1);
+
+            fromLatitude.Text = "-10";
+            toLatitude.Text = "-40";
+            fromLongitude.Text = "110";
+            toLongitude.Text = "152";
+
+            includeAListOfTrainsToExclude.Checked = false;
+
+            startInterpolationKm.Text = "280";
+            endInterpolationKm.Text = "460";
+            interpolationInterval.Text = "50";
+            minimumJourneyDistance.Text = "100";
+            distanceThreshold.Text = "4";
+            timeSeparation.Text = "10";
+
+            loopBoundary.Text = "1";
+            loopSpeedFactor.Text = "50";
+            TSRWindowBoundary.Text = "1";
+
+            /* Power to weight ratios done make sense for Ulan analysis, as this is between operators. */
+            underpoweredLowerBound.Text = "0";
+            underpoweredUpperBound.Text = "100";
+            overpoweredLowerBound.Text = "100";
+            overpoweredUpperBound.Text = "200";
+
+            HunterValley.Checked = true;
+
+        }
+
+
+        /// <summary>
         /// This function resets the required lables on the fomr when changing between the 
         /// Hunter Valley region and the Interstate Network.
         /// </summary>
@@ -1046,6 +1161,9 @@ namespace TrainPerformance
                 overpoweredFileLabel.Text = "Aurizon";
                 overpoweredLabel.Text = "Aurizon:";
                 SimOverpoweredLabel.Text = "Aurizon:";
+
+                alternativeFileLabel.Text = "Freightliner";
+
             }
             else 
             {
@@ -1056,6 +1174,8 @@ namespace TrainPerformance
                 overpoweredFileLabel.Text = "Overpowered";
                 overpoweredLabel.Text = "Overpowered:";
                 SimOverpoweredLabel.Text = "Overpowered:";
+
+                alternativeFileLabel.Text = "Alternative";
             }
         }
 
@@ -1085,6 +1205,21 @@ namespace TrainPerformance
             /* If Gunnedah Basin testing flag is checked, set the appropriate parameters. */
             if (GunnedahBasin.Checked)
                 GunnedahBasin_Click(sender, e);
+            else
+                resetDefaultParameters();
+        }
+
+        // <summary>
+        /// Function determines if the testing parameters for the Ulan line need 
+        /// to be set or resets to default settings.
+        /// </summary>
+        /// <param name="sender">The object container.</param>
+        /// <param name="e">The event arguments.</param>
+        private void Ulan_CheckedChanged(object sender, EventArgs e)
+        {
+            /* If Gunnedah Basin testing flag is checked, set the appropriate parameters. */
+            if (Ulan.Checked)
+                Ulan_Click(sender, e);
             else
                 resetDefaultParameters();
         }
@@ -1175,6 +1310,16 @@ namespace TrainPerformance
             overpoweredDecreasingSimulationFile.Text = "<Optional>";
             overpoweredDecreasingSimulationFile.ForeColor = SystemColors.InactiveCaptionText;
 
+            FileSettings.alternativeIncreasingSimulationFile = null;
+            alternativeIncreasingFile.Text = "<Optional>";
+            alternativeIncreasingFile.ForeColor = SystemColors.InactiveCaptionText;
+
+            FileSettings.alternativeDecreasingSimulationFile = null;
+            alternativeDecreasingFile.Text = "<Optional>";
+            alternativeDecreasingFile.ForeColor = SystemColors.InactiveCaptionText;
+
+
+
             /* Destination Folder */
             FileSettings.aggregatedDestination = null;
             ResultsDestination.Text = "<Required>";
@@ -1212,6 +1357,7 @@ namespace TrainPerformance
             
         
         }
+
 
 
     } // Partial Class TrainPerformance
