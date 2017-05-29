@@ -203,7 +203,11 @@ namespace TrainPerformance
             overpoweredDecreasingSimulationFile.ForeColor = System.Drawing.Color.Black;
         }
 
-
+        /// <summary>
+        /// Select the simulation file with increasing km.
+        /// </summary>
+        /// <param name="sender">The object container.</param>
+        /// <param name="e">The event arguments.</param>
         private void selectAlternativeIncreasingSimulationFile_Click(object sender, EventArgs e)
         {
             string browseFile = "Select the underpowered increasing km simulation file.";
@@ -216,6 +220,11 @@ namespace TrainPerformance
             alternativeIncreasingFile.ForeColor = System.Drawing.Color.Black;
         }
 
+        /// <summary>
+        /// Select the simulation file with decreasing km.
+        /// </summary>
+        /// <param name="sender">The object container.</param>
+        /// <param name="e">The event arguments.</param>
         private void selectAlternativeDecreasingSimulationFile_Click(object sender, EventArgs e)
         {
             string browseFile = "Select the alternative operator decreasing km simulation file.";
@@ -227,7 +236,6 @@ namespace TrainPerformance
             alternativeDecreasingFile.Text = Path.GetFileName(FileSettings.overpoweredDecreasingSimulationFile);
             alternativeDecreasingFile.ForeColor = System.Drawing.Color.Black;
         }
-
 
         /// <summary>
         /// Select the train list file.
@@ -1142,7 +1150,6 @@ namespace TrainPerformance
             HunterValley.Checked = true;
 
         }
-
 
         /// <summary>
         /// This function resets the required lables on the fomr when changing between the 

@@ -612,15 +612,7 @@ namespace TrainPerformance
                             time = journey[index0].NotificationDateTime;
                             timeChange = false;
                         }
-
-                        if (Y0 > 200)
-                            Console.WriteLine("Train ID: "+journey[index0].TrainID+", Loco ID: "+journey[index0].LocoID+", Date: "+journey[index0].NotificationDateTime.ToString()+
-                                ", km Post: "+journey[index0].kmPost+", speed:"+journey[index0].speed);
-
-                        if (Y1 > 200)
-                            Console.WriteLine("Train ID: " + journey[index1].TrainID + ", Loco ID: " + journey[index1].LocoID + ", Date: " + journey[index1].NotificationDateTime.ToString() +
-                                ", km Post: " + journey[index1].kmPost + ", speed:" + journey[index1].speed);
-
+                                             
                         /* Perform linear interpolation. */
                         interpolatedSpeed = linear(currentKm, X0, X1, Y0, Y1);
                         /* Interpolate the time. */
@@ -671,17 +663,10 @@ namespace TrainPerformance
 
                 }
 
-                /* Add the interpolated list to the list of new train objects. */
-                try
-                {
-                    Train trainItem = new Train(interpolatedTrainList, journey[0].trainDirection);
-                    newTrainList.Add(trainItem);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Adding a new interpolated train: " + e.ToString());
-                }
-
+                /* Add the interpolated list to the list of new train objects. */         
+                Train trainItem = new Train(interpolatedTrainList, journey[0].trainDirection);
+                newTrainList.Add(trainItem);
+                
             }
 
             /* Return the completed interpolated train data. */
@@ -1391,7 +1376,7 @@ namespace TrainPerformance
         /// <param name="underpoweredDecreasingSimulation">The simulated train journey for the underpowered category in the decreasing direction.</param>
         /// <param name="overpoweredIncreasingSimulation">The simulated train journey for the overpowered category in the increasing direction.</param>
         /// <param name="overpoweredDecreasingSimulation">The simulated train journey for the overpowered category in the decreasing direction.</param>
-        /// <returns>A list of averaged train objects containing the average speed at each location for all four power to weight catagories.</returns>
+        /// <returns>A list of averaged train objects containing the average speed at each location for all four catagories.</returns>
         public List<averagedTrainData> operatorAverageSpeed(List<Train> trains, List<TrackGeometry> trackGeometry,
                                                                 List<InterpolatedTrain> pacificNationalIncreasingSimulation, List<InterpolatedTrain> pacificNationalDecreasingSimulation,
                                                                 List<InterpolatedTrain> aurizonIncreasingSimulation, List<InterpolatedTrain> aurizonDecreasingSimulation)
@@ -1717,6 +1702,19 @@ namespace TrainPerformance
             return averageSpeed;
         }
 
+        /// <summary>
+        /// Determine the average speed of all trains in a each direction by train operator. 
+        /// This would only be valid for the Hunter Valley region.
+        /// </summary>
+        /// <param name="trains">List of trains, each with a trainJourney object.</param>
+        /// <param name="trackGeometry">List of the track geometry point objects.</param>
+        /// <param name="pacificNationalIncreasingSimulation">The simulated train journey for a Pacific National train in the increasing direction.</param>
+        /// <param name="pacificNationalDecreasingSimulation">The simulated train journey for a Pacific National train in the decreasing direction.</param>
+        /// <param name="aurizonIncreasingSimulation">The simulated train journey for a Aurizon train in the increasing direction.</param>
+        /// <param name="aurizonDecreasingSimulation">The simulated train journey for a Aurizon train in the decreasing direction.</param>
+        /// <param name="freightlinerIncreasingSimulation">The simulated train journey for a Freightliner train in the increasing direction.</param>
+        /// <param name="freightlinerDecreasingSimulation">The simulated train journey for a Freightliner train in the increasing direction.</param>
+        /// <returns>A list of averaged train objects containing the average speed at each location for all six catagories.</returns>
         public List<averagedTrainData> operatorAverageSpeed(List<Train> trains, List<TrackGeometry> trackGeometry,
                                                                 List<InterpolatedTrain> pacificNationalIncreasingSimulation, List<InterpolatedTrain> pacificNationalDecreasingSimulation,
                                                                 List<InterpolatedTrain> aurizonIncreasingSimulation, List<InterpolatedTrain> aurizonDecreasingSimulation,

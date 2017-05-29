@@ -963,7 +963,7 @@ namespace TrainPerformance
 
                 /* Generalise the row and columns */
                 /* Set the data header. */
-                worksheet.get_Range("A9", "J9").Value2 = headerString;
+                worksheet.get_Range("A9", "L9").Value2 = headerString;
 
                 /* Write the data to the active excel workseet. */
                 worksheet.get_Range("A" + headerOffset, "A" + (headerOffset + excelPageSize - 1)).Value2 = kilometerage;

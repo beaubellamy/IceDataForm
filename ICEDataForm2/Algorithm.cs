@@ -632,7 +632,6 @@ namespace TrainPerformance
             foreach (string batchFile in FileSettings.batchFiles)
                 TrainRecords.AddRange(FileOperations.readICEData(batchFile, excludeTrainList));
 
-//            int numberOfOperators = TrainRecords.Select(t => t.Operator).Distinct().Count();
             List<trainOperator> operators = TrainRecords.Select(t => t.Operator).Distinct().ToList();
             operators.Remove(trainOperator.unknown);
             int numberOfOperators = operators.Count();
@@ -659,8 +658,9 @@ namespace TrainPerformance
             else
             {
                 Console.WriteLine("The number of operators in the train list is: " + numberOfOperators);
+                throw new ArgumentOutOfRangeException("The number of operators is "+numberOfOperators+", this many operatos are not supported.");
             }
-
+            
 
             if (TrainRecords.Count() == 0)
             {
@@ -749,7 +749,7 @@ namespace TrainPerformance
                 }
                 else
                 {
-                    /* this is not supported */
+                    /* More than 3 operators is not supported. */
                 }
 
                
