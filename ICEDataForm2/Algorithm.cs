@@ -640,7 +640,7 @@ namespace TrainPerformance
             { 
                 /* Do nothing, The neccessary simulation files have been loaded. */
             }
-            if (numberOfOperators == 3)
+            else if (numberOfOperators == 3)
             { 
                 /* Load another simulation file. */
                 List<simulatedTrain> alternativeIncreasingSimulation = new List<simulatedTrain>();
